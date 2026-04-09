@@ -73,6 +73,14 @@ function startGifSlideshow() {
   }, 4000);
 }
 
+// ===== Task 19: Comparison tab switch =====
+function switchCompTab(tab) {
+  document.querySelectorAll('.comp-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('comp-existing').style.display = tab === 'existing' ? 'block' : 'none';
+  document.getElementById('comp-rwai').style.display = tab === 'rwai' ? 'block' : 'none';
+  event.target.classList.add('active');
+}
+
 // ===== Grade helpers (Task 2 colors) =====
 function getGrade(score) {
   if (score >= 80) return 'A';

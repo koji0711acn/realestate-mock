@@ -78,30 +78,126 @@
         </div>
       </div>
 
-      <!-- Section 3: Comparison -->
+      <!-- Part 1: Quantitative Impact -->
       <div class="landing-section">
-        <h2 class="section-title">既存ツールとの違い</h2>
-        <div class="compare-table">
-          <div class="compare-col existing">
-            <div class="compare-col-header">既存ツールの到達点</div>
-            <div class="compare-row-item">単一敷地のボリュームチェック<br><span class="compare-detail">（1敷地ずつ、約15秒）</span></div>
-            <div class="compare-row-item">地図上へのデータ重畳表示<br><span class="compare-detail">（用途地域、ハザード等）</span></div>
-            <div class="compare-row-item">人流シミュレーション<br><span class="compare-detail">（都市計画・防災文脈が中心）</span></div>
-            <div class="compare-row-item">登記変化によるリード抽出<br><span class="compare-detail">（売却可能性の特定まで）</span></div>
+        <div class="impact-cards">
+          <div class="impact-stat-card">
+            <div class="impact-number">90%</div>
+            <div class="impact-label">用地探索期間を短縮</div>
+            <div class="impact-sub">従来3〜4週間 → 数時間で完了</div>
           </div>
-          <div class="compare-arrows">
-            <div class="arrow-line">→</div>
-            <div class="arrow-line">→</div>
-            <div class="arrow-line">→</div>
-            <div class="arrow-line">→</div>
+          <div class="impact-stat-card">
+            <div class="impact-number">100%</div>
+            <div class="impact-label">エリア内全筆を網羅評価</div>
+            <div class="impact-sub">従来は月間10〜20件の手動検討</div>
           </div>
-          <div class="compare-col target">
-            <div class="compare-col-header">Real World AIの到達目標</div>
-            <div class="compare-row-item">エリア内全筆の一括ROI算出と収益性ランキング</div>
-            <div class="compare-row-item">多変量統合による筆単位の魅力度スコアリング<br><span class="compare-detail">（法規・人流・市場・ハザードを統合）</span></div>
-            <div class="compare-row-item">開発計画の各指標・Cap Rate・出口価格への波及推計</div>
-            <div class="compare-row-item">探索→評価→推計→用地取得→ターゲットリスト生成の一気通貫</div>
+          <div class="impact-stat-card">
+            <div class="impact-number">1</div>
+            <div class="impact-label">単一基盤で探索から取得まで</div>
+            <div class="impact-sub">従来は5種のツール＋Excel統合</div>
           </div>
+        </div>
+      </div>
+
+      <!-- Part 2: Interactive Comparison -->
+      <div class="landing-section">
+        <h2 class="section-title" style="font-size:20px">機能別カバレッジ比較</h2>
+        <div class="comp-tabs">
+          <button class="comp-tab active" onclick="switchCompTab('existing')">既存ツール一覧</button>
+          <button class="comp-tab" onclick="switchCompTab('rwai')">Real World AI</button>
+        </div>
+        <div id="comp-existing" class="comp-content">
+          <div class="comp-table-wrap">
+            <table class="comp-matrix">
+              <thead>
+                <tr>
+                  <th>機能領域</th>
+                  <th>つくるAI<br><span class="th-sub">日本</span></th>
+                  <th>JON<br><span class="th-sub">日本</span></th>
+                  <th>国際航業<br><span class="th-sub">日本</span></th>
+                  <th>Deepblocks<br><span class="th-sub">米国</span></th>
+                  <th>Searchland<br><span class="th-sub">英国</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="func-name">候補地の発見</td>
+                  <td><span class="cell-tri" title="住所入力で個別探索">△</span></td>
+                  <td><span class="cell-ok" title="登記変化トリガー抽出">○</span></td>
+                  <td><span class="cell-tri" title="用地情報の地図管理">△</span></td>
+                  <td><span class="cell-ok" title="都市全体フィルタスキャン">○</span></td>
+                  <td><span class="cell-best" title="オフマーケット含むUK全域スキャン">◎</span></td>
+                </tr>
+                <tr>
+                  <td class="func-name">単一敷地の事業性評価</td>
+                  <td><span class="cell-best" title="15秒でボリューム・収益算出">◎</span></td>
+                  <td><span class="cell-no" title="">×</span></td>
+                  <td><span class="cell-ok" title="調査書自動作成">○</span></td>
+                  <td><span class="cell-best" title="マス・財務・PDF一体化">◎</span></td>
+                  <td><span class="cell-ok" title="残余地価・キャッシュフロー">○</span></td>
+                </tr>
+                <tr>
+                  <td class="func-name">エリア全筆の一括評価</td>
+                  <td><span class="cell-no">×</span></td>
+                  <td><span class="cell-no">×</span></td>
+                  <td><span class="cell-no">×</span></td>
+                  <td><span class="cell-tri" title="ビルダブル面積でフィルタ可能">△</span></td>
+                  <td><span class="cell-no">×</span></td>
+                </tr>
+                <tr>
+                  <td class="func-name">開発インパクト→賃料波及推計</td>
+                  <td><span class="cell-no">×</span></td>
+                  <td><span class="cell-no">×</span></td>
+                  <td><span class="cell-no">×</span></td>
+                  <td><span class="cell-no">×</span></td>
+                  <td><span class="cell-no">×</span></td>
+                </tr>
+                <tr>
+                  <td class="func-name">用地取得・ターゲットリスト生成</td>
+                  <td><span class="cell-no">×</span></td>
+                  <td><span class="cell-no">×</span></td>
+                  <td><span class="cell-no">×</span></td>
+                  <td><span class="cell-no">×</span></td>
+                  <td><span class="cell-no">×</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="comp-legend">◎ 主機能として提供 / ○ 対応 / △ 部分的・限定的 / × 未対応または未確認</div>
+        </div>
+        <div id="comp-rwai" class="comp-content" style="display:none">
+          <div class="rwai-card"><div class="rwai-badge cell-best">◎</div><div class="rwai-body"><h4>候補地の発見</h4><p class="rwai-heading">エリア指定で全筆を一括スキャン</p><p>法規制・敷地形状・交通利便性・周辺賃料・ハザードリスクを統合し、筆単位の魅力度スコアを自動算出。売りに出ていないオフマーケット候補も含めて網羅的に評価します。</p></div></div>
+          <div class="rwai-card"><div class="rwai-badge cell-best">◎</div><div class="rwai-body"><h4>事業性評価</h4><p class="rwai-heading">全筆のボリューム・コスト・ROIを即時算出</p><p>エリア内の全候補筆に対して、建築可能容積・概算建築費・想定賃料・ROIを一括で算出。複数評価軸での筆横断ランキングにより、最も有望な土地を瞬時に特定します。</p></div></div>
+          <div class="rwai-card"><div class="rwai-badge cell-best">◎</div><div class="rwai-body"><h4>開発インパクト推計</h4><p class="rwai-heading">施設建設が周辺に与える影響を定量化</p><p>選択した開発シナリオが周辺の賃料相場・空室率・来訪者数に与える影響をシミュレーション。投資判断の根拠となる定量データを提供します。</p></div></div>
+          <div class="rwai-card"><div class="rwai-badge cell-best">◎</div><div class="rwai-body"><h4>用地取得・ターゲットリスト</h4><p class="rwai-heading">地権者分析から優先順位付きリスト生成</p><p>登記情報・売買履歴・地権者属性をAIが分析し、売却可能性の高い地権者を優先順位付きでリスト化。推奨アプローチ方法も提案します。</p></div></div>
+          <div class="rwai-card"><div class="rwai-badge cell-best">◎</div><div class="rwai-body"><h4>統合ワークフロー</h4><p class="rwai-heading">5つのツールを1つの基盤に統合</p><p>候補地発見→事業性評価→インパクト推計→用地取得→ターゲットリスト生成まで、同一の地理空間基盤上でシームレスに接続。ツール間のデータ手動転記やExcel統合が不要になります。</p></div></div>
+        </div>
+      </div>
+
+      <!-- Part 3: Process Before/After -->
+      <div class="landing-section">
+        <h2 class="section-title" style="font-size:20px">業務プロセスの変化</h2>
+        <div class="process-before">
+          <div class="process-label">従来の業務フロー</div>
+          <div class="process-steps">
+            <div class="process-step"><div class="ps-name">候補地選定</div><div class="ps-time">3〜4週間</div><div class="ps-tool">JON等＋手動リスト</div></div>
+            <div class="process-arrow">→</div>
+            <div class="process-step"><div class="ps-name">ボリュームチェック</div><div class="ps-time">1日/件×10件</div><div class="ps-tool">つくるAI等</div></div>
+            <div class="process-arrow">→</div>
+            <div class="process-step"><div class="ps-name">周辺影響調査</div><div class="ps-time">外注2週間</div><div class="ps-tool">コンサル委託</div></div>
+            <div class="process-arrow">→</div>
+            <div class="process-step"><div class="ps-name">稟議資料作成</div><div class="ps-time">3日</div><div class="ps-tool">Excel＋PPT</div></div>
+            <div class="process-arrow">→</div>
+            <div class="process-step"><div class="ps-name">地権者調査</div><div class="ps-time">1週間</div><div class="ps-tool">登記手動取得</div></div>
+          </div>
+          <div class="process-total">合計: 約6〜8週間 / 使用ツール: 5種以上</div>
+        </div>
+        <div class="process-after">
+          <div class="process-label" style="color:#185FA5">Real World AI 導入後</div>
+          <div class="process-unified">
+            <span>エリア指定</span><span>→</span><span>全筆評価</span><span>→</span><span>インパクト推計</span><span>→</span><span>用地取得分析</span><span>→</span><span>ターゲットリスト生成</span>
+          </div>
+          <div class="process-result">所要時間: 数時間 / 単一基盤 / データ手動転記ゼロ</div>
         </div>
       </div>
 

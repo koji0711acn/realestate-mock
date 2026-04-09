@@ -276,6 +276,204 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
   margin-top: 14px;
 }
 
+/* ===== Task 19: Impact Stats ===== */
+.impact-cards {
+  display: flex;
+  gap: 24px;
+}
+.impact-stat-card {
+  flex: 1;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 24px;
+  text-align: center;
+  border: 1px solid #f0f0f0;
+}
+.impact-number {
+  font-size: 48px;
+  font-weight: 500;
+  color: #185FA5;
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+.impact-label { font-size: 14px; color: #666; margin-bottom: 4px; }
+.impact-sub { font-size: 12px; color: #999; }
+
+/* Task 19: Comparison Tabs */
+.comp-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 20px;
+}
+.comp-tab {
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #888;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.comp-tab.active { color: #185FA5; border-bottom-color: #185FA5; }
+.comp-tab:hover { color: #185FA5; }
+
+/* Comparison Matrix */
+.comp-table-wrap { overflow-x: auto; }
+.comp-matrix {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.comp-matrix th {
+  background: #f7f8fa;
+  padding: 10px 8px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 12px;
+  color: #555;
+  border-bottom: 1px solid #e0e0e0;
+}
+.comp-matrix .th-sub { font-size: 10px; color: #aaa; font-weight: 400; }
+.comp-matrix td {
+  padding: 10px 8px;
+  text-align: center;
+  border-bottom: 1px solid #f0f0f0;
+}
+.comp-matrix .func-name {
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  font-size: 12px;
+}
+.cell-best {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 4px;
+  background: #E8F5E9;
+  color: #2E7D32;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: default;
+}
+.cell-ok {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 4px;
+  background: #E3F2FD;
+  color: #1565C0;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: default;
+}
+.cell-tri {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 4px;
+  background: #FFF3E0;
+  color: #E65100;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: default;
+}
+.cell-no {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 4px;
+  background: #f5f5f5;
+  color: #ccc;
+  font-weight: 700;
+  font-size: 13px;
+}
+.comp-legend {
+  font-size: 11px;
+  color: #999;
+  margin-top: 12px;
+  text-align: center;
+}
+
+/* RWAI Cards */
+.rwai-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: #fff;
+  border-radius: 8px;
+  border-left: 4px solid #185FA5;
+  padding: 20px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.rwai-badge { flex-shrink: 0; margin-top: 2px; }
+.rwai-body { flex: 1; }
+.rwai-body h4 { font-size: 12px; color: #888; margin-bottom: 4px; font-weight: 600; }
+.rwai-heading { font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 6px; }
+.rwai-body p { font-size: 13px; color: #555; line-height: 1.7; }
+
+/* Process Before/After */
+.process-before {
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.process-after {
+  background: #EBF2FF;
+  border-radius: 8px;
+  padding: 20px;
+  border-left: 4px solid #185FA5;
+}
+.process-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 14px;
+}
+.process-steps {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.process-step {
+  background: #fff;
+  border-radius: 6px;
+  padding: 10px 12px;
+  text-align: center;
+  flex: 1;
+  min-width: 100px;
+  border: 1px solid #e8e8e8;
+}
+.ps-name { font-size: 12px; font-weight: 600; color: #333; margin-bottom: 4px; }
+.ps-time { font-size: 11px; color: #c0392b; font-weight: 600; }
+.ps-tool { font-size: 10px; color: #999; margin-top: 2px; }
+.process-arrow { font-size: 14px; color: #bbb; flex-shrink: 0; }
+.process-total { font-size: 12px; color: #888; text-align: right; }
+.process-unified {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(90deg, #185FA5 0%, #2196F3 100%);
+  color: #fff;
+  padding: 14px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+.process-result {
+  font-size: 13px;
+  color: #2d8a4e;
+  font-weight: 600;
+  text-align: center;
+}
+
 /* ===== Screen 1-4: Map Layout ===== */
 #screen-map {
   display: none;
