@@ -18,13 +18,42 @@
 </head>
 <body>
 
-  <!-- ===== Screen 0: Landing (Task 7) ===== -->
-  <div id="screen0">
+  <!-- ===== Login Screen (Task 11) ===== -->
+  <div id="screen-login">
+    <div class="login-card">
+      <div class="login-logo">Real World AI</div>
+      <div class="login-sub">for Real Estate — Demo Access</div>
+      <div class="login-form">
+        <label class="login-label" for="login-id">ID</label>
+        <input type="text" id="login-id" class="login-input" placeholder="Enter your ID">
+        <label class="login-label" for="login-pass">Password</label>
+        <input type="password" id="login-pass" class="login-input" placeholder="Enter your password">
+        <div id="login-error" class="login-error"></div>
+        <button id="btn-login" class="login-btn">ログイン</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Screen 0: Landing ===== -->
+  <div id="screen0" style="display:none">
     <div class="landing-inner">
       <!-- Section 1: Header -->
       <div class="landing-header">
         <h1>Real World AI for Real Estate</h1>
         <p class="landing-subtitle">地理空間AIによる不動産開発支援プラットフォーム — デモンストレーション</p>
+      </div>
+
+      <!-- GIF Slideshow (Task 12) -->
+      <div class="landing-section">
+        <h2 class="section-title" style="font-size:20px">Real World AIでできること</h2>
+        <div class="gif-container">
+          <div class="gif-display" id="gif-display">
+            <div class="gif-placeholder">デモ動画 — 準備中</div>
+          </div>
+          <div class="gif-overlay">
+            <p class="gif-text" id="gif-text"></p>
+          </div>
+        </div>
       </div>
 
       <!-- Section 2: Demo Features -->

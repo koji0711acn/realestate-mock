@@ -12,9 +12,66 @@ let guideStep = 0;
 let guideOverlay = null;
 let dataAreaRect = null;
 let pulseCircle = null;
+let gifInterval = null;
 
 // Data bounds (for guide guardrail)
 const DATA_BOUNDS = { south: 35.6520, north: 35.6610, west: 139.7510, east: 139.7620 };
+
+// ===== Task 11: Login =====
+const VALID_ID = 'rwai';
+const VALID_PASS = 'rwai123!';
+
+function handleLogin() {
+  const id = document.getElementById('login-id').value;
+  const pass = document.getElementById('login-pass').value;
+  const errorEl = document.getElementById('login-error');
+  if (id === VALID_ID && pass === VALID_PASS) {
+    errorEl.textContent = '';
+    document.getElementById('screen-login').style.display = 'none';
+    document.getElementById('screen0').style.display = 'flex';
+    startGifSlideshow();
+  } else {
+    errorEl.textContent = 'IDまたはパスワードが正しくありません';
+  }
+}
+
+// ===== Task 12: GIF Slideshow =====
+const gifTexts = [
+  'エリアを指定するだけで、全筆の開発ポテンシャルを瞬時に評価',
+  '施設建設が周辺の賃料・空室率に与える影響を定量シミュレーション',
+  '地権者情報の特定からターゲットリスト生成まで一気通貫',
+  '既存ツールでは実現できない、探索→評価→推計→取得の統合ワークフロー'
+];
+let gifTextIndex = 0;
+
+function startGifSlideshow() {
+  // Try to load demo.gif
+  const display = document.getElementById('gif-display');
+  const img = new Image();
+  img.onload = function () {
+    display.innerHTML = '';
+    img.style.width = '100%';
+    img.style.height = '100%';
+    img.style.objectFit = 'cover';
+    display.appendChild(img);
+  };
+  img.src = 'data/demo.gif';
+
+  // Start text rotation
+  const textEl = document.getElementById('gif-text');
+  textEl.textContent = gifTexts[0];
+  textEl.classList.add('fade-in');
+  gifInterval = setInterval(() => {
+    textEl.classList.remove('fade-in');
+    textEl.classList.add('fade-out');
+    setTimeout(() => {
+      gifTextIndex = (gifTextIndex + 1) % gifTexts.length;
+      textEl.textContent = gifTexts[gifTextIndex];
+      textEl.classList.remove('fade-out');
+      textEl.classList.add('fade-in');
+    }, 300);
+  }, 4000);
+}
 
 // ===== Grade helpers (Task 2 colors) =====
 function getGrade(score) {
@@ -32,6 +89,7 @@ function gradeFill(grade) {
 
 // ===== Screen 0 → Screen 1 =====
 function startDemo() {
+  if (gifInterval) { clearInterval(gifInterval); gifInterval = null; }
   document.getElementById('screen0').style.display = 'none';
   document.getElementById('screen-map').style.display = 'block';
   initMap();
@@ -747,5 +805,10 @@ function showAcquisitionPanel(id) {
 
 // ===== Init =====
 document.addEventListener('DOMContentLoaded', () => {
+  // Login
+  document.getElementById('btn-login').addEventListener('click', handleLogin);
+  document.getElementById('login-id').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleLogin(); });
+  document.getElementById('login-pass').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleLogin(); });
+  // Demo start
   document.getElementById('btn-start').addEventListener('click', startDemo);
 });
