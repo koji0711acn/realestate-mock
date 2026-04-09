@@ -18,35 +18,70 @@
 </head>
 <body>
 
-  <!-- ===== Screen 0: Landing ===== -->
+  <!-- ===== Screen 0: Landing (Task 7) ===== -->
   <div id="screen0">
-    <h1>Real World AI — 不動産開発支援プラットフォーム</h1>
-
-    <div class="compare-container">
-      <!-- Left: Existing -->
-      <div class="compare-card existing">
-        <h2>既存ツールの到達点</h2>
-        <ul>
-          <li><span class="icon">✓</span>データの重畳表示・地図上の可視化</li>
-          <li><span class="icon">✓</span>単一敷地のボリュームチェック（約15秒）</li>
-          <li><span class="icon">✓</span>人流・交通の条件付きシミュレーション</li>
-          <li><span class="icon">✓</span>登記変化トリガーによるリード抽出</li>
-        </ul>
+    <div class="landing-inner">
+      <!-- Section 1: Header -->
+      <div class="landing-header">
+        <h1>Real World AI for Real Estate</h1>
+        <p class="landing-subtitle">地理空間AIによる不動産開発支援プラットフォーム — デモンストレーション</p>
       </div>
-      <!-- Right: Target -->
-      <div class="compare-card target">
-        <h2>当社プロダクトの到達目標</h2>
-        <ul>
-          <li><span class="icon">★</span>エリア内全筆の一括ROI算出・ランキング</li>
-          <li><span class="icon">★</span>多変量統合による筆単位魅力度スコアリング</li>
-          <li><span class="icon">★</span>開発インパクト→賃料・Cap Rate波及推計</li>
-          <li><span class="icon">★</span>探索→評価→推計→稟議の一気通貫ワークフロー</li>
-        </ul>
+
+      <!-- Section 2: Demo Features -->
+      <div class="landing-section">
+        <h2 class="section-title">このデモで確認できること</h2>
+        <div class="feature-cards">
+          <div class="feature-card">
+            <div class="feature-num">1</div>
+            <h3>エリア一括評価</h3>
+            <p>指定エリア内の全筆を一括でスコアリングし、開発ポテンシャルの高い土地を瞬時に特定</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-num">2</div>
+            <h3>開発インパクト推計</h3>
+            <p>施設建設が周辺の賃料・空室率・人流に与える影響を定量シミュレーション</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-num">3</div>
+            <h3>用地取得支援</h3>
+            <p>地権者情報の可視化からターゲットリスト生成まで、仕掛け営業を一気通貫で支援</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Comparison -->
+      <div class="landing-section">
+        <h2 class="section-title">既存ツールとの違い</h2>
+        <div class="compare-table">
+          <div class="compare-col existing">
+            <div class="compare-col-header">既存ツールの到達点</div>
+            <div class="compare-row-item">単一敷地のボリュームチェック<br><span class="compare-detail">（1敷地ずつ、約15秒）</span></div>
+            <div class="compare-row-item">地図上へのデータ重畳表示<br><span class="compare-detail">（用途地域、ハザード等）</span></div>
+            <div class="compare-row-item">人流シミュレーション<br><span class="compare-detail">（都市計画・防災文脈が中心）</span></div>
+            <div class="compare-row-item">登記変化によるリード抽出<br><span class="compare-detail">（売却可能性の特定まで）</span></div>
+          </div>
+          <div class="compare-arrows">
+            <div class="arrow-line">→</div>
+            <div class="arrow-line">→</div>
+            <div class="arrow-line">→</div>
+            <div class="arrow-line">→</div>
+          </div>
+          <div class="compare-col target">
+            <div class="compare-col-header">Real World AIの到達目標</div>
+            <div class="compare-row-item">エリア内全筆の一括ROI算出と収益性ランキング</div>
+            <div class="compare-row-item">多変量統合による筆単位の魅力度スコアリング<br><span class="compare-detail">（法規・人流・市場・ハザードを統合）</span></div>
+            <div class="compare-row-item">開発計画の各指標・Cap Rate・出口価格への波及推計</div>
+            <div class="compare-row-item">探索→評価→推計→用地取得→ターゲットリスト生成の一気通貫</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4: CTA -->
+      <div class="landing-cta">
+        <button id="btn-start" class="btn-start">デモを開始する</button>
+        <p class="cta-note">※ 本デモは浜松町エリアのスタブデータを使用しています</p>
       </div>
     </div>
-
-    <p class="landing-message">この差分を、これからお見せします。</p>
-    <button id="btn-start" class="btn-start">デモ開始</button>
   </div>
 
   <!-- ===== Screen 1-4: Map ===== -->
