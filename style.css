@@ -409,6 +409,18 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
   box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
 .rwai-badge { flex-shrink: 0; margin-top: 2px; }
+.first-badge {
+  display: inline-block;
+  background: #185FA5;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 4px;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
 .rwai-body { flex: 1; }
 .rwai-body h4 { font-size: 12px; color: #888; margin-bottom: 4px; font-weight: 600; }
 .rwai-heading { font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 6px; }
