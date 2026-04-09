@@ -14,8 +14,8 @@ let dataAreaRect = null;
 let pulseCircle = null;
 let gifInterval = null;
 
-// Data bounds (for guide guardrail)
-const DATA_BOUNDS = { south: 35.6520, north: 35.6610, west: 139.7510, east: 139.7620 };
+// Data bounds (Task 14: narrowed to ~300m around Hamamatsucho)
+const DATA_BOUNDS = { south: 35.6538, north: 35.6572, west: 139.7545, east: 139.7585 };
 
 // ===== Task 11: Login =====
 const VALID_ID = 'rwai';
@@ -97,7 +97,7 @@ function startDemo() {
 
 // ===== Map Init (Screen 1) =====
 function initMap() {
-  map = L.map('map', { zoomControl: true }).setView([35.6555, 139.7570], 16);
+  map = L.map('map', { zoomControl: true }).setView([35.6555, 139.7565], 17);
 
   // Task 1: Carto Positron tile
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
@@ -152,8 +152,8 @@ function initMap() {
 function showGuideStep1() {
   guideStep = 1;
   // Show pulse circle at data center
-  pulseCircle = L.circle([35.6565, 139.7565], {
-    radius: 600,
+  pulseCircle = L.circle([35.6555, 139.7565], {
+    radius: 250,
     color: '#1565c0',
     weight: 3,
     fill: false,
@@ -274,18 +274,18 @@ async function onAreaSelected() {
 // Fallback inline data loader
 async function loadInlineData() {
   return [
-    {"id":"P001","name":"浜松町1-1","lat":35.6560,"lng":139.7565,"polygon":[[35.6563,139.7561],[35.6563,139.7569],[35.6557,139.7569],[35.6557,139.7561]],"zone":"商業地域","far":800,"score":92,"roi":7.8,"rent":28000,"area":1200,"vacancy":2.1,"floors":14,"units":120,"cost":4800,"landPrice":950},
-    {"id":"P002","name":"浜松町2-3","lat":35.6552,"lng":139.7558,"polygon":[[35.6555,139.7554],[35.6555,139.7562],[35.6549,139.7562],[35.6549,139.7554]],"zone":"商業地域","far":700,"score":85,"roi":7.2,"rent":26000,"area":980,"vacancy":3.0,"floors":12,"units":96,"cost":3900,"landPrice":880},
-    {"id":"P003","name":"芝大門1-5","lat":35.6575,"lng":139.7555,"polygon":[[35.6578,139.7551],[35.6578,139.7559],[35.6572,139.7559],[35.6572,139.7551]],"zone":"商業地域","far":600,"score":81,"roi":6.9,"rent":25000,"area":850,"vacancy":3.5,"floors":10,"units":80,"cost":3200,"landPrice":820},
-    {"id":"P004","name":"海岸1-2","lat":35.6545,"lng":139.7590,"polygon":[[35.6548,139.7586],[35.6548,139.7594],[35.6542,139.7594],[35.6542,139.7586]],"zone":"準工業地域","far":500,"score":74,"roi":6.1,"rent":22000,"area":1500,"vacancy":4.2,"floors":8,"units":64,"cost":3600,"landPrice":650},
-    {"id":"P005","name":"芝大門2-1","lat":35.6568,"lng":139.7545,"polygon":[[35.6571,139.7541],[35.6571,139.7549],[35.6565,139.7549],[35.6565,139.7541]],"zone":"商業地域","far":600,"score":71,"roi":5.8,"rent":21000,"area":720,"vacancy":4.8,"floors":9,"units":54,"cost":2700,"landPrice":780},
-    {"id":"P006","name":"浜松町1-8","lat":35.6558,"lng":139.7578,"polygon":[[35.6561,139.7574],[35.6561,139.7582],[35.6555,139.7582],[35.6555,139.7574]],"zone":"商業地域","far":700,"score":67,"roi":5.5,"rent":20000,"area":680,"vacancy":5.1,"floors":10,"units":70,"cost":2800,"landPrice":750},
-    {"id":"P007","name":"芝公園3-4","lat":35.6583,"lng":139.7535,"polygon":[[35.6586,139.7531],[35.6586,139.7539],[35.6580,139.7539],[35.6580,139.7531]],"zone":"第二種住居地域","far":400,"score":62,"roi":5.2,"rent":19000,"area":600,"vacancy":5.5,"floors":7,"units":42,"cost":2100,"landPrice":700},
-    {"id":"P008","name":"海岸2-5","lat":35.6535,"lng":139.7600,"polygon":[[35.6538,139.7596],[35.6538,139.7604],[35.6532,139.7604],[35.6532,139.7596]],"zone":"準工業地域","far":400,"score":53,"roi":4.5,"rent":16000,"area":2000,"vacancy":6.8,"floors":6,"units":48,"cost":3000,"landPrice":520},
-    {"id":"P009","name":"芝1-7","lat":35.6590,"lng":139.7525,"polygon":[[35.6593,139.7521],[35.6593,139.7529],[35.6587,139.7529],[35.6587,139.7521]],"zone":"第一種住居地域","far":300,"score":48,"roi":4.1,"rent":15000,"area":550,"vacancy":7.2,"floors":5,"units":30,"cost":1500,"landPrice":620},
-    {"id":"P010","name":"大門1-3","lat":35.6570,"lng":139.7570,"polygon":[[35.6573,139.7566],[35.6573,139.7574],[35.6567,139.7574],[35.6567,139.7566]],"zone":"商業地域","far":500,"score":44,"roi":3.8,"rent":14500,"area":480,"vacancy":7.8,"floors":7,"units":35,"cost":1800,"landPrice":690},
-    {"id":"P011","name":"海岸3-1","lat":35.6528,"lng":139.7610,"polygon":[[35.6531,139.7606],[35.6531,139.7614],[35.6525,139.7614],[35.6525,139.7606]],"zone":"準工業地域","far":300,"score":35,"roi":3.2,"rent":12000,"area":1800,"vacancy":9.5,"floors":4,"units":24,"cost":2200,"landPrice":380},
-    {"id":"P012","name":"芝5-2","lat":35.6598,"lng":139.7518,"polygon":[[35.6601,139.7514],[35.6601,139.7522],[35.6595,139.7522],[35.6595,139.7514]],"zone":"第一種住居地域","far":200,"score":28,"roi":2.5,"rent":11000,"area":420,"vacancy":11.0,"floors":3,"units":12,"cost":800,"landPrice":450}
+    {"id":"P001","name":"浜松町1-1","lat":35.65555,"lng":139.75680,"polygon":[[35.65575,139.75660],[35.65575,139.75700],[35.65535,139.75700],[35.65535,139.75660]],"zone":"商業地域","far":800,"score":92,"roi":7.8,"rent":28000,"area":1200,"vacancy":2.1,"floors":14,"units":120,"cost":4800,"landPrice":950},
+    {"id":"P002","name":"浜松町2-3","lat":35.65510,"lng":139.75620,"polygon":[[35.65525,139.75600],[35.65525,139.75640],[35.65495,139.75640],[35.65495,139.75600]],"zone":"商業地域","far":700,"score":85,"roi":7.2,"rent":26000,"area":980,"vacancy":3.0,"floors":12,"units":96,"cost":3900,"landPrice":880},
+    {"id":"P003","name":"芝大門1-5","lat":35.65620,"lng":139.75580,"polygon":[[35.65640,139.75560],[35.65640,139.75600],[35.65600,139.75600],[35.65600,139.75560]],"zone":"商業地域","far":600,"score":81,"roi":6.9,"rent":25000,"area":850,"vacancy":3.5,"floors":10,"units":80,"cost":3200,"landPrice":820},
+    {"id":"P004","name":"海岸1-2","lat":35.65470,"lng":139.75750,"polygon":[[35.65500,139.75720],[35.65500,139.75780],[35.65440,139.75780],[35.65440,139.75720]],"zone":"準工業地域","far":500,"score":74,"roi":6.1,"rent":22000,"area":1500,"vacancy":4.2,"floors":8,"units":64,"cost":3600,"landPrice":650},
+    {"id":"P005","name":"芝大門2-1","lat":35.65600,"lng":139.75520,"polygon":[[35.65615,139.75505],[35.65615,139.75535],[35.65585,139.75535],[35.65585,139.75505]],"zone":"商業地域","far":600,"score":71,"roi":5.8,"rent":21000,"area":400,"vacancy":4.8,"floors":9,"units":54,"cost":2700,"landPrice":780},
+    {"id":"P006","name":"浜松町1-8","lat":35.65530,"lng":139.75740,"polygon":[[35.65545,139.75720],[35.65545,139.75760],[35.65515,139.75760],[35.65515,139.75720]],"zone":"商業地域","far":700,"score":67,"roi":5.5,"rent":20000,"area":480,"vacancy":5.1,"floors":10,"units":70,"cost":2800,"landPrice":750},
+    {"id":"P007","name":"芝公園3-4","lat":35.65650,"lng":139.75640,"polygon":[[35.65665,139.75620],[35.65665,139.75660],[35.65635,139.75660],[35.65635,139.75620]],"zone":"第二種住居地域","far":400,"score":62,"roi":5.2,"rent":19000,"area":480,"vacancy":5.5,"floors":7,"units":42,"cost":2100,"landPrice":700},
+    {"id":"P008","name":"海岸2-5","lat":35.65440,"lng":139.75690,"polygon":[[35.65460,139.75670],[35.65460,139.75710],[35.65420,139.75710],[35.65420,139.75670]],"zone":"準工業地域","far":400,"score":53,"roi":4.5,"rent":16000,"area":500,"vacancy":6.8,"floors":6,"units":48,"cost":3000,"landPrice":520},
+    {"id":"P009","name":"芝1-7","lat":35.65670,"lng":139.75550,"polygon":[[35.65685,139.75535],[35.65685,139.75565],[35.65655,139.75565],[35.65655,139.75535]],"zone":"第一種住居地域","far":300,"score":48,"roi":4.1,"rent":15000,"area":350,"vacancy":7.2,"floors":5,"units":30,"cost":1500,"landPrice":620},
+    {"id":"P010","name":"大門1-3","lat":35.65580,"lng":139.75700,"polygon":[[35.65595,139.75685],[35.65595,139.75715],[35.65565,139.75715],[35.65565,139.75685]],"zone":"商業地域","far":500,"score":44,"roi":3.8,"rent":14500,"area":320,"vacancy":7.8,"floors":7,"units":35,"cost":1800,"landPrice":690},
+    {"id":"P011","name":"海岸3-1","lat":35.65420,"lng":139.75780,"polygon":[[35.65440,139.75760],[35.65440,139.75800],[35.65400,139.75800],[35.65400,139.75760]],"zone":"準工業地域","far":300,"score":35,"roi":3.2,"rent":12000,"area":500,"vacancy":9.5,"floors":4,"units":24,"cost":2200,"landPrice":380},
+    {"id":"P012","name":"芝5-2","lat":35.65690,"lng":139.75500,"polygon":[[35.65705,139.75485],[35.65705,139.75515],[35.65675,139.75515],[35.65675,139.75485]],"zone":"第一種住居地域","far":200,"score":28,"roi":2.5,"rent":11000,"area":280,"vacancy":11.0,"floors":3,"units":12,"cost":800,"landPrice":450}
   ];
 }
 
@@ -371,6 +371,17 @@ function selectParcel(id) {
   highlightRankingItem(id);
 }
 
+// ===== Task 15: Mode descriptions =====
+const modeDescriptions = {
+  score: '法規制・交通利便性・周辺賃料・開発余地・ハザードリスクの5要素を統合した総合評価指標です。スコアが高いほど開発ポテンシャルが高い土地を示します。',
+  roi: '想定賃料収入と開発コストから算出した投資利回りです。周辺相場・空室率予測・建築費概算に基づく推計値で、値が高いほど収益性の高い土地を示します。'
+};
+
+function goToImpactFromRanking() {
+  const targetId = selectedParcelId || [...parcelsData].sort((a, b) => b.score - a.score)[0]?.id;
+  if (targetId) showImpactPanel(targetId);
+}
+
 // ===== Show Ranking Panel (Screen 2) =====
 function showRankingPanel() {
   currentScreen = 2;
@@ -387,6 +398,9 @@ function showRankingPanel() {
   const panel = document.getElementById('side-panel');
   panel.innerHTML = `
     <div class="panel-header"><h3>筆評価ランキング</h3></div>
+    <div style="padding:8px 12px;">
+      <button class="impact-top-btn" onclick="goToImpactFromRanking()" id="impact-top-btn">開発インパクト推計</button>
+    </div>
     <div class="summary-bar">
       <div class="summary-item"><div class="label">候補筆数</div><div class="value">${parcelsData.length}</div></div>
       <div class="summary-item"><div class="label">平均スコア</div><div class="value">${avgScore}</div></div>
@@ -397,6 +411,7 @@ function showRankingPanel() {
       <button class="toggle-btn ${displayMode === 'score' ? 'active' : ''}" onclick="setDisplayMode('score')">スコア表示</button>
       <button class="toggle-btn ${displayMode === 'roi' ? 'active' : ''}" onclick="setDisplayMode('roi')">ROI表示</button>
     </div>
+    <div class="mode-desc">${modeDescriptions[displayMode]}</div>
     <div class="ranking-list">
       ${sorted.map((p, i) => {
         const grade = getGrade(p.score);
@@ -532,7 +547,7 @@ function showDetailPanel(id) {
         }).join('')}
       </div>
       <div style="margin-top:16px">
-        <button class="impact-btn" onclick="showAcquisitionPanel('${p.id}')" style="width:100%;text-align:center;">用地取得を検討 →</button>
+        <button class="impact-btn" onclick="startAcquisitionLoading('${p.id}')" style="width:100%;text-align:center;">用地取得を検討 →</button>
       </div>
     </div>
   `;
@@ -548,7 +563,7 @@ const facilityConfig = {
 
 function getBimHTML(facilityType, floorArea) {
   const cfg = facilityConfig[facilityType] || facilityConfig['large-sc'];
-  const scale = Math.max(0.5, Math.min(1.5, floorArea / 20000));
+  const scale = Math.max(0.5, Math.min(1.5, floorArea / 20000)) * 0.8; // Task 16: 20% smaller
   const w = Math.round(cfg.w * scale);
   const h = Math.round(cfg.h * scale);
   const skewH = Math.round(h * 0.3);
@@ -589,9 +604,9 @@ function getBimHTML(facilityType, floorArea) {
   }
 
   return `
-    <div class="bim-container">
-      ${bimBlocks}
-      <div class="bim-info">
+    <div class="bim-section">
+      <div class="bim-visual">${bimBlocks}</div>
+      <div class="bim-info-block">
         <div><span class="bim-stat">${cfg.label}</span></div>
         <div>延床面積: <span class="bim-stat">${floorArea.toLocaleString()} m²</span></div>
         <div>階数: <span class="bim-stat">${floorCount}階</span></div>
@@ -638,23 +653,26 @@ function renderImpactUI(p, facilityType, floorArea) {
   const panel = document.getElementById('side-panel');
   panel.innerHTML = `
     <div class="impact-panel">
-      <h3>開発インパクト推計</h3>
-      <div class="impact-control">
-        <label>施設タイプ</label>
-        <select id="facility-type" onchange="onImpactChange('${p.id}')">
-          <option value="large-sc" ${facilityType === 'large-sc' ? 'selected' : ''}>大型ショッピングセンター</option>
-          <option value="office" ${facilityType === 'office' ? 'selected' : ''}>オフィスビル</option>
-          <option value="tower-mansion" ${facilityType === 'tower-mansion' ? 'selected' : ''}>タワーマンション</option>
-          <option value="complex" ${facilityType === 'complex' ? 'selected' : ''}>複合施設</option>
-        </select>
-      </div>
-      <div class="impact-control">
-        <label>延床面積</label>
-        <input type="range" id="floor-area" min="5000" max="50000" step="1000" value="${floorArea}" oninput="onImpactChange('${p.id}')">
-        <div class="impact-range-val" id="floor-area-val">${floorArea.toLocaleString()} m²</div>
+      <div class="impact-section-scenario">
+        <button class="impact-back-btn" onclick="showDetailPanel('${p.id}')" style="margin-bottom:12px;margin-top:0">← 戻る</button>
+        <h3>開発インパクト推計</h3>
+        <div class="impact-control">
+          <label>施設タイプ</label>
+          <select id="facility-type" onchange="onImpactChange('${p.id}')">
+            <option value="large-sc" ${facilityType === 'large-sc' ? 'selected' : ''}>大型ショッピングセンター</option>
+            <option value="office" ${facilityType === 'office' ? 'selected' : ''}>オフィスビル</option>
+            <option value="tower-mansion" ${facilityType === 'tower-mansion' ? 'selected' : ''}>タワーマンション</option>
+            <option value="complex" ${facilityType === 'complex' ? 'selected' : ''}>複合施設</option>
+          </select>
+        </div>
+        <div class="impact-control">
+          <label>延床面積</label>
+          <input type="range" id="floor-area" min="5000" max="50000" step="1000" value="${floorArea}" oninput="onImpactChange('${p.id}')">
+          <div class="impact-range-val" id="floor-area-val">${floorArea.toLocaleString()} m²</div>
+        </div>
       </div>
       ${getBimHTML(facilityType, floorArea)}
-      <div class="impact-results">
+      <div class="impact-section-results">
         <h4>距離帯別 賃料変化率</h4>
         <div class="impact-row"><span class="ir-label">200m圏</span><span class="ir-value positive">+${base200.toFixed(1)}%</span></div>
         <div class="impact-row"><span class="ir-label">500m圏</span><span class="ir-value positive">+${base500.toFixed(1)}%</span></div>
@@ -663,20 +681,23 @@ function renderImpactUI(p, facilityType, floorArea) {
         <div class="impact-row"><span class="ir-label">来訪者増加</span><span class="ir-value positive">+${visitors.toLocaleString()} 人/日</span></div>
         <div class="impact-row"><span class="ir-label">空室率変化</span><span class="ir-value positive">${vacancyChange.toFixed(1)}%</span></div>
         <div class="impact-row"><span class="ir-label">Cap Rate変化</span><span class="ir-value positive">${capRateChange.toFixed(2)}%</span></div>
-      </div>
-      <div class="impact-collapse" onclick="toggleImpactCollapse(this)">
-        <div class="impact-collapse-header">推計ロジック <span class="ic-arrow">▼</span></div>
-        <div class="impact-collapse-body">
-          <div class="impact-collapse-content">半径Xm圏内の類似開発事例N件の実績に基づく回帰推計。説明変数: 施設延床面積、用途、最寄駅距離、既存商業集積度</div>
+        <div class="impact-collapse" onclick="toggleImpactCollapse(this)">
+          <div class="impact-collapse-header">推計ロジック <span class="ic-arrow">▼</span></div>
+          <div class="impact-collapse-body">
+            <div class="impact-collapse-content">半径Xm圏内の類似開発事例N件の実績に基づく回帰推計。説明変数: 施設延床面積、用途、最寄駅距離、既存商業集積度</div>
+          </div>
+        </div>
+        <div class="impact-collapse" onclick="toggleImpactCollapse(this)">
+          <div class="impact-collapse-header">前提条件 <span class="ic-arrow">▼</span></div>
+          <div class="impact-collapse-body">
+            <div class="impact-collapse-content">開業時期: 着工から36ヶ月後 / 稼働率想定: 初年度85%、3年目以降95% / テナント構成: 物販40%・飲食30%・サービス30%</div>
+          </div>
         </div>
       </div>
-      <div class="impact-collapse" onclick="toggleImpactCollapse(this)">
-        <div class="impact-collapse-header">前提条件 <span class="ic-arrow">▼</span></div>
-        <div class="impact-collapse-body">
-          <div class="impact-collapse-content">開業時期: 着工から36ヶ月後 / 稼働率想定: 初年度85%、3年目以降95% / テナント構成: 物販40%・飲食30%・サービス30%</div>
-        </div>
+      <div class="impact-section-action">
+        <button class="acq-proceed-btn" onclick="startAcquisitionLoading('${p.id}')">用地取得プロセスへ進む →</button>
+        <p style="font-size:12px;color:#888;margin-top:8px;text-align:center">地権者情報の確認とターゲットリスト生成に進みます</p>
       </div>
-      <button class="impact-back-btn" onclick="showDetailPanel('${p.id}')">← 詳細に戻る</button>
     </div>
   `;
 }
@@ -793,7 +814,7 @@ function showAcquisitionPanel(id) {
           </tbody>
         </table>
         <div class="acq-btn-group">
-          <button class="acq-btn" onclick="showToast('CSV出力機能は製品版で提供予定です')">ターゲットリストをCSV出力</button>
+          <button class="acq-btn primary" onclick="downloadTargetCSV()">ターゲットリストをCSV出力</button>
           <button class="acq-btn" onclick="showToast('評価書生成機能は製品版で提供予定です')">評価書一括生成</button>
         </div>
       </div>
@@ -801,6 +822,116 @@ function showAcquisitionPanel(id) {
       <button class="acq-back-btn" onclick="showDetailPanel('${p.id}')">← 詳細に戻る</button>
     </div>
   `;
+}
+
+// ===== Task 17: Acquisition Loading Animation =====
+const loadingSteps = [
+  { text: '土地の権利情報を確認中...', sub: '登記所備え付け地図データベースを照合' },
+  { text: '登記簿情報を取得中...', sub: '法務局登記情報システムにアクセス' },
+  { text: '不動産売買情報を確認中...', sub: 'REINS・公示価格データベースを検索' },
+  { text: '地権者情報を分析中...', sub: 'AIによる売却意向推定モデルを実行' },
+  { text: 'ターゲットリストを生成中...', sub: '優先順位付けアルゴリズムを適用' }
+];
+
+function startAcquisitionLoading(parcelId) {
+  const panel = document.getElementById('side-panel');
+  panel.innerHTML = `
+    <div class="loading-acq">
+      <div class="loading-progress-bar"><div class="loading-progress-fill" id="loading-fill"></div></div>
+      <div class="loading-steps" id="loading-steps">
+        ${loadingSteps.map((s, i) => `
+          <div class="loading-step" id="lstep-${i}">
+            <div class="loading-step-icon"><div class="mini-spinner" id="licon-${i}"></div></div>
+            <div class="loading-step-content">
+              <div class="loading-step-text">${s.text}</div>
+              <div class="loading-step-sub">${s.sub}</div>
+            </div>
+            <div class="loading-step-img" id="limg-${i}"><span>参照中...</span></div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="loading-complete" id="loading-complete" style="display:none">
+        <div style="font-size:16px;font-weight:600;color:#2d8a4e;text-align:center">分析完了</div>
+      </div>
+    </div>
+  `;
+
+  // Try loading images
+  loadingSteps.forEach((_, i) => {
+    const imgEl = document.getElementById('limg-' + i);
+    const img = new Image();
+    img.onload = function() {
+      imgEl.innerHTML = '';
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.objectFit = 'cover';
+      img.style.borderRadius = '4px';
+      imgEl.appendChild(img);
+    };
+    img.src = `data/loading-${i + 1}.png`;
+  });
+
+  let step = 0;
+  const fill = document.getElementById('loading-fill');
+
+  function advanceStep() {
+    if (step > 0) {
+      const prev = document.getElementById('lstep-' + (step - 1));
+      const prevIcon = document.getElementById('licon-' + (step - 1));
+      prev.classList.add('done');
+      prevIcon.classList.remove('mini-spinner');
+      prevIcon.textContent = '✓';
+      prevIcon.classList.add('check-icon');
+    }
+    if (step < loadingSteps.length) {
+      const cur = document.getElementById('lstep-' + step);
+      cur.classList.add('active');
+      fill.style.width = ((step + 1) / loadingSteps.length * 100) + '%';
+      step++;
+      setTimeout(advanceStep, 1500);
+    } else {
+      // All done
+      setTimeout(() => {
+        document.getElementById('loading-complete').style.display = 'block';
+        setTimeout(() => showAcquisitionPanel(parcelId), 1000);
+      }, 500);
+    }
+  }
+  advanceStep();
+}
+
+// ===== Task 18: CSV Download =====
+function downloadTargetCSV() {
+  const targets = parcelsData
+    .filter(p => p.score >= 60)
+    .sort((a, b) => b.score - a.score);
+
+  const bom = '\uFEFF';
+  const header = '優先順位,所在地,魅力度スコア,ランク,想定ROI(%),想定賃料(円/m²),空室率予測(%),用途地域,容積率(%),敷地面積(m²),地権者,地権者種別,保有期間,推定売却意向,推奨アプローチ';
+  const rows = targets.map((p, i) => {
+    const grade = getGrade(p.score);
+    const oi = getOwnerInfo(p.id);
+    const owner = oi.owners[0];
+    return [
+      i + 1, p.name, p.score, grade, p.roi, p.rent, p.vacancy, p.zone, p.far, p.area,
+      owner.name, owner.type, owner.years + '年', owner.intent,
+      getApproach(oi.ownerCount, owner.intent)
+    ].join(',');
+  });
+
+  const csv = bom + header + '\n' + rows.join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const today = new Date();
+  const dateStr = today.getFullYear() + String(today.getMonth() + 1).padStart(2, '0') + String(today.getDate()).padStart(2, '0');
+  a.href = url;
+  a.download = `target_list_${dateStr}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('CSVファイルをダウンロードしました');
 }
 
 // ===== Init =====
