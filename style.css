@@ -1,6 +1,6 @@
 /* ===== Global ===== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; color: #2c3e50; background: #fff; }
+body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: #2c3e50; background: #fff; }
 
 /* ===== Screen 0: Landing ===== */
 #screen0 {
@@ -98,26 +98,28 @@ body { font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; color: #2c3
 }
 #map {
   position: absolute;
-  top: 0; left: 0; right: 300px; bottom: 0;
+  top: 0; left: 0; right: 350px; bottom: 0;
 }
 #guide-text {
   position: absolute;
   top: 16px; left: 60px;
   z-index: 1000;
   background: rgba(255,255,255,0.95);
-  padding: 10px 18px;
+  padding: 12px 20px;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   box-shadow: 0 2px 8px rgba(0,0,0,0.12);
   color: #1a1a2e;
+  max-width: 420px;
+  line-height: 1.6;
 }
 
-/* ===== Side Panel ===== */
+/* ===== Side Panel (Task 3) ===== */
 #side-panel {
   position: absolute;
   top: 0; right: 0; bottom: 0;
-  width: 300px;
+  width: 350px;
   background: #fff;
   border-left: 1px solid #e0e0e0;
   overflow-y: auto;
@@ -136,7 +138,7 @@ body { font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; color: #2c3
   color: #1a1a2e;
 }
 
-/* Summary Cards */
+/* Summary Cards (Task 3) */
 .summary-bar {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -145,15 +147,15 @@ body { font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; color: #2c3
   border-bottom: 1px solid #e0e0e0;
 }
 .summary-item {
-  background: #f8f9fa;
+  background: #f7f8fa;
   border-radius: 8px;
-  padding: 10px;
+  padding: 16px;
   text-align: center;
 }
 .summary-item .label { font-size: 11px; color: #888; margin-bottom: 4px; }
 .summary-item .value { font-size: 18px; font-weight: 700; color: #1a1a2e; }
 
-/* Toggle buttons */
+/* Toggle buttons (Task 3) */
 .toggle-bar {
   display: flex;
   padding: 8px 12px;
@@ -162,22 +164,27 @@ body { font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; color: #2c3
 }
 .toggle-btn {
   flex: 1;
-  padding: 6px 0;
+  padding: 7px 0;
   font-size: 12px;
   font-weight: 600;
-  border: 1px solid #1565c0;
-  border-radius: 6px;
+  border: 1.5px solid #ccc;
+  border-radius: 20px;
   cursor: pointer;
   background: #fff;
-  color: #1565c0;
-  transition: all 0.15s;
+  color: #888;
+  transition: all 0.2s;
 }
 .toggle-btn.active {
   background: #1565c0;
   color: #fff;
+  border-color: #1565c0;
+}
+.toggle-btn:hover:not(.active) {
+  border-color: #1565c0;
+  color: #1565c0;
 }
 
-/* Ranking List */
+/* Ranking List (Task 3) */
 .ranking-list {
   flex: 1;
   overflow-y: auto;
@@ -185,7 +192,7 @@ body { font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; color: #2c3
 .ranking-item {
   display: flex;
   align-items: center;
-  padding: 10px 12px;
+  padding: 12px 14px;
   border-bottom: 1px solid #f0f0f0;
   cursor: pointer;
   transition: background 0.15s;
@@ -194,8 +201,8 @@ body { font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; color: #2c3
 .ranking-item:hover { background: #f5f7fa; }
 .ranking-item.active { background: #e3f2fd; }
 .rank-num {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -207,7 +214,8 @@ body { font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; color: #2c3
 }
 .rank-info { flex: 1; min-width: 0; }
 .rank-name { font-size: 13px; font-weight: 600; color: #1a1a2e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rank-sub { font-size: 11px; color: #888; margin-top: 2px; }
+.rank-sub { font-size: 11px; color: #999; margin-top: 2px; }
+.rank-score { font-size: 14px; font-weight: 700; margin-right: 6px; flex-shrink: 0; }
 .rank-badge {
   padding: 3px 10px;
   border-radius: 12px;
@@ -216,15 +224,15 @@ body { font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; color: #2c3
   flex-shrink: 0;
 }
 
-/* Grade Colors */
-.grade-A { background: #e8f5e9; color: #2e7d32; }
-.grade-B { background: #e0f2f1; color: #00796b; }
-.grade-C { background: #fff8e1; color: #f57f17; }
-.grade-D { background: #fce4ec; color: #c62828; }
-.rank-A { background: #2e7d32; }
-.rank-B { background: #00796b; }
-.rank-C { background: #f57f17; }
-.rank-D { background: #c62828; }
+/* Grade Colors (Task 2) */
+.grade-A { background: #e8f5e9; color: #2d8a4e; }
+.grade-B { background: #e0f2f1; color: #1a7a6d; }
+.grade-C { background: #fff8e1; color: #c4840a; }
+.grade-D { background: #fce4ec; color: #c0392b; }
+.rank-A { background: #2d8a4e; }
+.rank-B { background: #1a7a6d; }
+.rank-C { background: #c4840a; }
+.rank-D { background: #c0392b; }
 
 /* ===== Detail Panel (Screen 3) ===== */
 .detail-panel { padding: 16px; }
@@ -264,14 +272,89 @@ body { font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; color: #2c3
   margin-bottom: 16px;
 }
 .metric-card {
-  background: #f8f9fa;
+  background: #f7f8fa;
   border-radius: 8px;
   padding: 12px;
   text-align: center;
+  cursor: pointer;
+  transition: background 0.15s;
+  position: relative;
 }
+.metric-card:hover { background: #eef0f4; }
 .metric-card .metric-label { font-size: 11px; color: #888; margin-bottom: 4px; }
 .metric-card .metric-value { font-size: 20px; font-weight: 700; color: #1a1a2e; }
 .metric-card .metric-unit { font-size: 11px; color: #888; }
+.metric-card .expand-icon {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 10px;
+  color: #bbb;
+  transition: transform 0.2s;
+}
+.metric-card.expanded .expand-icon { transform: rotate(180deg); }
+
+/* Task 6: Collapsible detail */
+.metric-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease;
+}
+.metric-detail.open {
+  max-height: 100px;
+}
+.metric-detail-content {
+  padding: 8px 10px;
+  background: #f7f8fa;
+  border-radius: 0 0 8px 8px;
+  font-size: 12px;
+  color: #666;
+  line-height: 1.5;
+  margin-top: -4px;
+  margin-bottom: 8px;
+}
+
+/* Detail table collapsible rows (Task 6) */
+.detail-row {
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.detail-row:hover { background: #fafafa; }
+.detail-row-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 4px;
+  font-size: 13px;
+}
+.detail-row-header .dr-label { color: #888; }
+.detail-row-header .dr-value { font-weight: 600; }
+.detail-row-header .dr-arrow {
+  font-size: 10px;
+  color: #bbb;
+  margin-left: 6px;
+  transition: transform 0.2s;
+}
+.detail-row.expanded .dr-arrow { transform: rotate(180deg); }
+.detail-row-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease;
+}
+.detail-row.expanded .detail-row-body {
+  max-height: 80px;
+}
+.detail-row-desc {
+  padding: 4px 8px 10px;
+  font-size: 12px;
+  color: #666;
+  line-height: 1.5;
+  background: #f7f8fa;
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
 .detail-table {
   width: 100%;
   font-size: 13px;
@@ -309,8 +392,8 @@ body { font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; color: #2c3
 }
 .impact-row .ir-label { color: #555; }
 .impact-row .ir-value { font-weight: 600; }
-.impact-row .ir-value.positive { color: #2e7d32; }
-.impact-row .ir-value.negative { color: #c62828; }
+.impact-row .ir-value.positive { color: #2d8a4e; }
+.impact-row .ir-value.negative { color: #c0392b; }
 .impact-back-btn {
   display: block;
   width: 100%;
@@ -330,7 +413,7 @@ body { font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; color: #2c3
 #loading-overlay {
   display: none;
   position: absolute;
-  top: 0; left: 0; right: 300px; bottom: 0;
+  top: 0; left: 0; right: 350px; bottom: 0;
   background: rgba(255,255,255,0.85);
   z-index: 2000;
   align-items: center;
@@ -349,5 +432,97 @@ body { font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; color: #2c3
 @keyframes spin { to { transform: rotate(360deg); } }
 #loading-overlay p { font-size: 14px; color: #555; }
 
-/* ===== Leaflet Draw Override ===== */
+/* ===== Leaflet Draw Override (Task 5) ===== */
 .leaflet-draw-toolbar a { background-color: #fff !important; }
+.leaflet-draw-toolbar .leaflet-draw-draw-rectangle {
+  position: relative;
+}
+
+/* ===== Score Tooltip on Polygons (Task 2) ===== */
+.score-tooltip {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+  padding: 0 !important;
+  margin: 0 !important;
+}
+.score-tooltip::before { display: none !important; }
+
+/* ===== Demo Guide Overlay (Task 4) ===== */
+.guide-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 350px; bottom: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 1500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.guide-overlay.clickable { pointer-events: auto; cursor: pointer; }
+.guide-message {
+  background: #fff;
+  padding: 24px 32px;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+  max-width: 420px;
+  text-align: center;
+  pointer-events: auto;
+}
+.guide-message p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #333;
+  margin-bottom: 12px;
+}
+.guide-message .guide-dismiss {
+  padding: 8px 24px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #1565c0;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.guide-message .guide-dismiss:hover { background: #1255a1; }
+
+/* Pulse animation for guide circle (Task 4) */
+.pulse-circle {
+  border: 3px solid #1565c0;
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+/* Data area hint (Task 4) */
+.data-area-hint {
+  border: 2px dashed rgba(21,101,192,0.4) !important;
+  background: rgba(21,101,192,0.05) !important;
+}
+
+/* Toast (Task 4) */
+.toast {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(calc(-50% - 175px));
+  background: #333;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 13px;
+  z-index: 3000;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  animation: toastIn 0.3s ease;
+  max-width: 400px;
+  text-align: center;
+}
+@keyframes toastIn { from { opacity: 0; transform: translateX(calc(-50% - 175px)) translateY(20px); } }

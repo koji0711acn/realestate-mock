@@ -2,13 +2,21 @@
 let map;
 let parcelsData = [];
 let parcelLayers = {};
+let parcelTooltips = {};
 let selectedParcelId = null;
-let currentScreen = 0; // 0=landing, 1=map, 2=ranking, 3=detail, 4=impact
-let displayMode = 'score'; // 'score' or 'roi'
+let currentScreen = 0;
+let displayMode = 'score';
 let drawnRect = null;
 let impactCircles = [];
+let guideStep = 0;
+let guideOverlay = null;
+let dataAreaRect = null;
+let pulseCircle = null;
 
-// ===== Grade helpers =====
+// Data bounds (for guide guardrail)
+const DATA_BOUNDS = { south: 35.6520, north: 35.6610, west: 139.7510, east: 139.7620 };
+
+// ===== Grade helpers (Task 2 colors) =====
 function getGrade(score) {
   if (score >= 80) return 'A';
   if (score >= 60) return 'B';
@@ -16,10 +24,10 @@ function getGrade(score) {
   return 'D';
 }
 function gradeColor(grade) {
-  return { A: '#2e7d32', B: '#00897b', C: '#ff8f00', D: '#e53935' }[grade];
+  return { A: '#2d8a4e', B: '#1a7a6d', C: '#c4840a', D: '#c0392b' }[grade];
 }
 function gradeFill(grade) {
-  return { A: '#a5d6a7', B: '#80cbc4', C: '#ffe082', D: '#ef9a9a' }[grade];
+  return { A: '#5cb87a', B: '#4db6a0', C: '#e8a830', D: '#e57373' }[grade];
 }
 
 // ===== Screen 0 → Screen 1 =====
@@ -32,9 +40,12 @@ function startDemo() {
 // ===== Map Init (Screen 1) =====
 function initMap() {
   map = L.map('map', { zoomControl: true }).setView([35.6555, 139.7570], 16);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors',
-    maxZoom: 19
+
+  // Task 1: Carto Positron tile
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+    subdomains: 'abcd',
+    maxZoom: 20
   }).addTo(map);
 
   // Leaflet.draw – rectangle only
@@ -50,27 +61,142 @@ function initMap() {
   });
   map.addControl(drawControl);
 
+  // Task 5: Add label to draw button
+  setTimeout(() => {
+    const drawBtn = document.querySelector('.leaflet-draw-draw-rectangle');
+    if (drawBtn) {
+      drawBtn.title = 'クリックしてエリア選択を開始';
+    }
+  }, 100);
+
+  // Task 5: Guide text
+  document.getElementById('guide-text').innerHTML =
+    '<b>① </b>左上の「エリア選択」をクリック → <b>② </b>地図上でドラッグ → <b>③ </b>エリア内の全筆を自動評価';
+
+  // Listen for draw start (Task 4: step 2)
+  map.on('draw:drawstart', function () {
+    showGuideStep2();
+  });
+
   map.on(L.Draw.Event.CREATED, function (e) {
     if (drawnRect) drawnItems.removeLayer(drawnRect);
     drawnRect = e.layer;
     drawnItems.addLayer(drawnRect);
+    hideGuide();
     onAreaSelected();
   });
+
+  // Task 4: Show guide step 1
+  setTimeout(() => showGuideStep1(), 600);
+}
+
+// ===== Task 4: Demo Guide =====
+function showGuideStep1() {
+  guideStep = 1;
+  // Show pulse circle at data center
+  pulseCircle = L.circle([35.6565, 139.7565], {
+    radius: 600,
+    color: '#1565c0',
+    weight: 3,
+    fill: false,
+    className: 'pulse-circle'
+  }).addTo(map);
+
+  // Show data area hint
+  dataAreaRect = L.rectangle(
+    [[DATA_BOUNDS.south, DATA_BOUNDS.west], [DATA_BOUNDS.north, DATA_BOUNDS.east]],
+    { color: '#1565c0', weight: 2, dashArray: '6 4', fillColor: '#1565c0', fillOpacity: 0.05, interactive: false }
+  ).addTo(map);
+
+  showGuideOverlay(
+    '浜松町エリアにスタブデータが用意されています。<br>左上の選択ツール（□）をクリックし、ハイライトされた範囲を囲んでください。',
+    'OK'
+  );
+}
+
+function showGuideStep2() {
+  guideStep = 2;
+  hideGuide();
+  if (pulseCircle) { map.removeLayer(pulseCircle); pulseCircle = null; }
+
+  showGuideOverlay(
+    '地図上をドラッグして、評価したいエリアを選択してください',
+    null
+  );
+  // Auto dismiss after 2s
+  setTimeout(() => { if (guideStep === 2) hideGuide(); }, 2000);
+}
+
+function showGuideStep3() {
+  guideStep = 3;
+  showGuideOverlay(
+    '12件の候補筆が見つかりました。<br>筆をクリックして詳細を確認できます。',
+    null
+  );
+  setTimeout(() => { if (guideStep === 3) hideGuide(); }, 3000);
+}
+
+function showGuideOverlay(message, btnText) {
+  hideGuide();
+  const el = document.createElement('div');
+  el.className = 'guide-overlay' + (btnText ? ' clickable' : '');
+  el.innerHTML = `
+    <div class="guide-message">
+      <p>${message}</p>
+      ${btnText ? `<button class="guide-dismiss" onclick="hideGuide()">${btnText}</button>` : ''}
+    </div>
+  `;
+  if (!btnText) {
+    el.addEventListener('click', () => hideGuide());
+  }
+  document.getElementById('screen-map').appendChild(el);
+  guideOverlay = el;
+}
+
+function hideGuide() {
+  if (guideOverlay) {
+    guideOverlay.remove();
+    guideOverlay = null;
+  }
+}
+
+function showToast(msg) {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = msg;
+  document.getElementById('screen-map').appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
 }
 
 // ===== Screen 2: Area Selected =====
 async function onAreaSelected() {
+  // Task 4: Check if within data bounds
+  if (drawnRect) {
+    const bounds = drawnRect.getBounds();
+    const intersects = bounds.getSouth() < DATA_BOUNDS.north &&
+      bounds.getNorth() > DATA_BOUNDS.south &&
+      bounds.getWest() < DATA_BOUNDS.east &&
+      bounds.getEast() > DATA_BOUNDS.west;
+    if (!intersects) {
+      showToast('デモ版のため、浜松町エリアのデータのみ利用可能です。ハイライトされた範囲を選択してください。');
+      return;
+    }
+  }
+
+  if (dataAreaRect) { map.removeLayer(dataAreaRect); dataAreaRect = null; }
+  if (pulseCircle) { map.removeLayer(pulseCircle); pulseCircle = null; }
+
   document.getElementById('guide-text').textContent = '分析中…';
   const overlay = document.getElementById('loading-overlay');
   overlay.classList.add('show');
 
-  // Load parcels
   if (parcelsData.length === 0) {
     try {
       const resp = await fetch('data/parcels.json');
       parcelsData = await resp.json();
     } catch (e) {
-      // Fallback: inline data if fetch fails (file:// protocol)
       console.warn('Fetch failed, using inline data');
       parcelsData = await loadInlineData();
     }
@@ -82,6 +208,8 @@ async function onAreaSelected() {
     drawParcels();
     showRankingPanel();
     currentScreen = 2;
+    // Task 4: Step 3
+    showGuideStep3();
   }, 500);
 }
 
@@ -103,11 +231,12 @@ async function loadInlineData() {
   ];
 }
 
-// ===== Draw parcels on map =====
+// ===== Draw parcels on map (Task 2) =====
 function drawParcels() {
-  // Clear existing
   Object.values(parcelLayers).forEach(l => map.removeLayer(l));
+  Object.values(parcelTooltips).forEach(t => map.removeLayer(t));
   parcelLayers = {};
+  parcelTooltips = {};
 
   parcelsData.forEach(p => {
     const grade = getGrade(p.score);
@@ -119,14 +248,33 @@ function drawParcels() {
       weight: 2
     }).addTo(map);
 
-    // Tooltip
-    layer.bindTooltip(`${p.name}<br>${displayMode === 'score' ? 'スコア: ' + p.score : 'ROI: ' + p.roi + '%'}`, {
-      direction: 'top', className: '', offset: [0, -5]
+    // Task 2: Permanent score tooltip at center
+    const center = layer.getBounds().getCenter();
+    const scoreLabel = L.tooltip({
+      permanent: true,
+      direction: 'center',
+      className: 'score-tooltip',
+      offset: [0, 0]
+    }).setLatLng(center).setContent(String(p.score)).addTo(map);
+    parcelTooltips[p.id] = scoreLabel;
+
+    // Task 2: Hover effects
+    layer.on('mouseover', () => {
+      if (p.id !== selectedParcelId) {
+        layer.setStyle({ fillOpacity: 0.8, weight: 3 });
+      }
+    });
+    layer.on('mouseout', () => {
+      if (p.id !== selectedParcelId) {
+        const isAnySelected = selectedParcelId !== null;
+        layer.setStyle({
+          fillOpacity: isAnySelected ? 0.25 : 0.6,
+          weight: 2
+        });
+      }
     });
 
-    // Click → highlight
     layer.on('click', () => selectParcel(p.id));
-    // Double click → detail
     layer.on('dblclick', (e) => {
       L.DomEvent.stopPropagation(e);
       showDetailPanel(p.id);
@@ -136,7 +284,7 @@ function drawParcels() {
   });
 }
 
-// ===== Update polygon styles =====
+// ===== Update polygon styles (Task 2) =====
 function updateParcelStyles() {
   parcelsData.forEach(p => {
     const layer = parcelLayers[p.id];
@@ -144,16 +292,17 @@ function updateParcelStyles() {
     const grade = getGrade(p.score);
     const isSelected = p.id === selectedParcelId;
     layer.setStyle({
-      color: gradeColor(grade),
+      color: isSelected ? '#ffffff' : gradeColor(grade),
       fillColor: gradeFill(grade),
       fillOpacity: isSelected ? 0.85 : (selectedParcelId ? 0.25 : 0.6),
-      weight: isSelected ? 4 : 2
+      weight: isSelected ? 3 : 2
     });
-    // Update tooltip
-    layer.unbindTooltip();
-    layer.bindTooltip(`${p.name}<br>${displayMode === 'score' ? 'スコア: ' + p.score : 'ROI: ' + p.roi + '%'}`, {
-      direction: 'top', offset: [0, -5]
-    });
+
+    // Update score tooltip content for display mode
+    const tooltip = parcelTooltips[p.id];
+    if (tooltip) {
+      tooltip.setContent(displayMode === 'score' ? String(p.score) : p.roi + '%');
+    }
   });
 }
 
@@ -193,12 +342,14 @@ function showRankingPanel() {
     <div class="ranking-list">
       ${sorted.map((p, i) => {
         const grade = getGrade(p.score);
+        const valueText = displayMode === 'score' ? p.score : p.roi + '%';
         return `<div class="ranking-item" id="rank-${p.id}" onclick="onRankClick('${p.id}')" ondblclick="showDetailPanel('${p.id}')">
           <div class="rank-num rank-${grade}">${i + 1}</div>
           <div class="rank-info">
             <div class="rank-name">${p.name}</div>
-            <div class="rank-sub">${displayMode === 'score' ? 'スコア: ' + p.score : 'ROI: ' + p.roi + '%'} / ${p.zone}</div>
+            <div class="rank-sub">${p.zone}</div>
           </div>
+          <span class="rank-score">${valueText}</span>
           <div class="rank-badge grade-${grade}">${grade}</div>
         </div>`;
       }).join('')}
@@ -231,7 +382,27 @@ function highlightRankingItem(id) {
   }
 }
 
-// ===== Screen 3: Detail Panel =====
+// ===== Task 6: Metric descriptions =====
+const metricDescriptions = {
+  'ROI': '想定賃料収入から建築費・土地取得費・管理費等を差し引いた年間純収益を、総投資額で割った値。周辺相場と空室率予測に基づく推計値',
+  '想定賃料': '周辺500m圏内の成約賃料実績と、築年数・階数・用途を考慮した回帰モデルによる推計値（円/m²）',
+  '空室率予測': '同一用途地域・同一駅圏の直近3年間の平均空室率に、新規供給予測を加味した予測値',
+  '概算建築費': '用途・構造・階数に基づく建築工事費の概算。杭工事・外構・設計監理費を含む',
+  '魅力度スコア': '法規制適合性、交通利便性、周辺賃料水準、開発余地、ハザードリスクの5要素を重み付けして算出した総合指標（0-100）'
+};
+
+function toggleMetricDetail(el) {
+  const detail = el.nextElementSibling;
+  if (!detail) return;
+  el.classList.toggle('expanded');
+  detail.classList.toggle('open');
+}
+
+function toggleDetailRow(el) {
+  el.classList.toggle('expanded');
+}
+
+// ===== Screen 3: Detail Panel (Task 6) =====
 function showDetailPanel(id) {
   currentScreen = 3;
   selectedParcelId = id;
@@ -239,9 +410,25 @@ function showDetailPanel(id) {
   if (!p) return;
   const grade = getGrade(p.score);
 
-  // Center map on parcel
   map.panTo([p.lat, p.lng]);
   updateParcelStyles();
+
+  const metrics = [
+    { label: 'ROI', value: p.roi, unit: '%' },
+    { label: '想定賃料', value: (p.rent / 1000).toFixed(0), unit: '千円/m²' },
+    { label: '空室率予測', value: p.vacancy, unit: '%' },
+    { label: '概算建築費', value: p.cost, unit: '百万円' }
+  ];
+
+  const detailRows = [
+    { label: '魅力度スコア', value: p.score, desc: metricDescriptions['魅力度スコア'] },
+    { label: '用途地域', value: p.zone },
+    { label: '容積率', value: p.far + '%' },
+    { label: '敷地面積', value: p.area.toLocaleString() + ' m²' },
+    { label: '想定階数', value: p.floors + '階' },
+    { label: '想定戸数', value: p.units + '戸' },
+    { label: '想定土地代', value: p.landPrice + '万円/m²' }
+  ];
 
   const panel = document.getElementById('side-panel');
   panel.innerHTML = `
@@ -254,33 +441,37 @@ function showDetailPanel(id) {
         <h3>${p.name}</h3>
         <div class="rank-badge grade-${grade}" style="font-size:14px; padding:4px 14px;">${grade}</div>
       </div>
-      <div class="detail-metrics">
-        <div class="metric-card">
-          <div class="metric-label">ROI</div>
-          <div class="metric-value">${p.roi}<span class="metric-unit">%</span></div>
+      ${metrics.map(m => `
+        <div class="metric-card" onclick="toggleMetricDetail(this)">
+          <span class="expand-icon">▼</span>
+          <div class="metric-label">${m.label}</div>
+          <div class="metric-value">${m.value}<span class="metric-unit">${m.unit}</span></div>
         </div>
-        <div class="metric-card">
-          <div class="metric-label">想定賃料</div>
-          <div class="metric-value">${(p.rent / 1000).toFixed(0)}<span class="metric-unit">千円/m²</span></div>
+        <div class="metric-detail">
+          <div class="metric-detail-content">${metricDescriptions[m.label] || ''}</div>
         </div>
-        <div class="metric-card">
-          <div class="metric-label">空室率予測</div>
-          <div class="metric-value">${p.vacancy}<span class="metric-unit">%</span></div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-label">概算建築費</div>
-          <div class="metric-value">${p.cost}<span class="metric-unit">百万円</span></div>
-        </div>
+      `).join('')}
+      <div style="margin-top:12px">
+        ${detailRows.map(r => {
+          if (r.desc) {
+            return `<div class="detail-row" onclick="toggleDetailRow(this)">
+              <div class="detail-row-header">
+                <span class="dr-label">${r.label}</span>
+                <span><span class="dr-value">${r.value}</span><span class="dr-arrow">▼</span></span>
+              </div>
+              <div class="detail-row-body">
+                <div class="detail-row-desc">${r.desc}</div>
+              </div>
+            </div>`;
+          }
+          return `<div class="detail-row">
+            <div class="detail-row-header">
+              <span class="dr-label">${r.label}</span>
+              <span class="dr-value">${r.value}</span>
+            </div>
+          </div>`;
+        }).join('')}
       </div>
-      <table class="detail-table">
-        <tr><td>魅力度スコア</td><td>${p.score}</td></tr>
-        <tr><td>用途地域</td><td>${p.zone}</td></tr>
-        <tr><td>容積率</td><td>${p.far}%</td></tr>
-        <tr><td>敷地面積</td><td>${p.area.toLocaleString()} m²</td></tr>
-        <tr><td>想定階数</td><td>${p.floors}階</td></tr>
-        <tr><td>想定戸数</td><td>${p.units}戸</td></tr>
-        <tr><td>想定土地代</td><td>${p.landPrice}万円/m²</td></tr>
-      </table>
     </div>
   `;
 }
@@ -290,14 +481,12 @@ function showImpactPanel(id) {
   currentScreen = 4;
   const p = parcelsData.find(d => d.id === id);
   if (!p) return;
-
   renderImpactUI(p, 'large-sc', 20000);
 }
 
 function renderImpactUI(p, facilityType, floorArea) {
   clearImpactOverlay();
 
-  // Dummy impact calculations
   const facilityMultiplier = { 'large-sc': 1.0, 'office': 0.7, 'tower-mansion': 0.5 }[facilityType] || 1.0;
   const areaMultiplier = floorArea / 20000;
   const base200 = 12 * facilityMultiplier * areaMultiplier;
@@ -307,7 +496,6 @@ function renderImpactUI(p, facilityType, floorArea) {
   const vacancyChange = -(2.5 * facilityMultiplier * areaMultiplier);
   const capRateChange = -(0.3 * facilityMultiplier * areaMultiplier);
 
-  // Draw concentric circles
   const colors = ['rgba(21,101,192,0.25)', 'rgba(21,101,192,0.15)', 'rgba(21,101,192,0.08)'];
   const radii = [200, 500, 1000];
   radii.forEach((r, i) => {
@@ -322,8 +510,6 @@ function renderImpactUI(p, facilityType, floorArea) {
     circle.bindTooltip(`${r}m圏`, { permanent: true, direction: 'center', className: '' });
     impactCircles.push(circle);
   });
-
-  const facilityLabels = { 'large-sc': '大型SC', 'office': 'オフィスビル', 'tower-mansion': 'タワーマンション' };
 
   const panel = document.getElementById('side-panel');
   panel.innerHTML = `
@@ -342,19 +528,16 @@ function renderImpactUI(p, facilityType, floorArea) {
         <input type="range" id="floor-area" min="5000" max="50000" step="1000" value="${floorArea}" oninput="onImpactChange('${p.id}')">
         <div class="impact-range-val" id="floor-area-val">${floorArea.toLocaleString()} m²</div>
       </div>
-
       <div class="impact-results">
         <h4>距離帯別 賃料変化率</h4>
         <div class="impact-row"><span class="ir-label">200m圏</span><span class="ir-value positive">+${base200.toFixed(1)}%</span></div>
         <div class="impact-row"><span class="ir-label">500m圏</span><span class="ir-value positive">+${base500.toFixed(1)}%</span></div>
         <div class="impact-row"><span class="ir-label">1km圏</span><span class="ir-value positive">+${base1000.toFixed(1)}%</span></div>
-
         <h4 style="margin-top:16px">その他推計</h4>
         <div class="impact-row"><span class="ir-label">来訪者増加</span><span class="ir-value positive">+${visitors.toLocaleString()} 人/日</span></div>
         <div class="impact-row"><span class="ir-label">空室率変化</span><span class="ir-value positive">${vacancyChange.toFixed(1)}%</span></div>
         <div class="impact-row"><span class="ir-label">Cap Rate変化</span><span class="ir-value positive">${capRateChange.toFixed(2)}%</span></div>
       </div>
-
       <button class="impact-back-btn" onclick="showDetailPanel('${p.id}')">← 詳細に戻る</button>
     </div>
   `;
