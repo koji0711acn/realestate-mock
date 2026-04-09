@@ -829,10 +829,21 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
 @keyframes spin { to { transform: rotate(360deg); } }
 #loading-overlay p { font-size: 14px; color: #555; }
 
-/* ===== Leaflet Draw Override (Task 5) ===== */
+/* ===== Leaflet Draw Override (Task 5 + Task 21) ===== */
 .leaflet-draw-toolbar a { background-color: #fff !important; }
 .leaflet-draw-toolbar .leaflet-draw-draw-rectangle {
   position: relative;
+  background-color: #185FA5 !important;
+  border-radius: 4px;
+}
+.leaflet-draw-toolbar .leaflet-draw-draw-rectangle.shake-btn {
+  animation: shake 0.5s ease-in-out infinite;
+  animation-delay: 0s;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
 }
 
 /* ===== Score Tooltip on Polygons (Task 2) ===== */
@@ -1191,6 +1202,29 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
   font-family: inherit;
 }
 .acq-proceed-btn:hover { background: #14508c; }
+.impact-sticky-footer {
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  border-top: 1px solid #e0e0e0;
+  padding: 16px;
+  z-index: 10;
+}
+.acq-proceed-pulse {
+  position: relative;
+}
+.acq-proceed-pulse::after {
+  content: '';
+  position: absolute;
+  top: -4px; left: -4px; right: -4px; bottom: -4px;
+  border: 2px solid rgba(24,95,165,0.3);
+  border-radius: 12px;
+  animation: btnPulse 2s ease-in-out infinite;
+}
+@keyframes btnPulse {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.02); }
+}
 
 /* ===== Task 17: Acquisition Loading Animation ===== */
 .loading-acq {
@@ -1250,8 +1284,8 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
 .loading-step-text { font-size: 13px; font-weight: 600; color: #1a1a2e; margin-bottom: 2px; }
 .loading-step-sub { font-size: 11px; color: #888; }
 .loading-step-img {
-  width: 60px;
-  height: 45px;
+  width: 80px;
+  height: 60px;
   background: #e8e8e8;
   border-radius: 4px;
   display: flex;
