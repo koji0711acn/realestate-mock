@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real World AI — 不動産開発支援プラットフォーム</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Leaflet Draw CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ===== Screen 0: Landing ===== -->
+  <div id="screen0">
+    <h1>Real World AI — 不動産開発支援プラットフォーム</h1>
+
+    <div class="compare-container">
+      <!-- Left: Existing -->
+      <div class="compare-card existing">
+        <h2>既存ツールの到達点</h2>
+        <ul>
+          <li><span class="icon">✓</span>データの重畳表示・地図上の可視化</li>
+          <li><span class="icon">✓</span>単一敷地のボリュームチェック（約15秒）</li>
+          <li><span class="icon">✓</span>人流・交通の条件付きシミュレーション</li>
+          <li><span class="icon">✓</span>登記変化トリガーによるリード抽出</li>
+        </ul>
+      </div>
+      <!-- Right: Target -->
+      <div class="compare-card target">
+        <h2>当社プロダクトの到達目標</h2>
+        <ul>
+          <li><span class="icon">★</span>エリア内全筆の一括ROI算出・ランキング</li>
+          <li><span class="icon">★</span>多変量統合による筆単位魅力度スコアリング</li>
+          <li><span class="icon">★</span>開発インパクト→賃料・Cap Rate波及推計</li>
+          <li><span class="icon">★</span>探索→評価→推計→稟議の一気通貫ワークフロー</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="landing-message">この差分を、これからお見せします。</p>
+    <button id="btn-start" class="btn-start">デモ開始</button>
+  </div>
+
+  <!-- ===== Screen 1-4: Map ===== -->
+  <div id="screen-map">
+    <div id="map"></div>
+    <div id="guide-text">エリアを選択して評価を開始</div>
+    <div id="side-panel"></div>
+    <div id="loading-overlay">
+      <div class="spinner"></div>
+      <p>筆データを分析しています…</p>
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Leaflet Draw JS -->
+  <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+
+  <script src="app.js"></script>
+</body>
+</html>
