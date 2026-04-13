@@ -8,14 +8,15 @@ let currentScreen = 0;
 let displayMode = 'score';
 let drawnRect = null;
 let impactCircles = [];
+let devAreaRect = null;
 let guideStep = 0;
 let guideOverlay = null;
 let dataAreaRect = null;
 let pulseCircle = null;
 let gifInterval = null;
 
-// Data bounds (Task 20: single block in Shibadaimon 1-chome)
-const DATA_BOUNDS = L.latLngBounds([35.6580, 139.7555], [35.6598, 139.7580]);
+// Data bounds (Task 30: Shibadaimon 1-chome NW, away from tracks)
+const DATA_BOUNDS = L.latLngBounds([35.6588, 139.7538], [35.6605, 139.7558]);
 
 // ===== Task 11: Login =====
 const VALID_ID = 'rwai';
@@ -35,42 +36,53 @@ function handleLogin() {
   }
 }
 
-// ===== Task 12: GIF Slideshow =====
-const gifTexts = [
-  'エリアを指定するだけで、全筆の開発ポテンシャルを瞬時に評価',
-  '施設建設が周辺の賃料・空室率に与える影響を定量シミュレーション',
-  '地権者情報の特定からターゲットリスト生成まで一気通貫',
-  '既存ツールでは実現できない、探索→評価→推計→取得の統合ワークフロー'
+// ===== Task 32: Image Slideshow =====
+const slideImages = ['data/slide-1.png', 'data/slide-2.png', 'data/slide-3.png'];
+const slideTexts = [
+  'エリアを指定するだけで、全筆の開発ポテンシャルを瞬時にランキング',
+  '施設建設が周辺の賃料・不動産価値に与える影響を定量シミュレーション',
+  '地権者分析からアタックリスト生成まで、一気通貫で支援'
 ];
-let gifTextIndex = 0;
+let slideIndex = 0;
 
 function startGifSlideshow() {
-  // Try to load demo.gif
   const display = document.getElementById('gif-display');
-  const img = new Image();
-  img.onload = function () {
-    display.innerHTML = '';
-    img.style.width = '100%';
-    img.style.height = '100%';
-    img.style.objectFit = 'cover';
-    display.appendChild(img);
-  };
-  img.src = 'data/demo.gif';
-
-  // Start text rotation
   const textEl = document.getElementById('gif-text');
-  textEl.textContent = gifTexts[0];
-  textEl.classList.add('fade-in');
-  gifInterval = setInterval(() => {
+
+  function showSlide(idx) {
+    // Fade out
+    display.style.opacity = '0';
     textEl.classList.remove('fade-in');
     textEl.classList.add('fade-out');
+
     setTimeout(() => {
-      gifTextIndex = (gifTextIndex + 1) % gifTexts.length;
-      textEl.textContent = gifTexts[gifTextIndex];
+      // Try loading image
+      const img = new Image();
+      img.onload = function() {
+        display.innerHTML = '';
+        img.style.width = '100%';
+        img.style.height = '100%';
+        img.style.objectFit = 'cover';
+        display.appendChild(img);
+      };
+      img.onerror = function() {
+        display.innerHTML = '<div class="gif-placeholder">デモ動画 — 準備中</div>';
+      };
+      img.src = slideImages[idx];
+
+      textEl.textContent = slideTexts[idx];
+      // Fade in
+      display.style.opacity = '1';
       textEl.classList.remove('fade-out');
       textEl.classList.add('fade-in');
-    }, 300);
-  }, 4000);
+    }, 500);
+  }
+
+  showSlide(0);
+  gifInterval = setInterval(() => {
+    slideIndex = (slideIndex + 1) % slideImages.length;
+    showSlide(slideIndex);
+  }, 3000);
 }
 
 // ===== Task 19: Comparison tab switch =====
@@ -105,7 +117,7 @@ function startDemo() {
 
 // ===== Map Init (Screen 1) =====
 function initMap() {
-  map = L.map('map', { zoomControl: true }).setView([35.6589, 139.7567], 18);
+  map = L.map('map', { zoomControl: true }).setView([35.6596, 139.7548], 16);
 
   // Task 1: Carto Positron tile
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
@@ -180,7 +192,7 @@ function showGuideStep2() {
   // Show pulse circle at data area center
   const center = DATA_BOUNDS.getCenter();
   pulseCircle = L.circle(center, {
-    radius: 80,
+    radius: 150,
     color: '#1565c0',
     weight: 3,
     fill: false,
@@ -194,7 +206,7 @@ function showGuideStep2() {
   }).addTo(map);
 
   showGuideOverlay(
-    'ハイライトされた範囲をドラッグで囲んでください',
+    '青い円の中にあるエリアにズームインし、点線の範囲を囲んでください',
     null
   );
   setTimeout(() => { if (guideStep === 2) hideGuide(); }, 3000);
@@ -286,18 +298,18 @@ async function onAreaSelected() {
 // Fallback inline data loader
 async function loadInlineData() {
   return [
-    {"id":"P001","name":"芝大門1-1","lat":35.65835,"lng":139.75610,"polygon":[[35.65850,139.75595],[35.65850,139.75625],[35.65820,139.75625],[35.65820,139.75595]],"zone":"商業地域","far":800,"score":92,"roi":7.8,"rent":28000,"area":1200,"vacancy":2.1,"floors":14,"units":120,"cost":4800,"landPrice":950},
-    {"id":"P002","name":"芝大門1-3","lat":35.65870,"lng":139.75670,"polygon":[[35.65885,139.75655],[35.65885,139.75685],[35.65855,139.75685],[35.65855,139.75655]],"zone":"商業地域","far":700,"score":85,"roi":7.2,"rent":26000,"area":980,"vacancy":3.0,"floors":12,"units":96,"cost":3900,"landPrice":880},
-    {"id":"P003","name":"芝大門1-5","lat":35.65920,"lng":139.75600,"polygon":[[35.65940,139.75580],[35.65940,139.75620],[35.65900,139.75620],[35.65900,139.75580]],"zone":"商業地域","far":600,"score":81,"roi":6.9,"rent":25000,"area":850,"vacancy":3.5,"floors":10,"units":80,"cost":3200,"landPrice":820},
-    {"id":"P004","name":"芝大門1-7","lat":35.65960,"lng":139.75680,"polygon":[[35.65980,139.75660],[35.65980,139.75700],[35.65940,139.75700],[35.65940,139.75660]],"zone":"準工業地域","far":500,"score":74,"roi":6.1,"rent":22000,"area":1500,"vacancy":4.2,"floors":8,"units":64,"cost":3600,"landPrice":650},
-    {"id":"P005","name":"芝大門1-9","lat":35.65850,"lng":139.75560,"polygon":[[35.65865,139.75550],[35.65865,139.75575],[35.65838,139.75575],[35.65838,139.75550]],"zone":"商業地域","far":600,"score":71,"roi":5.8,"rent":21000,"area":400,"vacancy":4.8,"floors":9,"units":54,"cost":2700,"landPrice":780},
-    {"id":"P006","name":"芝大門1-11","lat":35.65900,"lng":139.75720,"polygon":[[35.65915,139.75705],[35.65915,139.75735],[35.65885,139.75735],[35.65885,139.75705]],"zone":"商業地域","far":700,"score":67,"roi":5.5,"rent":20000,"area":480,"vacancy":5.1,"floors":10,"units":70,"cost":2800,"landPrice":750},
-    {"id":"P007","name":"芝大門1-13","lat":35.65940,"lng":139.75560,"polygon":[[35.65955,139.75550],[35.65955,139.75575],[35.65928,139.75575],[35.65928,139.75550]],"zone":"第二種住居地域","far":400,"score":62,"roi":5.2,"rent":19000,"area":380,"vacancy":5.5,"floors":7,"units":42,"cost":2100,"landPrice":700},
-    {"id":"P008","name":"芝大門1-15","lat":35.65820,"lng":139.75680,"polygon":[[35.65835,139.75665],[35.65835,139.75695],[35.65805,139.75695],[35.65805,139.75665]],"zone":"準工業地域","far":400,"score":53,"roi":4.5,"rent":16000,"area":450,"vacancy":6.8,"floors":6,"units":48,"cost":3000,"landPrice":520},
-    {"id":"P009","name":"芝大門1-17","lat":35.65970,"lng":139.75750,"polygon":[[35.65985,139.75740],[35.65985,139.75765],[35.65958,139.75765],[35.65958,139.75740]],"zone":"第一種住居地域","far":300,"score":48,"roi":4.1,"rent":15000,"area":350,"vacancy":7.2,"floors":5,"units":30,"cost":1500,"landPrice":620},
-    {"id":"P010","name":"芝大門1-19","lat":35.65880,"lng":139.75760,"polygon":[[35.65895,139.75745],[35.65895,139.75775],[35.65868,139.75775],[35.65868,139.75745]],"zone":"商業地域","far":500,"score":44,"roi":3.8,"rent":14500,"area":320,"vacancy":7.8,"floors":7,"units":35,"cost":1800,"landPrice":690},
-    {"id":"P011","name":"芝大門1-21","lat":35.65810,"lng":139.75740,"polygon":[[35.65825,139.75725],[35.65825,139.75755],[35.65798,139.75755],[35.65798,139.75725]],"zone":"準工業地域","far":300,"score":35,"roi":3.2,"rent":12000,"area":430,"vacancy":9.5,"floors":4,"units":24,"cost":2200,"landPrice":380},
-    {"id":"P012","name":"芝大門1-23","lat":35.65815,"lng":139.75560,"polygon":[[35.65830,139.75550],[35.65830,139.75575],[35.65803,139.75575],[35.65803,139.75550]],"zone":"第一種住居地域","far":200,"score":28,"roi":2.5,"rent":11000,"area":280,"vacancy":11.0,"floors":3,"units":12,"cost":800,"landPrice":450}
+    {"id":"P001","name":"芝大門1-1","lat":35.65915,"lng":139.75420,"polygon":[[35.65930,139.75405],[35.65930,139.75435],[35.65900,139.75435],[35.65900,139.75405]],"zone":"商業地域","far":800,"score":92,"roi":7.8,"rent":28000,"area":1200,"vacancy":2.1,"floors":14,"units":120,"cost":4800,"landPrice":950},
+    {"id":"P002","name":"芝大門1-3","lat":35.65950,"lng":139.75480,"polygon":[[35.65965,139.75465],[35.65965,139.75495],[35.65935,139.75495],[35.65935,139.75465]],"zone":"商業地域","far":700,"score":85,"roi":7.2,"rent":26000,"area":980,"vacancy":3.0,"floors":12,"units":96,"cost":3900,"landPrice":880},
+    {"id":"P003","name":"芝大門1-5","lat":35.65990,"lng":139.75430,"polygon":[[35.66010,139.75415],[35.66010,139.75450],[35.65975,139.75450],[35.65975,139.75415]],"zone":"商業地域","far":600,"score":81,"roi":6.9,"rent":25000,"area":850,"vacancy":3.5,"floors":10,"units":80,"cost":3200,"landPrice":820},
+    {"id":"P004","name":"芝大門1-7","lat":35.66020,"lng":139.75510,"polygon":[[35.66040,139.75495],[35.66040,139.75530],[35.66005,139.75530],[35.66005,139.75495]],"zone":"準工業地域","far":500,"score":74,"roi":6.1,"rent":22000,"area":1500,"vacancy":4.2,"floors":8,"units":64,"cost":3600,"landPrice":650},
+    {"id":"P005","name":"芝大門1-9","lat":35.65910,"lng":139.75490,"polygon":[[35.65925,139.75478],[35.65925,139.75505],[35.65898,139.75505],[35.65898,139.75478]],"zone":"商業地域","far":600,"score":71,"roi":5.8,"rent":21000,"area":400,"vacancy":4.8,"floors":9,"units":54,"cost":2700,"landPrice":780},
+    {"id":"P006","name":"芝大門1-11","lat":35.65970,"lng":139.75540,"polygon":[[35.65985,139.75525],[35.65985,139.75555],[35.65955,139.75555],[35.65955,139.75525]],"zone":"商業地域","far":700,"score":67,"roi":5.5,"rent":20000,"area":480,"vacancy":5.1,"floors":10,"units":70,"cost":2800,"landPrice":750},
+    {"id":"P007","name":"芝大門1-13","lat":35.66000,"lng":139.75390,"polygon":[[35.66015,139.75380],[35.66015,139.75405],[35.65988,139.75405],[35.65988,139.75380]],"zone":"第二種住居地域","far":400,"score":62,"roi":5.2,"rent":19000,"area":380,"vacancy":5.5,"floors":7,"units":42,"cost":2100,"landPrice":700},
+    {"id":"P008","name":"芝大門1-15","lat":35.65895,"lng":139.75450,"polygon":[[35.65910,139.75438],[35.65910,139.75465],[35.65880,139.75465],[35.65880,139.75438]],"zone":"準工業地域","far":400,"score":53,"roi":4.5,"rent":16000,"area":450,"vacancy":6.8,"floors":6,"units":48,"cost":3000,"landPrice":520},
+    {"id":"P009","name":"芝大門1-17","lat":35.66030,"lng":139.75460,"polygon":[[35.66045,139.75448],[35.66045,139.75475],[35.66018,139.75475],[35.66018,139.75448]],"zone":"第一種住居地域","far":300,"score":48,"roi":4.1,"rent":15000,"area":350,"vacancy":7.2,"floors":5,"units":30,"cost":1500,"landPrice":620},
+    {"id":"P010","name":"芝大門1-19","lat":35.65940,"lng":139.75560,"polygon":[[35.65955,139.75548],[35.65955,139.75575],[35.65928,139.75575],[35.65928,139.75548]],"zone":"商業地域","far":500,"score":44,"roi":3.8,"rent":14500,"area":320,"vacancy":7.8,"floors":7,"units":35,"cost":1800,"landPrice":690},
+    {"id":"P011","name":"芝大門1-21","lat":35.65890,"lng":139.75530,"polygon":[[35.65905,139.75518],[35.65905,139.75545],[35.65878,139.75545],[35.65878,139.75518]],"zone":"準工業地域","far":300,"score":35,"roi":3.2,"rent":12000,"area":430,"vacancy":9.5,"floors":4,"units":24,"cost":2200,"landPrice":380},
+    {"id":"P012","name":"芝大門1-23","lat":35.66040,"lng":139.75400,"polygon":[[35.66050,139.75388],[35.66050,139.75415],[35.66028,139.75415],[35.66028,139.75388]],"zone":"第一種住居地域","far":200,"score":28,"roi":2.5,"rent":11000,"area":280,"vacancy":11.0,"floors":3,"units":12,"cost":800,"landPrice":450}
   ];
 }
 
@@ -559,7 +571,7 @@ function showDetailPanel(id) {
         }).join('')}
       </div>
       <div style="margin-top:16px">
-        <button class="impact-btn" onclick="startAcquisitionLoading('${p.id}')" style="width:100%;text-align:center;margin-bottom:8px">用地取得を検討 →</button>
+        <button class="impact-btn" onclick="startAcquisitionLoading('${p.id}')" style="width:100%;text-align:center;margin-bottom:8px">ターゲット候補を選定 →</button>
         <button class="back-btn" onclick="downloadEvalReport('${p.id}')" style="width:100%;text-align:center">評価書生成</button>
       </div>
     </div>
@@ -652,10 +664,29 @@ function renderImpactUI(p, facilityType, floorArea) {
   const vacancyChange = -(2.5 * facilityMultiplier * areaMultiplier);
   const capRateChange = -(0.3 * facilityMultiplier * areaMultiplier);
 
+  // Task 31: Use polygon centroid for circles
+  const parcelLayer = parcelLayers[p.id];
+  const centerLatLng = parcelLayer ? parcelLayer.getBounds().getCenter() : L.latLng(p.lat, p.lng);
+
+  // Highlight selected parcel polygon
+  if (parcelLayer) {
+    parcelLayer.setStyle({ weight: 4, color: '#185FA5', fillOpacity: 0.7 });
+  }
+
+  // Dev area rectangle proportional to floor area
+  const devSize = Math.sqrt(floorArea) * 0.00001;
+  if (devAreaRect) { map.removeLayer(devAreaRect); devAreaRect = null; }
+  devAreaRect = L.rectangle(
+    [[centerLatLng.lat - devSize/2, centerLatLng.lng - devSize/2],
+     [centerLatLng.lat + devSize/2, centerLatLng.lng + devSize/2]],
+    { color: '#185FA5', weight: 2, fillColor: '#185FA5', fillOpacity: 0.25, interactive: false }
+  ).addTo(map);
+  devAreaRect.bindTooltip(`開発予定地 ${floorArea.toLocaleString()}m²`, { permanent: true, direction: 'center', className: '' });
+
   const colors = ['rgba(21,101,192,0.25)', 'rgba(21,101,192,0.15)', 'rgba(21,101,192,0.08)'];
   const radii = [200, 500, 1000];
   radii.forEach((r, i) => {
-    const circle = L.circle([p.lat, p.lng], {
+    const circle = L.circle(centerLatLng, {
       radius: r, color: '#1565c0', weight: 1,
       fillColor: colors[i], fillOpacity: 1, dashArray: '4 4'
     }).addTo(map);
@@ -709,7 +740,7 @@ function renderImpactUI(p, facilityType, floorArea) {
       </div>
       <div class="impact-sticky-footer">
         <div class="acq-proceed-pulse">
-          <button class="acq-proceed-btn" onclick="startAcquisitionLoading('${p.id}')">用地取得プロセスへ進む →</button>
+          <button class="acq-proceed-btn" onclick="startAcquisitionLoading('${p.id}')">ターゲット候補の選定へ →</button>
         </div>
         <p style="font-size:12px;color:#888;margin-top:8px;text-align:center">地権者情報の確認とターゲットリスト生成に進みます</p>
       </div>
@@ -728,6 +759,7 @@ function onImpactChange(id) {
 function clearImpactOverlay() {
   impactCircles.forEach(c => map.removeLayer(c));
   impactCircles = [];
+  if (devAreaRect) { map.removeLayer(devAreaRect); devAreaRect = null; }
 }
 
 // ===== Task 9: Screen 5 — Land Acquisition Panel =====
@@ -784,7 +816,7 @@ function showAcquisitionPanel(id) {
   const panel = document.getElementById('side-panel');
   panel.innerHTML = `
     <div class="acquisition-panel">
-      <h3>用地取得プロセス — ${p.name}</h3>
+      <h3>ターゲット候補選定 — ${p.name}</h3>
 
       <div class="acq-section">
         <h4>権利構造</h4>

@@ -90,6 +90,7 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: opacity 0.5s ease;
 }
 .gif-display img {
   width: 100%;
@@ -829,16 +830,24 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
 @keyframes spin { to { transform: rotate(360deg); } }
 #loading-overlay p { font-size: 14px; color: #555; }
 
-/* ===== Leaflet Draw Override (Task 5 + Task 21) ===== */
+/* ===== Leaflet Draw Override (Task 29) ===== */
 .leaflet-draw-toolbar a { background-color: #fff !important; }
 .leaflet-draw-toolbar .leaflet-draw-draw-rectangle {
   position: relative;
   background-color: #185FA5 !important;
+  background-image: none !important;
   border-radius: 4px;
+}
+.leaflet-draw-toolbar .leaflet-draw-draw-rectangle::after {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  border: 2.5px solid #ffffff;
+  border-radius: 2px;
+  pointer-events: none;
 }
 .leaflet-draw-toolbar .leaflet-draw-draw-rectangle.shake-btn {
   animation: shake 0.5s ease-in-out infinite;
-  animation-delay: 0s;
 }
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
@@ -1208,7 +1217,8 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
   background: #fff;
   border-top: 1px solid #e0e0e0;
   padding: 16px;
-  z-index: 10;
+  z-index: 1000;
+  pointer-events: auto;
 }
 .acq-proceed-pulse {
   position: relative;
