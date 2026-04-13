@@ -302,20 +302,8 @@ async function onAreaSelected() {
 
 // Fallback inline data loader
 async function loadInlineData() {
-  return [
-    {"id":"P001","name":"芝大門1-1","lat":35.65915,"lng":139.75420,"polygon":[[35.65930,139.75405],[35.65930,139.75435],[35.65900,139.75435],[35.65900,139.75405]],"zone":"商業地域","far":800,"score":92,"roi":7.8,"rent":28000,"area":1200,"vacancy":2.1,"floors":14,"units":120,"cost":4800,"landPrice":950},
-    {"id":"P002","name":"芝大門1-3","lat":35.65950,"lng":139.75480,"polygon":[[35.65965,139.75465],[35.65965,139.75495],[35.65935,139.75495],[35.65935,139.75465]],"zone":"商業地域","far":700,"score":85,"roi":7.2,"rent":26000,"area":980,"vacancy":3.0,"floors":12,"units":96,"cost":3900,"landPrice":880},
-    {"id":"P003","name":"芝大門1-5","lat":35.65990,"lng":139.75430,"polygon":[[35.66010,139.75415],[35.66010,139.75450],[35.65975,139.75450],[35.65975,139.75415]],"zone":"商業地域","far":600,"score":81,"roi":6.9,"rent":25000,"area":850,"vacancy":3.5,"floors":10,"units":80,"cost":3200,"landPrice":820},
-    {"id":"P004","name":"芝大門1-7","lat":35.66020,"lng":139.75510,"polygon":[[35.66040,139.75495],[35.66040,139.75530],[35.66005,139.75530],[35.66005,139.75495]],"zone":"準工業地域","far":500,"score":74,"roi":6.1,"rent":22000,"area":1500,"vacancy":4.2,"floors":8,"units":64,"cost":3600,"landPrice":650},
-    {"id":"P005","name":"芝大門1-9","lat":35.65910,"lng":139.75490,"polygon":[[35.65925,139.75478],[35.65925,139.75505],[35.65898,139.75505],[35.65898,139.75478]],"zone":"商業地域","far":600,"score":71,"roi":5.8,"rent":21000,"area":400,"vacancy":4.8,"floors":9,"units":54,"cost":2700,"landPrice":780},
-    {"id":"P006","name":"芝大門1-11","lat":35.65970,"lng":139.75540,"polygon":[[35.65985,139.75525],[35.65985,139.75555],[35.65955,139.75555],[35.65955,139.75525]],"zone":"商業地域","far":700,"score":67,"roi":5.5,"rent":20000,"area":480,"vacancy":5.1,"floors":10,"units":70,"cost":2800,"landPrice":750},
-    {"id":"P007","name":"芝大門1-13","lat":35.66000,"lng":139.75390,"polygon":[[35.66015,139.75380],[35.66015,139.75405],[35.65988,139.75405],[35.65988,139.75380]],"zone":"第二種住居地域","far":400,"score":62,"roi":5.2,"rent":19000,"area":380,"vacancy":5.5,"floors":7,"units":42,"cost":2100,"landPrice":700},
-    {"id":"P008","name":"芝大門1-15","lat":35.65895,"lng":139.75450,"polygon":[[35.65910,139.75438],[35.65910,139.75465],[35.65880,139.75465],[35.65880,139.75438]],"zone":"準工業地域","far":400,"score":53,"roi":4.5,"rent":16000,"area":450,"vacancy":6.8,"floors":6,"units":48,"cost":3000,"landPrice":520},
-    {"id":"P009","name":"芝大門1-17","lat":35.66030,"lng":139.75460,"polygon":[[35.66045,139.75448],[35.66045,139.75475],[35.66018,139.75475],[35.66018,139.75448]],"zone":"第一種住居地域","far":300,"score":48,"roi":4.1,"rent":15000,"area":350,"vacancy":7.2,"floors":5,"units":30,"cost":1500,"landPrice":620},
-    {"id":"P010","name":"芝大門1-19","lat":35.65940,"lng":139.75560,"polygon":[[35.65955,139.75548],[35.65955,139.75575],[35.65928,139.75575],[35.65928,139.75548]],"zone":"商業地域","far":500,"score":44,"roi":3.8,"rent":14500,"area":320,"vacancy":7.8,"floors":7,"units":35,"cost":1800,"landPrice":690},
-    {"id":"P011","name":"芝大門1-21","lat":35.65890,"lng":139.75530,"polygon":[[35.65905,139.75518],[35.65905,139.75545],[35.65878,139.75545],[35.65878,139.75518]],"zone":"準工業地域","far":300,"score":35,"roi":3.2,"rent":12000,"area":430,"vacancy":9.5,"floors":4,"units":24,"cost":2200,"landPrice":380},
-    {"id":"P012","name":"芝大門1-23","lat":35.66040,"lng":139.75400,"polygon":[[35.66050,139.75388],[35.66050,139.75415],[35.66028,139.75415],[35.66028,139.75388]],"zone":"第一種住居地域","far":200,"score":28,"roi":2.5,"rent":11000,"area":280,"vacancy":11.0,"floors":3,"units":12,"cost":800,"landPrice":450}
-  ];
+  // Inline fallback matches parcels.json - fetch preferred
+  return [];
 }
 
 // ===== Draw parcels on map (Task 2) =====
@@ -388,7 +376,7 @@ function updateParcelStyles() {
     // Update score tooltip content for display mode
     const tooltip = parcelTooltips[p.id];
     if (tooltip) {
-      tooltip.setContent(displayMode === 'score' ? String(p.score) : p.roi + '%');
+      tooltip.setContent(displayMode === 'score' ? String(p.score) : p.noiYield + '%');
     }
   });
 }
@@ -403,7 +391,7 @@ function selectParcel(id) {
 // ===== Task 15: Mode descriptions =====
 const modeDescriptions = {
   score: '法規制・交通利便性・周辺賃料・開発余地・ハザードリスクの5要素を統合した総合評価指標です。スコアが高いほど開発ポテンシャルが高い土地を示します。',
-  roi: '想定賃料収入と開発コストから算出した投資利回りです。周辺相場・空室率予測・建築費概算に基づく推計値で、値が高いほど収益性の高い土地を示します。'
+  roi: 'NOI（営業純利益）を総投資額で割った利回り。周辺相場・空室率予測・建築費概算に基づく推計値で、値が高いほど収益性の高い土地を示します。'
 };
 
 function goToImpactFromRanking() {
@@ -418,10 +406,10 @@ function showRankingPanel() {
   clearImpactOverlay();
 
   const sorted = [...parcelsData].sort((a, b) =>
-    displayMode === 'score' ? b.score - a.score : b.roi - a.roi
+    displayMode === 'score' ? b.score - a.score : b.noiYield - a.noiYield
   );
   const avgScore = (parcelsData.reduce((s, p) => s + p.score, 0) / parcelsData.length).toFixed(1);
-  const maxRoi = Math.max(...parcelsData.map(p => p.roi)).toFixed(1);
+  const maxYield = Math.max(...parcelsData.map(p => p.noiYield)).toFixed(1);
   const aCount = parcelsData.filter(p => p.score >= 80).length;
 
   const panel = document.getElementById('side-panel');
@@ -433,18 +421,18 @@ function showRankingPanel() {
     <div class="summary-bar">
       <div class="summary-item"><div class="label">候補筆数</div><div class="value">${parcelsData.length}</div></div>
       <div class="summary-item"><div class="label">平均スコア</div><div class="value">${avgScore}</div></div>
-      <div class="summary-item"><div class="label">最高ROI</div><div class="value">${maxRoi}%</div></div>
+      <div class="summary-item"><div class="label">最高利回り</div><div class="value">${maxYield}%</div></div>
       <div class="summary-item"><div class="label">Aランク</div><div class="value">${aCount}件</div></div>
     </div>
     <div class="toggle-bar">
       <button class="toggle-btn ${displayMode === 'score' ? 'active' : ''}" onclick="setDisplayMode('score')">スコア表示</button>
-      <button class="toggle-btn ${displayMode === 'roi' ? 'active' : ''}" onclick="setDisplayMode('roi')">ROI表示</button>
+      <button class="toggle-btn ${displayMode === 'roi' ? 'active' : ''}" onclick="setDisplayMode('roi')">利回り表示</button>
     </div>
     <div class="mode-desc">${modeDescriptions[displayMode]}</div>
     <div class="ranking-list">
       ${sorted.map((p, i) => {
         const grade = getGrade(p.score);
-        const valueText = displayMode === 'score' ? p.score : p.roi + '%';
+        const valueText = displayMode === 'score' ? p.score : p.noiYield + '%';
         return `<div class="ranking-item" id="rank-${p.id}" onclick="onRankClick('${p.id}')" ondblclick="showDetailPanel('${p.id}')">
           <div class="rank-num rank-${grade}">${i + 1}</div>
           <div class="rank-info">
@@ -486,7 +474,7 @@ function highlightRankingItem(id) {
 
 // ===== Task 6: Metric descriptions =====
 const metricDescriptions = {
-  'ROI': '想定賃料収入から建築費・土地取得費・管理費等を差し引いた年間純収益を、総投資額で割った値。周辺相場と空室率予測に基づく推計値',
+  'NOI利回り': 'NOI（営業純利益）を総投資額で割った利回り。周辺相場と空室率予測に基づく推計値',
   '想定賃料': '周辺500m圏内の成約賃料実績と、築年数・階数・用途を考慮した回帰モデルによる推計値（円/m²）',
   '空室率予測': '同一用途地域・同一駅圏の直近3年間の平均空室率に、新規供給予測を加味した予測値',
   '概算建築費': '用途・構造・階数に基づく建築工事費の概算。杭工事・外構・設計監理費を含む',
@@ -504,83 +492,324 @@ function toggleDetailRow(el) {
   el.classList.toggle('expanded');
 }
 
-// ===== Screen 3: Detail Panel (Task 6 + Task 10) =====
+// ===== Screen 3: Detail Panel (Task 39: 4-tab layout) =====
+let detailOverlay = null;
+function removeDetailOverlay() {
+  if (detailOverlay) { detailOverlay.remove(); detailOverlay = null; }
+}
+
+function switchDetailTab(tab, parcelId) {
+  document.querySelectorAll('.dtab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.dtab[data-tab="${tab}"]`).classList.add('active');
+  removeDetailOverlay();
+  const p = parcelsData.find(d => d.id === parcelId);
+  if (!p) return;
+
+  // Show tab content
+  document.querySelectorAll('.dtab-content').forEach(c => c.style.display = 'none');
+  const el = document.getElementById('dtab-' + tab);
+  if (el) el.style.display = 'block';
+
+  // Overlay tabs
+  if (tab === 'volume') showVolumeOverlay(p);
+  if (tab === 'finance') showFinanceOverlay(p);
+  if (tab === 'risk') showRiskOverlay(p);
+
+  // Expand panel for tabs 2-4
+  const sidePanel = document.getElementById('side-panel');
+  const mapEl = document.getElementById('map');
+  if (tab === 'overview') {
+    sidePanel.style.width = '500px';
+    mapEl.style.right = '500px';
+  } else {
+    sidePanel.style.width = '500px';
+    mapEl.style.right = '500px';
+  }
+  map.invalidateSize();
+}
+
 function showDetailPanel(id) {
   currentScreen = 3;
   selectedParcelId = id;
   clearImpactOverlay();
+  removeDetailOverlay();
   const p = parcelsData.find(d => d.id === id);
   if (!p) return;
   const grade = getGrade(p.score);
 
+  // Expand side panel
+  document.getElementById('side-panel').style.width = '500px';
+  document.getElementById('map').style.right = '500px';
   map.panTo([p.lat, p.lng]);
+  setTimeout(() => map.invalidateSize(), 50);
   updateParcelStyles();
 
-  const metrics = [
-    { label: 'ROI', value: p.roi, unit: '%' },
-    { label: '想定賃料', value: (p.rent / 1000).toFixed(0), unit: '千円/m²' },
-    { label: '空室率予測', value: p.vacancy, unit: '%' },
-    { label: '概算建築費', value: p.cost, unit: '百万円' }
-  ];
+  const tsuboRent = Math.round(p.rent * 3.30579 / 1000 * 10) / 10;
+  const riskColors = { '低': '#2d8a4e', '中': '#c4840a', 'なし': '#2d8a4e', '適合': '#2d8a4e', '問題なし': '#2d8a4e', '要調査': '#c0392b', '包蔵地隣接': '#c4840a' };
 
-  const detailRows = [
-    { label: '魅力度スコア', value: p.score, desc: metricDescriptions['魅力度スコア'] },
-    { label: '用途地域', value: p.zone },
-    { label: '容積率', value: p.far + '%' },
-    { label: '敷地面積', value: p.area.toLocaleString() + ' m²' },
-    { label: '想定階数', value: p.floors + '階' },
-    { label: '想定戸数', value: p.units + '戸' },
-    { label: '想定土地代', value: p.landPrice + '万円/m²' }
-  ];
+  // Finance calculations
+  const landCost = Math.round(p.landPrice * p.area / 100); // 百万円
+  const designFee = Math.round(p.cost * 0.08);
+  const expenses = Math.round(p.cost * 0.05);
+  const contingency = Math.round(p.cost * 0.10);
+  const totalInvest = landCost + p.cost + designFee + expenses + contingency;
+  const annualRent = Math.round(p.rent * (p.buildableArea || p.area * p.far / 100 * 0.93) * (p.rentableRatio || 73) / 100 * 12 / 1000000);
+  const commonFee = Math.round(annualRent * 0.1);
+  const opex = Math.round(annualRent * 0.2);
+  const noi = annualRent + commonFee - opex;
+  const loanAmount = Math.round(totalInvest * 0.7);
+  const annualDebt = Math.round(loanAmount * 0.02 / (1 - Math.pow(1.02, -30)) * 10) / 10;
+  const preTaxCF = Math.round((noi - annualDebt) * 10) / 10;
 
   const panel = document.getElementById('side-panel');
   panel.innerHTML = `
-    <div class="detail-panel">
+    <div class="detail-panel" style="display:flex;flex-direction:column;height:100%">
       <div class="detail-actions">
-        <button class="back-btn" onclick="showRankingPanel()">← 一覧に戻る</button>
-        <button class="impact-btn" onclick="showImpactPanel('${p.id}')">インパクト推計 →</button>
+        <button class="back-btn" onclick="closeDetailPanel()">← 一覧に戻る</button>
       </div>
       <div class="detail-header">
         <h3>${p.name}</h3>
-        <div class="rank-badge grade-${grade}" style="font-size:14px; padding:4px 14px;">${grade}</div>
+        <div class="rank-badge grade-${grade}" style="font-size:14px;padding:4px 14px;">${grade}</div>
       </div>
-      ${metrics.map(m => `
-        <div class="metric-card" onclick="toggleMetricDetail(this)">
-          <span class="expand-icon">▼</span>
-          <div class="metric-label">${m.label}</div>
-          <div class="metric-value">${m.value}<span class="metric-unit">${m.unit}</span></div>
-        </div>
-        <div class="metric-detail">
-          <div class="metric-detail-content">${metricDescriptions[m.label] || ''}</div>
-        </div>
-      `).join('')}
-      <div style="margin-top:12px">
-        ${detailRows.map(r => {
-          if (r.desc) {
-            return `<div class="detail-row" onclick="toggleDetailRow(this)">
-              <div class="detail-row-header">
-                <span class="dr-label">${r.label}</span>
-                <span><span class="dr-value">${r.value}</span><span class="dr-arrow">▼</span></span>
-              </div>
-              <div class="detail-row-body">
-                <div class="detail-row-desc">${r.desc}</div>
-              </div>
-            </div>`;
-          }
-          return `<div class="detail-row">
-            <div class="detail-row-header">
-              <span class="dr-label">${r.label}</span>
-              <span class="dr-value">${r.value}</span>
-            </div>
-          </div>`;
-        }).join('')}
+      <div class="dtab-bar">
+        <button class="dtab active" data-tab="overview" onclick="switchDetailTab('overview','${p.id}')">概要</button>
+        <button class="dtab" data-tab="volume" onclick="switchDetailTab('volume','${p.id}')">ボリューム</button>
+        <button class="dtab" data-tab="finance" onclick="switchDetailTab('finance','${p.id}')">事業収支</button>
+        <button class="dtab" data-tab="risk" onclick="switchDetailTab('risk','${p.id}')">リスク</button>
       </div>
-      <div style="margin-top:16px">
-        <button class="impact-btn" onclick="startAcquisitionLoading('${p.id}')" style="width:100%;text-align:center;margin-bottom:8px">ターゲット候補を選定 →</button>
-        <button class="back-btn" onclick="downloadEvalReport('${p.id}')" style="width:100%;text-align:center">評価書生成</button>
+      <div style="flex:1;overflow-y:auto">
+        <!-- Tab 1: Overview -->
+        <div id="dtab-overview" class="dtab-content">
+          <div class="detail-grid-6">
+            <div class="metric-card"><div class="metric-label">NOI利回り</div><div class="metric-value">${p.noiYield}<span class="metric-unit">%</span></div></div>
+            <div class="metric-card"><div class="metric-label">想定賃料</div><div class="metric-value">${tsuboRent}<span class="metric-unit">千円/坪月</span></div></div>
+            <div class="metric-card"><div class="metric-label">空室率予測</div><div class="metric-value">${p.vacancy}<span class="metric-unit">%</span></div></div>
+            <div class="metric-card"><div class="metric-label">概算建築費</div><div class="metric-value">${p.cost}<span class="metric-unit">百万円</span></div></div>
+            <div class="metric-card"><div class="metric-label">Cap Rate</div><div class="metric-value">${p.capRate}<span class="metric-unit">%</span></div></div>
+            <div class="metric-card"><div class="metric-label">想定IRR</div><div class="metric-value">${p.irr}<span class="metric-unit">%</span></div></div>
+          </div>
+          <div style="margin-top:12px">
+            <div class="detail-row"><div class="detail-row-header"><span class="dr-label">魅力度スコア</span><span class="dr-value">${p.score}</span></div></div>
+            <div class="detail-row"><div class="detail-row-header"><span class="dr-label">用途地域</span><span class="dr-value">${p.zone}</span></div></div>
+            <div class="detail-row"><div class="detail-row-header"><span class="dr-label">容積率</span><span class="dr-value">${p.far}%</span></div></div>
+            <div class="detail-row"><div class="detail-row-header"><span class="dr-label">敷地面積</span><span class="dr-value">${p.area.toLocaleString()} m²</span></div></div>
+            <div class="detail-row"><div class="detail-row-header"><span class="dr-label">想定階数</span><span class="dr-value">${p.floors}階</span></div></div>
+            <div class="detail-row"><div class="detail-row-header"><span class="dr-label">想定戸数</span><span class="dr-value">${p.units}戸</span></div></div>
+            <div class="detail-row"><div class="detail-row-header"><span class="dr-label">土地単価</span><span class="dr-value">${p.landPrice}万円/m²</span></div></div>
+          </div>
+        </div>
+        <!-- Tab 2: Volume (overlay triggered) -->
+        <div id="dtab-volume" class="dtab-content" style="display:none"><p style="padding:16px;color:#888;font-size:13px">地図上にボリュームチェックを表示中</p></div>
+        <!-- Tab 3: Finance (overlay triggered) -->
+        <div id="dtab-finance" class="dtab-content" style="display:none"><p style="padding:16px;color:#888;font-size:13px">地図上に事業収支を表示中</p></div>
+        <!-- Tab 4: Risk (overlay triggered) -->
+        <div id="dtab-risk" class="dtab-content" style="display:none"><p style="padding:16px;color:#888;font-size:13px">地図上にリスク評価を表示中</p></div>
+      </div>
+      <div class="detail-fixed-footer">
+        <div style="display:flex;gap:6px">
+          <button class="impact-btn" onclick="showImpactPanel('${p.id}')" style="flex:1;text-align:center;font-size:12px">インパクト推計</button>
+          <button class="impact-btn" onclick="startAcquisitionLoading('${p.id}')" style="flex:1;text-align:center;font-size:12px">ターゲット選定</button>
+          <button class="back-btn" onclick="downloadEvalReport('${p.id}')" style="flex:1;text-align:center;font-size:12px">評価書</button>
+        </div>
       </div>
     </div>
   `;
+}
+
+function closeDetailPanel() {
+  removeDetailOverlay();
+  document.getElementById('side-panel').style.width = '350px';
+  document.getElementById('map').style.right = '350px';
+  setTimeout(() => map.invalidateSize(), 50);
+  showRankingPanel();
+}
+
+// Volume overlay
+function showVolumeOverlay(p) {
+  removeDetailOverlay();
+  const ba = p.buildableArea || Math.round(p.area * p.far / 100 * 0.93);
+  const bldgArea = Math.round(p.area * 0.6);
+  const bldgH = p.floors * 3.5;
+  const volRate = Math.round(ba / p.area * 100);
+  const rentableArea = Math.round(ba * (p.rentableRatio || 73) / 100);
+  const commFloors = Math.min(2, p.floors);
+  const resFloors = p.floors - commFloors;
+
+  const el = document.createElement('div');
+  el.className = 'map-overlay-panel';
+  el.innerHTML = `
+    <div class="overlay-inner">
+      <div style="display:flex;gap:24px">
+        <div style="flex:0 0 200px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:300px;position:relative">
+          <div style="position:absolute;top:10px;right:0;border-left:2px dashed #c4840a;height:${Math.min(280, p.floors*18)}px;transform:rotate(-15deg);transform-origin:bottom right;opacity:0.5"></div>
+          <div style="font-size:10px;color:#888;position:absolute;top:0;right:5px">斜線制限</div>
+          ${Array.from({length: p.floors}, (_, i) => {
+            const isComm = i < commFloors;
+            const color = isComm ? '#a5d6a7' : '#90caf9';
+            const label = isComm ? '商業' : '住居';
+            return `<div style="width:${Math.min(160, bldgArea/4)}px;height:16px;background:${color};border:1px solid rgba(0,0,0,0.1);font-size:9px;text-align:center;line-height:16px;color:#555">${p.floors-i}F ${label}</div>`;
+          }).reverse().join('')}
+          <div style="width:180px;height:3px;background:#666;margin-top:2px"></div>
+          <div style="font-size:10px;color:#888;margin-top:4px">GL</div>
+        </div>
+        <div style="flex:1;font-size:13px">
+          <table class="detail-table">
+            <tr><td>敷地面積</td><td>${p.area.toLocaleString()} m²</td></tr>
+            <tr><td>建築面積</td><td>${bldgArea.toLocaleString()} m²</td></tr>
+            <tr><td>延床面積</td><td>${ba.toLocaleString()} m²</td></tr>
+            <tr><td>容積消化率</td><td><div style="background:#eee;border-radius:4px;height:14px;width:100%"><div style="background:#185FA5;height:14px;border-radius:4px;width:${Math.min(100,volRate)}%;font-size:10px;color:#fff;text-align:center;line-height:14px">${volRate}%</div></div></td></tr>
+            <tr><td>階数</td><td>${p.floors}階</td></tr>
+            <tr><td>建物高さ</td><td>約${bldgH.toFixed(0)}m</td></tr>
+            <tr><td>レンタブル比</td><td><div style="background:#eee;border-radius:4px;height:14px;width:100%"><div style="background:#2d8a4e;height:14px;border-radius:4px;width:${p.rentableRatio||73}%;font-size:10px;color:#fff;text-align:center;line-height:14px">${p.rentableRatio||73}%</div></div></td></tr>
+            <tr><td>想定住戸数</td><td>${p.units}戸</td></tr>
+          </table>
+          <p style="font-size:10px;color:#999;margin-top:12px">※斜線制限・天空率は概算反映。詳細は設計事務所による検証が必要です</p>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('screen-map').appendChild(el);
+  detailOverlay = el;
+}
+
+// Finance overlay
+function showFinanceOverlay(p) {
+  removeDetailOverlay();
+  const ba = p.buildableArea || Math.round(p.area * p.far / 100 * 0.93);
+  const rr = (p.rentableRatio || 73) / 100;
+  const landCost = Math.round(p.landPrice * p.area / 100);
+  const designFee = Math.round(p.cost * 0.08);
+  const expenses = Math.round(p.cost * 0.05);
+  const contingency = Math.round(p.cost * 0.10);
+  const totalInvest = landCost + p.cost + designFee + expenses + contingency;
+  const annualRent = Math.round(p.rent * ba * rr * 12 / 1000000);
+  const commonFee = Math.round(annualRent * 0.1);
+  const opex = Math.round(annualRent * 0.2);
+  const noi = annualRent + commonFee - opex;
+  const loanAmt = Math.round(totalInvest * 0.7);
+  const annualDebt = Math.round(loanAmt * 0.02 / (1 - Math.pow(1.02, -30)));
+  const preTaxCF = noi - annualDebt;
+  const dscrVal = annualDebt > 0 ? (noi / annualDebt).toFixed(2) : 'N/A';
+  const dscrColor = parseFloat(dscrVal) >= 1.3 ? '#2d8a4e' : '#c0392b';
+
+  // CF projection
+  const cfData = [];
+  let cumCF = -totalInvest;
+  for (let y = 1; y <= 10; y++) {
+    cumCF += preTaxCF;
+    cfData.push(cumCF);
+  }
+  const breakEvenYear = cfData.findIndex(v => v >= 0) + 1;
+
+  const el = document.createElement('div');
+  el.className = 'map-overlay-panel';
+  el.innerHTML = `
+    <div class="overlay-inner">
+      <div class="detail-grid-4" style="margin-bottom:16px">
+        <div class="metric-card"><div class="metric-label">NOI利回り</div><div class="metric-value">${p.noiYield}%</div></div>
+        <div class="metric-card"><div class="metric-label">想定IRR</div><div class="metric-value">${p.irr}%</div></div>
+        <div class="metric-card"><div class="metric-label">粗利率</div><div class="metric-value">${p.grossMargin}%</div></div>
+        <div class="metric-card"><div class="metric-label">DSCR</div><div class="metric-value" style="color:${dscrColor}">${dscrVal}</div></div>
+      </div>
+      <div style="display:flex;gap:20px">
+        <div style="flex:1;font-size:12px">
+          <h4 style="font-size:13px;color:#888;margin-bottom:8px">初期投資</h4>
+          <table class="detail-table">
+            <tr><td>土地取得費</td><td>${landCost.toLocaleString()}百万円</td></tr>
+            <tr><td>建築工事費</td><td>${p.cost.toLocaleString()}百万円</td></tr>
+            <tr><td>設計・監理費</td><td>${designFee}百万円</td></tr>
+            <tr><td>諸経費</td><td>${expenses}百万円</td></tr>
+            <tr><td>予備費</td><td>${contingency}百万円</td></tr>
+            <tr style="font-weight:700;border-top:2px solid #333"><td>合計</td><td>${totalInvest.toLocaleString()}百万円</td></tr>
+          </table>
+          <h4 style="font-size:13px;color:#888;margin:12px 0 8px">年間収支（安定稼働時）</h4>
+          <table class="detail-table">
+            <tr><td>賃料収入</td><td>${annualRent}百万円</td></tr>
+            <tr><td>共益費収入</td><td>${commonFee}百万円</td></tr>
+            <tr><td>運営費</td><td>-${opex}百万円</td></tr>
+            <tr style="font-weight:700"><td>NOI</td><td>${noi}百万円</td></tr>
+            <tr><td>借入金返済</td><td>-${annualDebt}百万円</td></tr>
+            <tr style="font-weight:700;border-top:2px solid #333"><td>税前CF</td><td>${preTaxCF}百万円</td></tr>
+          </table>
+        </div>
+        <div style="flex:1">
+          <h4 style="font-size:13px;color:#888;margin-bottom:8px">累積CF推移</h4>
+          <canvas id="cf-chart" width="280" height="200"></canvas>
+          ${breakEvenYear > 0 ? `<p style="font-size:11px;color:#2d8a4e;margin-top:4px;text-align:center">投資回収: ${breakEvenYear}年目</p>` : '<p style="font-size:11px;color:#c0392b;margin-top:4px;text-align:center">10年以内の回収困難</p>'}
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('screen-map').appendChild(el);
+  detailOverlay = el;
+
+  // Render chart
+  setTimeout(() => {
+    const ctx = document.getElementById('cf-chart');
+    if (ctx && typeof Chart !== 'undefined') {
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: Array.from({length:10}, (_,i) => `${i+1}年`),
+          datasets: [{
+            data: cfData,
+            backgroundColor: cfData.map(v => v >= 0 ? 'rgba(45,138,78,0.7)' : 'rgba(192,57,43,0.5)'),
+            borderRadius: 3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { ticks: { callback: v => v.toLocaleString() + '百万' }, grid: { color: '#f0f0f0' } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    }
+  }, 100);
+}
+
+// Risk overlay
+function showRiskOverlay(p) {
+  removeDetailOverlay();
+  const risks = p.risks || {};
+  const items = [
+    { key: 'flood', label: '洪水リスク', desc: { '低': '浸水想定区域外', '中': '0.5m未満の浸水想定あり', '高': '1m以上の浸水想定' } },
+    { key: 'soil', label: '土壌汚染', desc: { 'なし': '地歴上のリスクなし', '要調査': '過去の土地利用歴から調査推奨' } },
+    { key: 'cultural', label: '埋蔵文化財', desc: { 'なし': '包蔵地外', '包蔵地隣接': '隣接地が包蔵地。試掘調査の可能性あり' } },
+    { key: 'liquefaction', label: '液状化', desc: { '低': '液状化の可能性が低い地域' } },
+    { key: 'road', label: '接道条件', desc: { '適合': '幅員6m以上、建基法42条1項適合' } },
+    { key: 'adjacentUse', label: '隣接施設', desc: { '問題なし': '嫌悪施設等の立地なし' } }
+  ];
+  const colorMap = { '低': '#2d8a4e', 'なし': '#2d8a4e', '適合': '#2d8a4e', '問題なし': '#2d8a4e', '中': '#c4840a', '包蔵地隣接': '#c4840a', '要調査': '#c0392b', '高': '#c0392b' };
+  const soilCost = risks.soil === '要調査' ? Math.round(5 * p.area * 3) : 0; // 5万/m³ × 想定3m深
+
+  const el = document.createElement('div');
+  el.className = 'map-overlay-panel';
+  el.innerHTML = `
+    <div class="overlay-inner">
+      <h4 style="font-size:15px;font-weight:600;margin-bottom:16px">リスク評価 — ${p.name}</h4>
+      ${items.map(item => {
+        const val = risks[item.key] || 'なし';
+        const color = colorMap[val] || '#888';
+        const desc = item.desc[val] || val;
+        return `<div class="risk-item" onclick="this.classList.toggle('expanded')">
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 0;cursor:pointer">
+            <div style="width:12px;height:12px;border-radius:50%;background:${color};flex-shrink:0"></div>
+            <span style="font-size:13px;font-weight:600;flex:1">${item.label}</span>
+            <span style="font-size:12px;color:${color};font-weight:600">${val}</span>
+            <span class="dr-arrow" style="font-size:10px;color:#bbb">▼</span>
+          </div>
+          <div class="risk-detail"><div style="padding:4px 0 8px 22px;font-size:12px;color:#666">${desc}</div></div>
+        </div>`;
+      }).join('')}
+      ${soilCost > 0 ? `<div style="margin-top:16px;padding:12px;background:#fce4ec;border-radius:8px;font-size:12px;color:#c0392b"><strong>リスク概算コスト:</strong> 土壌汚染対策 約${(soilCost/100).toFixed(0)}百万円（5万円/m³ × 想定${p.area*3}m³）</div>` : ''}
+    </div>
+  `;
+  document.getElementById('screen-map').appendChild(el);
+  detailOverlay = el;
 }
 
 // ===== Task 8: BIM Model helpers =====
@@ -849,7 +1078,7 @@ function showAcquisitionPanel(id) {
         <h4>ターゲットリスト（A/Bランク筆）</h4>
         <table class="target-table">
           <thead>
-            <tr><th>#</th><th>所在地</th><th>スコア</th><th>ROI</th><th>地権者</th><th>意向</th><th>推奨</th></tr>
+            <tr><th>#</th><th>所在地</th><th>スコア</th><th>NOI利回り</th><th>地権者</th><th>意向</th><th>推奨</th></tr>
           </thead>
           <tbody>
             ${targets.map(t => `
@@ -857,7 +1086,7 @@ function showAcquisitionPanel(id) {
                 <td>${t.rank}</td>
                 <td>${t.parcel.name}</td>
                 <td>${t.parcel.score}</td>
-                <td>${t.parcel.roi}%</td>
+                <td>${t.parcel.noiYield}%</td>
                 <td>${t.owner.name.slice(0, 6)}…</td>
                 <td><span class="intent-badge ${intentClass(t.owner.intent)}">${t.owner.intent}</span></td>
                 <td style="font-size:10px">${getApproach(t.ownerCount, t.owner.intent)}</td>
@@ -879,7 +1108,7 @@ function showAcquisitionPanel(id) {
             <span style="background:#e8f5e9;color:#2d8a4e;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600">合筆による大規模開発が可能</span>
           </div>
           <p style="font-size:12px;color:#666;margin-bottom:8px">推奨理由: 土壌汚染リスクなし・単独所有率が多く権利整理が容易・接道条件良好</p>
-          <div style="font-size:13px;margin-bottom:8px"><span style="color:#888">推定スコア:</span> <strong>82</strong> / <span style="color:#888">推定ROI:</span> <strong>8.2%</strong></div>
+          <div style="font-size:13px;margin-bottom:8px"><span style="color:#888">推定スコア:</span> <strong>82</strong> / <span style="color:#888">推定NOI利回り:</span> <strong>8.2%</strong></div>
           <button class="acq-btn" onclick="showToast('デモ版では利用できません')">このエリアを調査</button>
         </div>
         <div class="alt-card" style="border-left-color:#185FA5">
@@ -888,7 +1117,7 @@ function showAcquisitionPanel(id) {
             <span style="background:#e3f2fd;color:#185FA5;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600">用地取得の難易度が低い</span>
           </div>
           <p style="font-size:12px;color:#666;margin-bottom:8px">推奨理由: 土壌汚染リスクなし・単独所有率が多く権利整理が容易・接道条件良好</p>
-          <div style="font-size:13px;margin-bottom:8px"><span style="color:#888">推定スコア:</span> <strong>82</strong> / <span style="color:#888">推定ROI:</span> <strong>7.5%</strong></div>
+          <div style="font-size:13px;margin-bottom:8px"><span style="color:#888">推定スコア:</span> <strong>82</strong> / <span style="color:#888">推定NOI利回り:</span> <strong>7.5%</strong></div>
           <button class="acq-btn" onclick="showToast('デモ版では利用できません')">このエリアを調査</button>
         </div>
       </div>
@@ -995,13 +1224,13 @@ function downloadTargetCSV() {
     .sort((a, b) => b.score - a.score);
 
   const bom = '\uFEFF';
-  const header = '優先順位,所在地,魅力度スコア,ランク,想定ROI(%),想定賃料(円/m²),空室率予測(%),用途地域,容積率(%),敷地面積(m²),地権者,地権者種別,保有期間,推定売却意向,推奨アプローチ';
+  const header = '優先順位,所在地,魅力度スコア,ランク,NOI利回り(%),想定賃料(円/m²),空室率予測(%),用途地域,容積率(%),敷地面積(m²),地権者,地権者種別,保有期間,推定売却意向,推奨アプローチ';
   const rows = targets.map((p, i) => {
     const grade = getGrade(p.score);
     const oi = getOwnerInfo(p.id);
     const owner = oi.owners[0];
     return [
-      i + 1, p.name, p.score, grade, p.roi, p.rent, p.vacancy, p.zone, p.far, p.area,
+      i + 1, p.name, p.score, grade, p.noiYield, p.rent, p.vacancy, p.zone, p.far, p.area,
       owner.name, owner.type, owner.years + '年', owner.intent,
       getApproach(oi.ownerCount, owner.intent)
     ].join(',');
@@ -1063,7 +1292,7 @@ td{font-weight:500}
 <tr><th>敷地面積</th><td>${p.area.toLocaleString()} m²</td></tr></table>
 <h2>事業性評価</h2>
 <table><tr><th>魅力度スコア</th><td>${p.score} <span class="badge badge-${grade}">${grade}</span></td></tr>
-<tr><th>想定ROI</th><td>${p.roi}%</td></tr>
+<tr><th>NOI利回り</th><td>${p.noiYield}%</td></tr>
 <tr><th>想定賃料</th><td>${p.rent.toLocaleString()} 円/m²</td></tr>
 <tr><th>空室率予測</th><td>${p.vacancy}%</td></tr>
 <tr><th>想定階数</th><td>${p.floors}階</td></tr>
