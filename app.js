@@ -13,6 +13,34 @@ let guideOverlay = null;
 let dataAreaRect = null;
 let pulseCircle = null;
 let gifInterval = null;
+let originalParcelsData = null;
+let currentAreaLabel = null;
+
+// Task 40: Alternative area data
+const alternativeAreas = [
+  {
+    areaId: 'alt1', areaName: '芝大門二丁目北エリア', center: [35.6620, 139.7545],
+    parcels: [
+      {"id":"A001","name":"芝大門2-8","lat":35.6618,"lng":139.7540,"polygon":[[35.6616,139.7537],[35.6616,139.7543],[35.6620,139.7543],[35.6620,139.7537]],"zone":"商業地域","far":700,"score":88,"noiYield":4.5,"irr":11.0,"rent":6800,"area":600,"vacancy":3.5,"floors":10,"units":48,"cost":2058,"landPrice":650,"grossMargin":20,"dscr":1.5,"capRate":3.8,"buildableArea":3906,"rentableRatio":74,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
+      {"id":"A002","name":"芝大門2-11","lat":35.6622,"lng":139.7548,"polygon":[[35.6620,139.7545],[35.6620,139.7551],[35.6624,139.7551],[35.6624,139.7545]],"zone":"商業地域","far":600,"score":75,"noiYield":3.8,"irr":10.2,"rent":6500,"area":450,"vacancy":4.0,"floors":8,"units":32,"cost":1580,"landPrice":600,"grossMargin":18,"dscr":1.4,"capRate":3.6,"buildableArea":2520,"rentableRatio":72,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
+      {"id":"A003","name":"芝大門2-14","lat":35.6615,"lng":139.7550,"polygon":[[35.6613,139.7547],[35.6613,139.7553],[35.6617,139.7553],[35.6617,139.7547]],"zone":"商業地域","far":600,"score":78,"noiYield":4.0,"irr":10.5,"rent":6600,"area":520,"vacancy":3.8,"floors":9,"units":38,"cost":1744,"landPrice":620,"grossMargin":19,"dscr":1.45,"capRate":3.7,"buildableArea":2902,"rentableRatio":73,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
+      {"id":"A004","name":"芝大門2-16","lat":35.6625,"lng":139.7542,"polygon":[[35.6623,139.7539],[35.6623,139.7545],[35.6627,139.7545],[35.6627,139.7539]],"zone":"近隣商業地域","far":400,"score":68,"noiYield":3.6,"irr":9.0,"rent":6200,"area":380,"vacancy":4.5,"floors":6,"units":22,"cost":888,"landPrice":580,"grossMargin":17,"dscr":1.35,"capRate":4.0,"buildableArea":1413,"rentableRatio":72,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
+      {"id":"A005","name":"芝大門2-19","lat":35.6618,"lng":139.7555,"polygon":[[35.6616,139.7552],[35.6616,139.7558],[35.6620,139.7558],[35.6620,139.7552]],"zone":"商業地域","far":600,"score":72,"noiYield":3.7,"irr":9.5,"rent":6400,"area":400,"vacancy":4.2,"floors":8,"units":28,"cost":1368,"landPrice":610,"grossMargin":18,"dscr":1.38,"capRate":3.9,"buildableArea":2232,"rentableRatio":72,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
+      {"id":"A006","name":"芝大門2-22","lat":35.6623,"lng":139.7538,"polygon":[[35.6621,139.7535],[35.6621,139.7541],[35.6625,139.7541],[35.6625,139.7535]],"zone":"商業地域","far":700,"score":65,"noiYield":3.5,"irr":8.8,"rent":6100,"area":350,"vacancy":5.0,"floors":9,"units":25,"cost":1200,"landPrice":590,"grossMargin":17,"dscr":1.3,"capRate":4.1,"buildableArea":2282,"rentableRatio":71,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}}
+    ]
+  },
+  {
+    areaId: 'alt2', areaName: '芝大門二丁目南エリア', center: [35.6570, 139.7555],
+    parcels: [
+      {"id":"B001","name":"芝大門2-31","lat":35.6572,"lng":139.7552,"polygon":[[35.6570,139.7549],[35.6570,139.7555],[35.6574,139.7555],[35.6574,139.7549]],"zone":"商業地域","far":700,"score":85,"noiYield":4.3,"irr":11.5,"rent":7000,"area":550,"vacancy":3.2,"floors":10,"units":42,"cost":1890,"landPrice":680,"grossMargin":21,"dscr":1.55,"capRate":3.5,"buildableArea":3581,"rentableRatio":75,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
+      {"id":"B002","name":"芝大門2-33","lat":35.6568,"lng":139.7558,"polygon":[[35.6566,139.7555],[35.6566,139.7561],[35.6570,139.7561],[35.6570,139.7555]],"zone":"商業地域","far":600,"score":79,"noiYield":4.0,"irr":10.8,"rent":6700,"area":480,"vacancy":3.8,"floors":8,"units":34,"cost":1640,"landPrice":640,"grossMargin":19,"dscr":1.45,"capRate":3.7,"buildableArea":2678,"rentableRatio":73,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
+      {"id":"B003","name":"芝大門2-35","lat":35.6574,"lng":139.7548,"polygon":[[35.6572,139.7545],[35.6572,139.7551],[35.6576,139.7551],[35.6576,139.7545]],"zone":"商業地域","far":600,"score":73,"noiYield":3.8,"irr":9.8,"rent":6400,"area":420,"vacancy":4.2,"floors":7,"units":28,"cost":1410,"landPrice":610,"grossMargin":18,"dscr":1.38,"capRate":3.9,"buildableArea":2344,"rentableRatio":72,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
+      {"id":"B004","name":"芝大門2-37","lat":35.6566,"lng":139.7550,"polygon":[[35.6564,139.7547],[35.6564,139.7553],[35.6568,139.7553],[35.6568,139.7547]],"zone":"近隣商業地域","far":400,"score":68,"noiYield":3.6,"irr":9.0,"rent":6100,"area":380,"vacancy":4.8,"floors":5,"units":20,"cost":850,"landPrice":580,"grossMargin":17,"dscr":1.32,"capRate":4.0,"buildableArea":1413,"rentableRatio":71,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
+      {"id":"B005","name":"芝大門2-39","lat":35.6571,"lng":139.7560,"polygon":[[35.6569,139.7557],[35.6569,139.7563],[35.6573,139.7563],[35.6573,139.7557]],"zone":"商業地域","far":600,"score":64,"noiYield":3.5,"irr":8.5,"rent":5900,"area":350,"vacancy":5.2,"floors":7,"units":22,"cost":1180,"landPrice":560,"grossMargin":16,"dscr":1.28,"capRate":4.2,"buildableArea":1953,"rentableRatio":71,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
+      {"id":"B006","name":"芝大門2-41","lat":35.6575,"lng":139.7555,"polygon":[[35.6573,139.7552],[35.6573,139.7558],[35.6577,139.7558],[35.6577,139.7552]],"zone":"商業地域","far":600,"score":60,"noiYield":3.3,"irr":8.0,"rent":5800,"area":300,"vacancy":5.5,"floors":6,"units":18,"cost":1010,"landPrice":540,"grossMargin":15,"dscr":1.25,"capRate":4.3,"buildableArea":1674,"rentableRatio":70,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}}
+    ]
+  }
+];
 
 // Data bounds (Task 30: Shibadaimon 1-chome NW, away from tracks)
 const DATA_BOUNDS = L.latLngBounds([35.6588, 139.7538], [35.6605, 139.7558]);
@@ -414,7 +442,11 @@ function showRankingPanel() {
 
   const panel = document.getElementById('side-panel');
   panel.innerHTML = `
-    <div class="panel-header"><h3>筆評価ランキング</h3></div>
+    <div class="panel-header">
+      <h3>筆評価ランキング</h3>
+      ${currentAreaLabel ? `<div style="margin-top:6px"><span style="background:#185FA5;color:#fff;font-size:11px;padding:3px 10px;border-radius:4px;font-weight:600">${currentAreaLabel}（AI推奨）</span></div>` : ''}
+    </div>
+    ${currentAreaLabel ? '<div style="padding:8px 12px"><button class="back-btn" onclick="returnToOriginalArea()" style="width:100%;text-align:center">← 元のエリアに戻る</button></div>' : ''}
     <div style="padding:8px 12px;">
       <button class="impact-top-btn" onclick="goToImpactFromRanking()" id="impact-top-btn">開発インパクト推計</button>
     </div>
@@ -1109,7 +1141,7 @@ function showAcquisitionPanel(id) {
           </div>
           <p style="font-size:12px;color:#666;margin-bottom:8px">推奨理由: 土壌汚染リスクなし・単独所有率が多く権利整理が容易・接道条件良好</p>
           <div style="font-size:13px;margin-bottom:8px"><span style="color:#888">推定スコア:</span> <strong>82</strong> / <span style="color:#888">推定NOI利回り:</span> <strong>8.2%</strong></div>
-          <button class="acq-btn" onclick="showToast('デモ版では利用できません')">このエリアを調査</button>
+          <button class="acq-btn primary" onclick="exploreAlternativeArea('alt1')">このエリアを調査</button>
         </div>
         <div class="alt-card" style="border-left-color:#185FA5">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
@@ -1118,7 +1150,7 @@ function showAcquisitionPanel(id) {
           </div>
           <p style="font-size:12px;color:#666;margin-bottom:8px">推奨理由: 土壌汚染リスクなし・単独所有率が多く権利整理が容易・接道条件良好</p>
           <div style="font-size:13px;margin-bottom:8px"><span style="color:#888">推定スコア:</span> <strong>82</strong> / <span style="color:#888">推定NOI利回り:</span> <strong>7.5%</strong></div>
-          <button class="acq-btn" onclick="showToast('デモ版では利用できません')">このエリアを調査</button>
+          <button class="acq-btn primary" onclick="exploreAlternativeArea('alt2')">このエリアを調査</button>
         </div>
       </div>
 
@@ -1249,6 +1281,56 @@ function downloadTargetCSV() {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
   showToast('CSVファイルをダウンロードしました');
+}
+
+// ===== Task 40: Explore alternative area =====
+function exploreAlternativeArea(areaId) {
+  const area = alternativeAreas.find(a => a.areaId === areaId);
+  if (!area) return;
+
+  // Save original data
+  if (!originalParcelsData) {
+    originalParcelsData = [...parcelsData];
+  }
+
+  // Switch to new parcels
+  parcelsData = area.parcels;
+  currentAreaLabel = area.areaName;
+
+  // Clear existing and fly to new area
+  Object.values(parcelLayers).forEach(l => map.removeLayer(l));
+  Object.values(parcelTooltips).forEach(t => map.removeLayer(t));
+  parcelLayers = {};
+  parcelTooltips = {};
+
+  map.flyTo(area.center, 17, { duration: 1.5 });
+
+  setTimeout(() => {
+    drawParcels();
+    showRankingPanel();
+    currentScreen = 2;
+  }, 1600);
+}
+
+function returnToOriginalArea() {
+  if (!originalParcelsData) return;
+  parcelsData = originalParcelsData;
+  originalParcelsData = null;
+  currentAreaLabel = null;
+
+  Object.values(parcelLayers).forEach(l => map.removeLayer(l));
+  Object.values(parcelTooltips).forEach(t => map.removeLayer(t));
+  parcelLayers = {};
+  parcelTooltips = {};
+
+  const center = DATA_BOUNDS.getCenter();
+  map.flyTo(center, 16, { duration: 1.5 });
+
+  setTimeout(() => {
+    drawParcels();
+    showRankingPanel();
+    currentScreen = 2;
+  }, 1600);
 }
 
 // ===== Task 24: Evaluation Report Generation =====
