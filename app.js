@@ -8,7 +8,6 @@ let currentScreen = 0;
 let displayMode = 'score';
 let drawnRect = null;
 let impactCircles = [];
-let devAreaRect = null;
 let guideStep = 0;
 let guideOverlay = null;
 let dataAreaRect = null;
@@ -66,7 +65,13 @@ function startGifSlideshow() {
         display.appendChild(img);
       };
       img.onerror = function() {
-        display.innerHTML = '<div class="gif-placeholder">デモ動画 — 準備中</div>';
+        const fallbacks = [
+          { bg: 'linear-gradient(135deg, #e8f0fe 0%, #c5d9f7 100%)', num: '01', title: 'エリア一括評価' },
+          { bg: 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)', num: '02', title: 'インパクト推計' },
+          { bg: 'linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%)', num: '03', title: 'ターゲット候補選定' }
+        ];
+        const fb = fallbacks[idx];
+        display.innerHTML = `<div class="slide-fallback" style="background:${fb.bg}"><div class="slide-number">${fb.num}</div><div class="slide-title">${fb.title}</div></div>`;
       };
       img.src = slideImages[idx];
 
@@ -673,15 +678,18 @@ function renderImpactUI(p, facilityType, floorArea) {
     parcelLayer.setStyle({ weight: 4, color: '#185FA5', fillOpacity: 0.7 });
   }
 
-  // Dev area rectangle proportional to floor area
-  const devSize = Math.sqrt(floorArea) * 0.00001;
-  if (devAreaRect) { map.removeLayer(devAreaRect); devAreaRect = null; }
-  devAreaRect = L.rectangle(
-    [[centerLatLng.lat - devSize/2, centerLatLng.lng - devSize/2],
-     [centerLatLng.lat + devSize/2, centerLatLng.lng + devSize/2]],
-    { color: '#185FA5', weight: 2, fillColor: '#185FA5', fillOpacity: 0.25, interactive: false }
-  ).addTo(map);
-  devAreaRect.bindTooltip(`開発予定地 ${floorArea.toLocaleString()}m²`, { permanent: true, direction: 'center', className: '' });
+  // Task 33: Resize original drawn rect to represent dev area
+  if (drawnRect) {
+    const devSize = Math.sqrt(floorArea) * 0.00001;
+    const newBounds = L.latLngBounds(
+      [centerLatLng.lat - devSize/2, centerLatLng.lng - devSize/2],
+      [centerLatLng.lat + devSize/2, centerLatLng.lng + devSize/2]
+    );
+    drawnRect.setBounds(newBounds);
+    drawnRect.setStyle({ color: '#185FA5', weight: 3, fillColor: '#185FA5', fillOpacity: 0.15 });
+    drawnRect.unbindTooltip();
+    drawnRect.bindTooltip(`開発予定地 ${floorArea.toLocaleString()}m²`, { permanent: true, direction: 'center', className: '' });
+  }
 
   const colors = ['rgba(21,101,192,0.25)', 'rgba(21,101,192,0.15)', 'rgba(21,101,192,0.08)'];
   const radii = [200, 500, 1000];
@@ -696,10 +704,10 @@ function renderImpactUI(p, facilityType, floorArea) {
 
   const panel = document.getElementById('side-panel');
   panel.innerHTML = `
-    <div class="impact-panel">
+    <div class="impact-panel-scroll">
       <div class="impact-section-scenario">
         <button class="impact-back-btn" onclick="showDetailPanel('${p.id}')" style="margin-bottom:12px;margin-top:0">← 戻る</button>
-        <h3>開発インパクト推計</h3>
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:16px">開発インパクト推計</h3>
         <div class="impact-control">
           <label>施設タイプ</label>
           <select id="facility-type" onchange="onImpactChange('${p.id}')">
@@ -738,12 +746,10 @@ function renderImpactUI(p, facilityType, floorArea) {
           </div>
         </div>
       </div>
-      <div class="impact-sticky-footer">
-        <div class="acq-proceed-pulse">
-          <button class="acq-proceed-btn" onclick="startAcquisitionLoading('${p.id}')">ターゲット候補の選定へ →</button>
-        </div>
-        <p style="font-size:12px;color:#888;margin-top:8px;text-align:center">地権者情報の確認とターゲットリスト生成に進みます</p>
-      </div>
+    </div>
+    <div class="impact-fixed-footer">
+      <button class="acq-proceed-btn" onclick="startAcquisitionLoading('${p.id}')">ターゲット候補の選定へ →</button>
+      <p style="font-size:12px;color:#888;margin-top:8px;text-align:center">地権者情報の確認とターゲットリスト生成に進みます</p>
     </div>
   `;
 }
@@ -759,7 +765,6 @@ function onImpactChange(id) {
 function clearImpactOverlay() {
   impactCircles.forEach(c => map.removeLayer(c));
   impactCircles = [];
-  if (devAreaRect) { map.removeLayer(devAreaRect); devAreaRect = null; }
 }
 
 // ===== Task 9: Screen 5 — Land Acquisition Panel =====
@@ -866,9 +871,42 @@ function showAcquisitionPanel(id) {
         </div>
       </div>
 
+      <div id="alt-recommend" style="display:none;margin-top:20px">
+        <h4 style="font-size:16px;font-weight:600;color:#1a1a2e;margin-bottom:12px">AI推奨: 近隣の開発ポテンシャルが高いエリア</h4>
+        <div class="alt-card" style="border-left-color:#2d8a4e">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <strong style="font-size:14px">芝大門二丁目北エリア</strong>
+            <span style="background:#e8f5e9;color:#2d8a4e;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600">合筆による大規模開発が可能</span>
+          </div>
+          <p style="font-size:12px;color:#666;margin-bottom:8px">推奨理由: 土壌汚染リスクなし・単独所有率が多く権利整理が容易・接道条件良好</p>
+          <div style="font-size:13px;margin-bottom:8px"><span style="color:#888">推定スコア:</span> <strong>82</strong> / <span style="color:#888">推定ROI:</span> <strong>8.2%</strong></div>
+          <button class="acq-btn" onclick="showToast('デモ版では利用できません')">このエリアを調査</button>
+        </div>
+        <div class="alt-card" style="border-left-color:#185FA5">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <strong style="font-size:14px">芝大門二丁目南エリア</strong>
+            <span style="background:#e3f2fd;color:#185FA5;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600">用地取得の難易度が低い</span>
+          </div>
+          <p style="font-size:12px;color:#666;margin-bottom:8px">推奨理由: 土壌汚染リスクなし・単独所有率が多く権利整理が容易・接道条件良好</p>
+          <div style="font-size:13px;margin-bottom:8px"><span style="color:#888">推定スコア:</span> <strong>82</strong> / <span style="color:#888">推定ROI:</span> <strong>7.5%</strong></div>
+          <button class="acq-btn" onclick="showToast('デモ版では利用できません')">このエリアを調査</button>
+        </div>
+      </div>
+
       <button class="acq-back-btn" onclick="showDetailPanel('${p.id}')">← 詳細に戻る</button>
     </div>
   `;
+
+  // Task 35: delayed AI recommendation
+  setTimeout(() => {
+    const altEl = document.getElementById('alt-recommend');
+    if (altEl) {
+      altEl.style.display = 'block';
+      altEl.style.opacity = '0';
+      altEl.style.transition = 'opacity 0.5s';
+      setTimeout(() => { altEl.style.opacity = '1'; }, 50);
+    }
+  }, 3000);
 }
 
 // ===== Task 17: Acquisition Loading Animation =====
