@@ -1160,7 +1160,7 @@ function getFinanceTabContent(p, facilityType, floorArea) {
   const opex = Math.round(annualRent * 0.2);
   const noi = annualRent + commonFee - opex;
   const loanAmt = Math.round(totalInvest * 0.7);
-  const annualDebt = Math.round(loanAmt * 0.02 / (1 - Math.pow(1.02, -30)));
+  const mr = 0.02/12; const annualDebt = Math.round(loanAmt * mr * Math.pow(1+mr,360) / (Math.pow(1+mr,360)-1) * 12);
   const preTaxCF = noi - annualDebt;
   const dscrVal = annualDebt > 0 ? (noi / annualDebt).toFixed(2) : 'N/A';
   const dscrColor = parseFloat(dscrVal) >= 1.3 ? '#2d8a4e' : '#c0392b';
@@ -1191,7 +1191,7 @@ function getFinanceTabContent(p, facilityType, floorArea) {
       <tr style="font-weight:700;border-top:2px solid #333"><td>税前CF</td><td>${preTaxCF}百万円</td></tr>
     </table>
     <h4 style="font-size:13px;color:#888;margin-bottom:8px">累積CF推移</h4>
-    <canvas id="cf-chart" width="400" height="220"></canvas>
+    <div style="height:250px"><canvas id="cf-chart"></canvas></div>
   `;
 }
 
@@ -1209,7 +1209,7 @@ function renderCFChart(p, facilityType, floorArea) {
   const opex = Math.round(annualRent * 0.2);
   const noi = annualRent + commonFee - opex;
   const loanAmt = Math.round(totalInvest * 0.7);
-  const annualDebt = Math.round(loanAmt * 0.02 / (1 - Math.pow(1.02, -30)));
+  const mr = 0.02/12; const annualDebt = Math.round(loanAmt * mr * Math.pow(1+mr,360) / (Math.pow(1+mr,360)-1) * 12);
   const preTaxCF = noi - annualDebt;
 
   const cfData = [-totalInvest];
@@ -1228,7 +1228,7 @@ function renderCFChart(p, facilityType, floorArea) {
         labels: Array.from({length:11}, (_,i) => `${i}年目`),
         datasets: [{
           data: cfData,
-          backgroundColor: cfData.map(v => v >= 0 ? 'rgba(45,138,78,0.7)' : 'rgba(192,57,43,0.5)'),
+          backgroundColor: cfData.map(v => v >= 0 ? 'rgba(0,103,179,0.7)' : 'rgba(217,79,67,0.5)'),
           borderColor: cfData.map((v,i) => i === breakEvenYear && breakEvenYear > 0 ? '#2d8a4e' : 'transparent'),
           borderWidth: cfData.map((v,i) => i === breakEvenYear && breakEvenYear > 0 ? 3 : 0),
           borderRadius: 3
