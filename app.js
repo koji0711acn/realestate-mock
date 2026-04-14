@@ -56,7 +56,7 @@ function handleLogin() {
   if (id === VALID_ID && pass === VALID_PASS) {
     errorEl.textContent = '';
     document.getElementById('screen-login').style.display = 'none';
-    document.getElementById('screen0').style.display = 'flex';
+    document.getElementById('screen0').style.display = 'block';
     startGifSlideshow();
   } else {
     errorEl.textContent = 'IDまたはパスワードが正しくありません';
