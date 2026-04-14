@@ -786,6 +786,107 @@ function closeDetailPanel() {
   showRankingPanel();
 }
 
+// ===== Three.js 3D Building Renderer =====
+function create3DBuilding(container, p, w, h) {
+  if (typeof THREE === 'undefined') { container.innerHTML = '<p style="color:#888;font-size:12px;text-align:center;padding:20px">3D表示を読み込み中...</p>'; return; }
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xf0f4f8);
+  const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(w, h);
+  container.appendChild(renderer.domElement);
+
+  // Lighting
+  scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+  const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+  dirLight.position.set(5, 10, 7);
+  scene.add(dirLight);
+
+  // Ground plane
+  const groundSize = Math.sqrt(p.area) * 0.08;
+  const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(groundSize * 1.5, groundSize * 1.5),
+    new THREE.MeshLambertMaterial({ color: 0xcccccc })
+  );
+  ground.rotation.x = -Math.PI / 2;
+  ground.position.y = -0.05;
+  scene.add(ground);
+
+  // Building dimensions
+  const bldgArea = p.area * 0.6;
+  const bw = Math.sqrt(bldgArea) * 0.05;
+  const bd = bw * 0.8;
+  const commFloors = Math.min(2, p.floors);
+  const floorH = 0.3;
+
+  // Commercial floors (green)
+  if (commFloors > 0) {
+    const commH = commFloors * floorH;
+    const comm = new THREE.Mesh(
+      new THREE.BoxGeometry(bw, commH, bd),
+      new THREE.MeshLambertMaterial({ color: 0x44aa66, transparent: true, opacity: 0.7 })
+    );
+    comm.position.y = commH / 2;
+    scene.add(comm);
+  }
+
+  // Residential floors (blue)
+  const resFloors = p.floors - commFloors;
+  if (resFloors > 0) {
+    const resH = resFloors * floorH;
+    const res = new THREE.Mesh(
+      new THREE.BoxGeometry(bw * 0.95, resH, bd * 0.95),
+      new THREE.MeshLambertMaterial({ color: 0x4488cc, transparent: true, opacity: 0.6 })
+    );
+    res.position.y = commFloors * floorH + resH / 2;
+    scene.add(res);
+  }
+
+  // Floor lines
+  for (let i = 1; i <= p.floors; i++) {
+    const lineGeo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(-bw/2, i * floorH, bd/2),
+      new THREE.Vector3(bw/2, i * floorH, bd/2),
+      new THREE.Vector3(bw/2, i * floorH, -bd/2),
+      new THREE.Vector3(-bw/2, i * floorH, -bd/2),
+      new THREE.Vector3(-bw/2, i * floorH, bd/2)
+    ]);
+    scene.add(new THREE.Line(lineGeo, new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.5, transparent: true })));
+  }
+
+  // Setback line (diagonal)
+  const totalH = p.floors * floorH;
+  const setbackGeo = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(-bw, 0, bd/2 + 0.3),
+    new THREE.Vector3(bw * 0.5, totalH * 1.2, bd/2 + 0.3)
+  ]);
+  scene.add(new THREE.Line(setbackGeo, new THREE.LineDashedMaterial({ color: 0xff4444, dashSize: 0.2, gapSize: 0.1 })));
+
+  // Camera position
+  camera.position.set(bw * 2.5, totalH * 1.2, bd * 3);
+  camera.lookAt(0, totalH * 0.4, 0);
+
+  // Simple mouse drag rotation
+  let isDragging = false, prevX = 0;
+  let angle = 0;
+  renderer.domElement.addEventListener('mousedown', e => { isDragging = true; prevX = e.clientX; });
+  renderer.domElement.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    angle += (e.clientX - prevX) * 0.01;
+    prevX = e.clientX;
+    const r = Math.sqrt(camera.position.x ** 2 + camera.position.z ** 2);
+    camera.position.x = r * Math.sin(angle);
+    camera.position.z = r * Math.cos(angle);
+    camera.lookAt(0, totalH * 0.4, 0);
+  });
+  window.addEventListener('mouseup', () => { isDragging = false; });
+
+  renderer.render(scene, camera);
+  // Animate
+  function animate() { requestAnimationFrame(animate); renderer.render(scene, camera); }
+  animate();
+}
+
 // Volume overlay
 function showVolumeOverlay(p) {
   removeDetailOverlay();
@@ -793,26 +894,15 @@ function showVolumeOverlay(p) {
   const bldgArea = Math.round(p.area * 0.6);
   const bldgH = p.floors * 3.5;
   const volRate = Math.round(ba / p.area * 100);
-  const rentableArea = Math.round(ba * (p.rentableRatio || 73) / 100);
-  const commFloors = Math.min(2, p.floors);
-  const resFloors = p.floors - commFloors;
 
   const el = document.createElement('div');
   el.className = 'map-overlay-panel';
   el.innerHTML = `
     <div class="overlay-inner">
-      <div style="display:flex;gap:24px">
-        <div style="flex:0 0 200px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:300px;position:relative">
-          <div style="position:absolute;top:10px;right:0;border-left:2px dashed #c4840a;height:${Math.min(280, p.floors*18)}px;transform:rotate(-15deg);transform-origin:bottom right;opacity:0.5"></div>
-          <div style="font-size:10px;color:#888;position:absolute;top:0;right:5px">斜線制限</div>
-          ${Array.from({length: p.floors}, (_, i) => {
-            const isComm = i < commFloors;
-            const color = isComm ? '#a5d6a7' : '#90caf9';
-            const label = isComm ? '商業' : '住居';
-            return `<div style="width:${Math.min(160, bldgArea/4)}px;height:16px;background:${color};border:1px solid rgba(0,0,0,0.1);font-size:9px;text-align:center;line-height:16px;color:#555">${p.floors-i}F ${label}</div>`;
-          }).reverse().join('')}
-          <div style="width:180px;height:3px;background:#666;margin-top:2px"></div>
-          <div style="font-size:10px;color:#888;margin-top:4px">GL</div>
+      <div style="display:flex;gap:20px">
+        <div style="flex:0 0 350px;position:relative">
+          <div id="three-volume" style="width:350px;height:300px;border-radius:8px;overflow:hidden"></div>
+          <div style="position:absolute;top:8px;left:8px;background:rgba(255,255,255,0.85);padding:4px 10px;border-radius:4px;font-size:11px;color:#555">${p.floors}階 / 延床${ba.toLocaleString()}m²</div>
         </div>
         <div style="flex:1;font-size:13px">
           <table class="detail-table">
@@ -832,6 +922,11 @@ function showVolumeOverlay(p) {
   `;
   document.getElementById('screen-map').appendChild(el);
   detailOverlay = el;
+
+  setTimeout(() => {
+    const container = document.getElementById('three-volume');
+    if (container) create3DBuilding(container, p, 350, 300);
+  }, 100);
 }
 
 // Finance overlay
@@ -844,7 +939,8 @@ function showFinanceOverlay(p) {
   const expenses = Math.round(p.cost * 0.05);
   const contingency = Math.round(p.cost * 0.10);
   const totalInvest = landCost + p.cost + designFee + expenses + contingency;
-  const annualRent = Math.round(p.rent * ba * rr * 12 / 1000000);
+  const grossRent = Math.round(p.rent * ba * rr * 12 / 1000000);
+  const annualRent = Math.round(grossRent * (1 - p.vacancy / 100));
   const commonFee = Math.round(annualRent * 0.1);
   const opex = Math.round(annualRent * 0.2);
   const noi = annualRent + commonFee - opex;
@@ -854,14 +950,15 @@ function showFinanceOverlay(p) {
   const dscrVal = annualDebt > 0 ? (noi / annualDebt).toFixed(2) : 'N/A';
   const dscrColor = parseFloat(dscrVal) >= 1.3 ? '#2d8a4e' : '#c0392b';
 
-  // CF projection
-  const cfData = [];
+  // CF projection (year 0 = initial investment)
+  const cfData = [-totalInvest];
   let cumCF = -totalInvest;
   for (let y = 1; y <= 10; y++) {
     cumCF += preTaxCF;
-    cfData.push(cumCF);
+    cfData.push(Math.round(cumCF));
   }
-  const breakEvenYear = cfData.findIndex(v => v >= 0) + 1;
+  const breakEvenYear = cfData.findIndex(v => v >= 0);
+  const breakEvenLabel = breakEvenYear > 0 ? breakEvenYear : 0;
 
   const el = document.createElement('div');
   el.className = 'map-overlay-panel';
@@ -897,7 +994,7 @@ function showFinanceOverlay(p) {
         <div style="flex:1">
           <h4 style="font-size:13px;color:#888;margin-bottom:8px">累積CF推移</h4>
           <canvas id="cf-chart" width="280" height="200"></canvas>
-          ${breakEvenYear > 0 ? `<p style="font-size:11px;color:#2d8a4e;margin-top:4px;text-align:center">投資回収: ${breakEvenYear}年目</p>` : '<p style="font-size:11px;color:#c0392b;margin-top:4px;text-align:center">10年以内の回収困難</p>'}
+          ${breakEvenLabel > 0 ? `<p style="font-size:11px;color:#2d8a4e;margin-top:4px;text-align:center">投資回収: ${breakEvenLabel}年目</p>` : '<p style="font-size:11px;color:#c0392b;margin-top:4px;text-align:center">10年以内の回収困難</p>'}
         </div>
       </div>
     </div>
@@ -912,19 +1009,27 @@ function showFinanceOverlay(p) {
       new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: Array.from({length:10}, (_,i) => `${i+1}年`),
+          labels: Array.from({length:11}, (_,i) => `${i}年目`),
           datasets: [{
             data: cfData,
             backgroundColor: cfData.map(v => v >= 0 ? 'rgba(45,138,78,0.7)' : 'rgba(192,57,43,0.5)'),
+            borderColor: cfData.map((v,i) => i === breakEvenLabel && breakEvenLabel > 0 ? '#2d8a4e' : 'transparent'),
+            borderWidth: cfData.map((v,i) => i === breakEvenLabel && breakEvenLabel > 0 ? 3 : 0),
             borderRadius: 3
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
+          plugins: {
+            legend: { display: false },
+            annotation: breakEvenLabel > 0 ? {} : undefined
+          },
           scales: {
-            y: { ticks: { callback: v => v.toLocaleString() + '百万' }, grid: { color: '#f0f0f0' } },
+            y: {
+              ticks: { callback: v => Math.round(v).toLocaleString() + '百万' },
+              grid: { color: '#f0f0f0' }
+            },
             x: { grid: { display: false } }
           }
         }
@@ -984,56 +1089,37 @@ const facilityConfig = {
 
 function getBimHTML(facilityType, floorArea) {
   const cfg = facilityConfig[facilityType] || facilityConfig['large-sc'];
-  const scale = Math.max(0.5, Math.min(1.5, floorArea / 20000)) * 0.8; // Task 16: 20% smaller
-  const w = Math.round(cfg.w * scale);
-  const h = Math.round(cfg.h * scale);
-  const skewH = Math.round(h * 0.3);
-  const skewW = Math.round(w * 0.3);
+  const scale = Math.max(0.5, Math.min(1.5, floorArea / 20000));
   const floorCount = Math.round(cfg.floors * scale);
-  const unitCount = cfg.tenants
-    ? Math.round(floorArea / 200)
-    : Math.round(floorArea / 80);
+  const unitCount = cfg.tenants ? Math.round(floorArea / 200) : Math.round(floorArea / 80);
   const unitLabel = cfg.tenants ? 'テナント数' : '想定戸数';
 
-  let bimBlocks = '';
-  if (facilityType === 'complex') {
-    // Low + High blocks
-    const lowW = Math.round(w * 0.7);
-    const lowH = Math.round(h * 0.3);
-    const hiW = Math.round(w * 0.4);
-    const hiH = Math.round(h * 0.8);
-    bimBlocks = `
-      <div class="bim-block" style="display:flex;align-items:flex-end;gap:4px;">
-        <div style="position:relative">
-          <div class="bim-front" style="width:${lowW}px;height:${lowH}px;"></div>
-          <div class="bim-top" style="width:${lowW}px;height:${Math.round(lowH*0.3)}px;top:-${Math.round(lowH*0.3)}px;left:0;"></div>
-          <div class="bim-side" style="width:${Math.round(lowW*0.3)}px;height:${lowH}px;top:-${Math.round(lowH*0.3)}px;left:${lowW}px;"></div>
-        </div>
-        <div style="position:relative">
-          <div class="bim-front" style="width:${hiW}px;height:${hiH}px;"></div>
-          <div class="bim-top" style="width:${hiW}px;height:${Math.round(hiH*0.15)}px;top:-${Math.round(hiH*0.15)}px;left:0;"></div>
-          <div class="bim-side" style="width:${Math.round(hiW*0.3)}px;height:${hiH}px;top:-${Math.round(hiH*0.15)}px;left:${hiW}px;"></div>
-        </div>
-      </div>`;
-  } else {
-    bimBlocks = `
-      <div class="bim-block" style="position:relative">
-        <div class="bim-front" style="width:${w}px;height:${h}px;"></div>
-        <div class="bim-top" style="width:${w}px;height:${skewH}px;top:-${skewH}px;left:0;"></div>
-        <div class="bim-side" style="width:${skewW}px;height:${h}px;top:-${skewH}px;left:${w}px;"></div>
-      </div>`;
-  }
+  // Store for 3D rendering after DOM insertion
+  window._bimRenderData = { facilityType, floorArea, floorCount };
 
   return `
     <div class="bim-section">
-      <div class="bim-visual">${bimBlocks}</div>
-      <div class="bim-info-block">
+      <div id="three-bim" style="width:280px;height:200px;border-radius:8px;overflow:hidden;margin:0 auto"></div>
+      <div class="bim-info-block" style="margin-top:12px">
         <div><span class="bim-stat">${cfg.label}</span></div>
         <div>延床面積: <span class="bim-stat">${floorArea.toLocaleString()} m²</span></div>
         <div>階数: <span class="bim-stat">${floorCount}階</span></div>
         <div>${unitLabel}: <span class="bim-stat">${unitCount}</span></div>
       </div>
     </div>`;
+}
+
+function renderBim3D() {
+  const container = document.getElementById('three-bim');
+  if (!container || typeof THREE === 'undefined') return;
+  const data = window._bimRenderData;
+  if (!data) return;
+
+  const fakeParcel = {
+    area: data.floorArea / 3,
+    floors: data.floorCount
+  };
+  create3DBuilding(container, fakeParcel, 280, 200);
 }
 
 function toggleImpactCollapse(el) {
@@ -1145,6 +1231,8 @@ function renderImpactUI(p, facilityType, floorArea) {
       <p style="font-size:12px;color:#888;margin-top:8px;text-align:center">地権者情報の確認とターゲットリスト生成に進みます</p>
     </div>
   `;
+  // Render 3D BIM
+  setTimeout(() => renderBim3D(), 100);
 }
 
 function onImpactChange(id) {
