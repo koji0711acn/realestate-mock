@@ -126,6 +126,16 @@ function switchCompTab(tab) {
   event.target.classList.add('active');
 }
 
+function toggleCompDetail(btn) {
+  const row = btn.closest('tr');
+  const detailRow = row.nextElementSibling;
+  if (detailRow && detailRow.classList.contains('comp-detail-row')) {
+    const isOpen = detailRow.style.display === 'table-row';
+    detailRow.style.display = isOpen ? 'none' : 'table-row';
+    btn.textContent = isOpen ? '+' : '−';
+  }
+}
+
 // ===== Grade helpers (Task 2 colors) =====
 function getGrade(score) {
   if (score >= 80) return 'A';

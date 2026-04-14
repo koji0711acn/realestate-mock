@@ -2,6 +2,22 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: #2c3e50; background: #fff; }
 
+/* ===== CTA Animations (Task 52) ===== */
+@keyframes cta-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+@keyframes cta-shake {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-3px); }
+  30% { transform: translateX(3px); }
+  45% { transform: translateX(-2px); }
+  60% { transform: translateX(2px); }
+}
+#btn-start:hover {
+  animation: cta-shake 0.5s ease-in-out !important;
+}
+
 /* ===== Login Screen (Task 11) ===== */
 #screen-login {
   min-height: 100vh;
