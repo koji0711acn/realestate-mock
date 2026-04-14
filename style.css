@@ -160,15 +160,10 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
 
 /* ===== Screen 0: Landing (Task 7) ===== */
 #screen0 {
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  padding: 60px 40px;
-  background: #fff;
-}
-.landing-inner {
-  max-width: 1200px;
   width: 100%;
+  overflow-x: hidden;
+  background: #fff;
+  font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif;
 }
 .landing-header {
   text-align: center;
@@ -1010,7 +1005,14 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
 }
 .guide-skip:hover { color: #666; }
 .guide-shake {
-  animation: shake 0.5s ease-in-out infinite;
+  animation: guide-shake 0.6s ease-in-out infinite;
+}
+@keyframes guide-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
 }
 
 /* Pulse animation for guide circle (Task 4) */
@@ -1481,7 +1483,7 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.18);
   max-width: 320px;
-  z-index: 2000;
+  z-index: 10001;
   pointer-events: auto;
   font-size: 13px;
   line-height: 1.6;
