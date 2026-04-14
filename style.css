@@ -629,6 +629,27 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
   color: #fff;
   flex-shrink: 0;
 }
+.rank-top { border-left: 3px solid #e65100; }
+.recommend-badge {
+  background: #e65100;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.top-score-label {
+  background: #185FA5 !important;
+  color: #fff !important;
+  border: none !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3) !important;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px !important;
+  border-radius: 4px;
+}
+.top-score-label::before { display: none !important; }
 .rank-info { flex: 1; min-width: 0; }
 .rank-name { font-size: 13px; font-weight: 600; color: #1a1a2e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rank-sub { font-size: 11px; color: #999; margin-top: 2px; }
@@ -948,44 +969,31 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
 }
 .score-tooltip::before { display: none !important; }
 
-/* ===== Demo Guide Overlay (Task 4) ===== */
-.guide-overlay {
-  position: absolute;
-  top: 0; left: 0; right: 350px; bottom: 0;
-  background: rgba(0,0,0,0.35);
-  z-index: 1500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-}
-.guide-overlay.clickable { pointer-events: auto; cursor: pointer; }
-.guide-message {
+/* ===== Task 43: Guide Bubble ===== */
+.guide-bubble {
   background: #fff;
-  padding: 24px 32px;
-  border-radius: 12px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.2);
-  max-width: 420px;
-  text-align: center;
+  padding: 14px 18px;
+  border-radius: 8px;
+  box-shadow: 0 3px 16px rgba(0,0,0,0.15);
+  max-width: 320px;
   pointer-events: auto;
 }
-.guide-message p {
-  font-size: 14px;
-  line-height: 1.7;
-  color: #333;
-  margin-bottom: 12px;
-}
-.guide-message .guide-dismiss {
-  padding: 8px 24px;
+.guide-bubble p {
   font-size: 13px;
-  font-weight: 600;
-  background: #1565c0;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
+  line-height: 1.6;
+  color: #333;
+  margin-bottom: 6px;
 }
-.guide-message .guide-dismiss:hover { background: #1255a1; }
+.guide-skip {
+  font-size: 11px;
+  color: #aaa;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.guide-skip:hover { color: #666; }
+.guide-shake {
+  animation: shake 0.5s ease-in-out infinite;
+}
 
 /* Pulse animation for guide circle (Task 4) */
 .pulse-circle {
@@ -1219,6 +1227,19 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
   text-align: center;
 }
 .acq-back-btn:hover { background: #f5f5f5; }
+.alt-header {
+  background: #EBF2FF;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #185FA5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.alt-star { color: #185FA5; font-size: 18px; }
 .alt-card {
   background: #fff;
   border-radius: 8px;
@@ -1227,6 +1248,20 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
   margin-bottom: 12px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
+.alt-explore-btn {
+  width: 100%;
+  height: 40px;
+  background: #185FA5;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+.alt-explore-btn:hover { background: #14508c; }
 
 /* ===== Task 15: Mode description + Impact top button ===== */
 .mode-desc {

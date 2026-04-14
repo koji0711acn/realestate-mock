@@ -201,82 +201,193 @@ function initMap() {
   setTimeout(() => showGuideStep1(), 600);
 }
 
-// ===== Task 4: Demo Guide =====
-function showGuideStep1() {
+// ===== Task 43: Step-by-step Demo Guide =====
+let guideSkipped = false;
+
+function clearGuideUI() {
+  if (guideOverlay) { guideOverlay.remove(); guideOverlay = null; }
+  if (pulseCircle) { map.removeLayer(pulseCircle); pulseCircle = null; }
+  if (dataAreaRect) { map.removeLayer(dataAreaRect); dataAreaRect = null; }
+  document.querySelectorAll('.shake-btn').forEach(el => el.classList.remove('shake-btn'));
+  document.querySelectorAll('.guide-shake').forEach(el => el.classList.remove('guide-shake'));
+}
+
+function skipGuide() {
+  guideSkipped = true;
+  clearGuideUI();
+}
+
+function showGuideBubble(msg, targetEl, position) {
+  clearGuideUI();
+  if (guideSkipped) return;
+  const bubble = document.createElement('div');
+  bubble.className = 'guide-bubble';
+  bubble.innerHTML = `<p>${msg}</p><a class="guide-skip" onclick="skipGuide()">ガイドをスキップ</a>`;
+  if (targetEl && position !== 'center') {
+    const rect = targetEl.getBoundingClientRect();
+    const mapRect = document.getElementById('screen-map').getBoundingClientRect();
+    bubble.style.position = 'absolute';
+    bubble.style.zIndex = '2000';
+    if (position === 'right') {
+      bubble.style.left = (rect.right - mapRect.left + 12) + 'px';
+      bubble.style.top = (rect.top - mapRect.top) + 'px';
+    } else if (position === 'below') {
+      bubble.style.left = (rect.left - mapRect.left) + 'px';
+      bubble.style.top = (rect.bottom - mapRect.top + 8) + 'px';
+    } else {
+      bubble.style.left = (rect.left - mapRect.left) + 'px';
+      bubble.style.top = (rect.top - mapRect.top - 60) + 'px';
+    }
+  } else {
+    bubble.style.position = 'absolute';
+    bubble.style.top = '80px';
+    bubble.style.left = '80px';
+    bubble.style.zIndex = '2000';
+  }
+  document.getElementById('screen-map').appendChild(bubble);
+  guideOverlay = bubble;
+}
+
+function guideStep1() {
+  if (guideSkipped) return;
   guideStep = 1;
-  // Task 21: Stage 1 - highlight the draw button
-  // Add shake animation to draw button
   const drawBtn = document.querySelector('.leaflet-draw-draw-rectangle');
-  if (drawBtn) drawBtn.classList.add('shake-btn');
-
-  showGuideOverlay(
-    'まず左上の選択ツールをクリックしてください',
-    'OK'
-  );
+  if (drawBtn) {
+    drawBtn.classList.add('shake-btn');
+    showGuideBubble('① まず選択ツールをクリックしてください', drawBtn, 'below');
+  }
 }
 
-function showGuideStep2() {
+function guideStep2() {
+  if (guideSkipped) return;
   guideStep = 2;
-  hideGuide();
-  // Task 21: Stop shake, Stage 2 - show pulse on target area
-  const drawBtn = document.querySelector('.leaflet-draw-draw-rectangle');
-  if (drawBtn) drawBtn.classList.remove('shake-btn');
-
-  // Show pulse circle at data area center
+  clearGuideUI();
   const center = DATA_BOUNDS.getCenter();
-  pulseCircle = L.circle(center, {
-    radius: 150,
-    color: '#1565c0',
-    weight: 3,
-    fill: false,
-    className: 'pulse-circle'
-  }).addTo(map);
-
-  // Show data area hint
-  dataAreaRect = L.rectangle(DATA_BOUNDS, {
-    color: '#1565c0', weight: 2, dashArray: '6 4',
-    fillColor: '#1565c0', fillOpacity: 0.05, interactive: false
-  }).addTo(map);
-
-  showGuideOverlay(
-    '青い円の中にあるエリアにズームインし、点線の範囲を囲んでください',
-    null
-  );
-  setTimeout(() => { if (guideStep === 2) hideGuide(); }, 3000);
+  pulseCircle = L.circle(center, { radius: 150, color: '#1565c0', weight: 3, fill: false, className: 'pulse-circle' }).addTo(map);
+  dataAreaRect = L.rectangle(DATA_BOUNDS, { color: '#1565c0', weight: 2, dashArray: '6 4', fillColor: '#1565c0', fillOpacity: 0.05, interactive: false }).addTo(map);
+  showGuideBubble('② 点線の範囲をドラッグで囲んでください', null, 'center');
 }
 
-function showGuideStep3() {
+function guideStep3() {
+  if (guideSkipped) return;
   guideStep = 3;
-  showGuideOverlay(
-    '12件の候補筆が見つかりました。<br>筆をクリックして詳細を確認できます。',
-    null
-  );
-  setTimeout(() => { if (guideStep === 3) hideGuide(); }, 3000);
+  clearGuideUI();
+  setTimeout(() => {
+    if (guideSkipped) return;
+    const firstRow = document.querySelector('.ranking-item');
+    if (firstRow) {
+      firstRow.classList.add('guide-shake');
+      showGuideBubble('③ 最高スコアの筆をクリックして詳細を確認しましょう', firstRow, 'above');
+    }
+  }, 500);
 }
 
-function showGuideOverlay(message, btnText) {
-  hideGuide();
-  const el = document.createElement('div');
-  el.className = 'guide-overlay' + (btnText ? ' clickable' : '');
-  el.innerHTML = `
-    <div class="guide-message">
-      <p>${message}</p>
-      ${btnText ? `<button class="guide-dismiss" onclick="hideGuide()">${btnText}</button>` : ''}
-    </div>
-  `;
-  if (!btnText) {
-    el.addEventListener('click', () => hideGuide());
+function guideStep4() {
+  if (guideSkipped) return;
+  guideStep = 4;
+  clearGuideUI();
+  const tab = document.querySelector('.dtab[data-tab="volume"]');
+  if (tab) {
+    tab.classList.add('guide-shake');
+    showGuideBubble('④ ボリュームチェックタブで建築可能規模を確認できます', tab, 'below');
   }
-  document.getElementById('screen-map').appendChild(el);
-  guideOverlay = el;
 }
 
-function hideGuide() {
-  if (guideOverlay) {
-    guideOverlay.remove();
-    guideOverlay = null;
+function guideStep5() {
+  if (guideSkipped) return;
+  guideStep = 5;
+  clearGuideUI();
+  setTimeout(() => {
+    if (guideSkipped) return;
+    const tab = document.querySelector('.dtab[data-tab="finance"]');
+    if (tab) {
+      tab.classList.add('guide-shake');
+      showGuideBubble('⑤ 事業収支タブでNOI利回り・IRR・プロフォーマを確認できます', tab, 'below');
+    }
+  }, 3000);
+}
+
+function guideStep6() {
+  if (guideSkipped) return;
+  guideStep = 6;
+  clearGuideUI();
+  setTimeout(() => {
+    if (guideSkipped) return;
+    const tab = document.querySelector('.dtab[data-tab="risk"]');
+    if (tab) {
+      tab.classList.add('guide-shake');
+      showGuideBubble('⑥ リスク評価タブでハザード・土壌汚染等のリスクを確認できます', tab, 'below');
+    }
+  }, 3000);
+}
+
+function guideStep7() {
+  if (guideSkipped) return;
+  guideStep = 7;
+  clearGuideUI();
+  setTimeout(() => {
+    if (guideSkipped) return;
+    const btn = document.querySelector('.detail-fixed-footer .impact-btn');
+    if (btn) {
+      btn.classList.add('guide-shake');
+      showGuideBubble('⑦ この土地に施設を建てた場合の周辺への影響を推計します', btn, 'above');
+    }
+  }, 3000);
+}
+
+function guideStep8() {
+  if (guideSkipped) return;
+  guideStep = 8;
+  clearGuideUI();
+  const sel = document.getElementById('facility-type');
+  if (sel) {
+    sel.classList.add('guide-shake');
+    showGuideBubble('⑧ 施設タイプと延床面積を選択してください。数値が動的に変化します', sel, 'below');
   }
 }
+
+function guideStep9() {
+  if (guideSkipped) return;
+  guideStep = 9;
+  clearGuideUI();
+  const btn = document.querySelector('.acq-proceed-btn');
+  if (btn) {
+    btn.classList.add('guide-shake');
+    showGuideBubble('⑨ 地権者情報の分析とアタックリストの生成に進みます', btn, 'above');
+  }
+}
+
+function guideStep11() {
+  if (guideSkipped) return;
+  guideStep = 11;
+  clearGuideUI();
+  setTimeout(() => {
+    if (guideSkipped) return;
+    const btn = document.querySelector('.alt-card .acq-btn.primary');
+    if (btn) {
+      const card = btn.closest('.alt-card');
+      if (card) card.classList.add('guide-shake');
+      showGuideBubble('⑩ 近隣により有望なエリアが見つかりました。詳細を調査しましょう', btn, 'above');
+    }
+  }, 4000);
+}
+
+function guideStep12() {
+  if (guideSkipped) return;
+  guideStep = 12;
+  clearGuideUI();
+  setTimeout(() => {
+    if (guideSkipped) return;
+    showGuideBubble('AI推奨エリアに移動しました。同じように筆の詳細確認・インパクト推計が可能です', null, 'center');
+    setTimeout(() => clearGuideUI(), 5000);
+  }, 2000);
+}
+
+// Aliases for backward compat
+function showGuideStep1() { guideStep1(); }
+function showGuideStep2() { guideStep2(); }
+function showGuideStep3() { guideStep3(); guideStep = 3; }
+function hideGuide() { clearGuideUI(); }
 
 function showToast(msg) {
   const existing = document.querySelector('.toast');
@@ -385,6 +496,17 @@ function drawParcels() {
 
     parcelLayers[p.id] = layer;
   });
+
+  // Task 44: Highlight top-scoring parcel
+  const topParcel = [...parcelsData].sort((a, b) => b.score - a.score)[0];
+  if (topParcel && parcelLayers[topParcel.id]) {
+    const topLayer = parcelLayers[topParcel.id];
+    topLayer.setStyle({ weight: 4, dashArray: '8 4' });
+    const topCenter = topLayer.getBounds().getCenter();
+    const topLabel = L.tooltip({ permanent: true, direction: 'top', className: 'top-score-label', offset: [0, -10] })
+      .setLatLng(topCenter).setContent('最高スコア').addTo(map);
+    parcelTooltips[topParcel.id + '_top'] = topLabel;
+  }
 }
 
 // ===== Update polygon styles (Task 2) =====
@@ -465,7 +587,8 @@ function showRankingPanel() {
       ${sorted.map((p, i) => {
         const grade = getGrade(p.score);
         const valueText = displayMode === 'score' ? p.score : p.noiYield + '%';
-        return `<div class="ranking-item" id="rank-${p.id}" onclick="onRankClick('${p.id}')" ondblclick="showDetailPanel('${p.id}')">
+        return `<div class="ranking-item ${i === 0 ? 'rank-top' : ''}" id="rank-${p.id}" onclick="onRankClick('${p.id}')" ondblclick="showDetailPanel('${p.id}')">
+          ${i === 0 ? '<span class="recommend-badge">推奨</span>' : ''}
           <div class="rank-num rank-${grade}">${i + 1}</div>
           <div class="rank-info">
             <div class="rank-name">${p.name}</div>
@@ -558,6 +681,11 @@ function switchDetailTab(tab, parcelId) {
     mapEl.style.right = '500px';
   }
   map.invalidateSize();
+
+  // Guide transitions
+  if (tab === 'volume' && guideStep === 4) guideStep5();
+  if (tab === 'finance' && guideStep === 5) guideStep6();
+  if (tab === 'risk' && guideStep === 6) guideStep7();
 }
 
 function showDetailPanel(id) {
@@ -646,6 +774,8 @@ function showDetailPanel(id) {
       </div>
     </div>
   `;
+  // Guide: after detail panel opens, show step 4
+  if (guideStep === 3) setTimeout(() => guideStep4(), 500);
 }
 
 function closeDetailPanel() {
@@ -913,9 +1043,11 @@ function toggleImpactCollapse(el) {
 // ===== Screen 4: Impact Panel (Task 8) =====
 function showImpactPanel(id) {
   currentScreen = 4;
+  clearGuideUI();
   const p = parcelsData.find(d => d.id === id);
   if (!p) return;
   renderImpactUI(p, 'large-sc', 20000);
+  if (guideStep === 7) setTimeout(() => guideStep8(), 500);
 }
 
 function renderImpactUI(p, facilityType, floorArea) {
@@ -1021,6 +1153,7 @@ function onImpactChange(id) {
   document.getElementById('floor-area-val').textContent = fa.toLocaleString() + ' m²';
   const p = parcelsData.find(d => d.id === id);
   if (p) renderImpactUI(p, ft, fa);
+  if (guideStep === 8) setTimeout(() => guideStep9(), 1000);
 }
 
 function clearImpactOverlay() {
@@ -1106,6 +1239,31 @@ function showAcquisitionPanel(id) {
         `).join('')}
       </div>
 
+      <div id="alt-recommend" style="display:none">
+        <div class="alt-header">
+          <span class="alt-star">★</span>
+          <span>AI分析結果: より有望な近隣エリアが見つかりました</span>
+        </div>
+        <div class="alt-card" style="border-left-color:#2d8a4e">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <strong style="font-size:14px">芝大門二丁目北エリア</strong>
+            <span style="background:#e8f5e9;color:#2d8a4e;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600">合筆による大規模開発が可能</span>
+          </div>
+          <p style="font-size:12px;color:#666;margin-bottom:8px">推奨理由: 土壌汚染リスクなし・単独所有率が多く権利整理が容易・接道条件良好</p>
+          <div style="font-size:13px;margin-bottom:10px"><span style="color:#888">推定スコア:</span> <strong>82</strong> / <span style="color:#888">推定NOI利回り:</span> <strong>8.2%</strong></div>
+          <button class="alt-explore-btn" onclick="exploreAlternativeArea('alt1')">このエリアを調査</button>
+        </div>
+        <div class="alt-card" style="border-left-color:#185FA5">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <strong style="font-size:14px">芝大門二丁目南エリア</strong>
+            <span style="background:#e3f2fd;color:#185FA5;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600">用地取得の難易度が低い</span>
+          </div>
+          <p style="font-size:12px;color:#666;margin-bottom:8px">推奨理由: 土壌汚染リスクなし・単独所有率が多く権利整理が容易・接道条件良好</p>
+          <div style="font-size:13px;margin-bottom:10px"><span style="color:#888">推定スコア:</span> <strong>82</strong> / <span style="color:#888">推定NOI利回り:</span> <strong>7.5%</strong></div>
+          <button class="alt-explore-btn" onclick="exploreAlternativeArea('alt2')">このエリアを調査</button>
+        </div>
+      </div>
+
       <div class="acq-section">
         <h4>ターゲットリスト（A/Bランク筆）</h4>
         <table class="target-table">
@@ -1132,40 +1290,21 @@ function showAcquisitionPanel(id) {
         </div>
       </div>
 
-      <div id="alt-recommend" style="display:none;margin-top:20px">
-        <h4 style="font-size:16px;font-weight:600;color:#1a1a2e;margin-bottom:12px">AI推奨: 近隣の開発ポテンシャルが高いエリア</h4>
-        <div class="alt-card" style="border-left-color:#2d8a4e">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <strong style="font-size:14px">芝大門二丁目北エリア</strong>
-            <span style="background:#e8f5e9;color:#2d8a4e;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600">合筆による大規模開発が可能</span>
-          </div>
-          <p style="font-size:12px;color:#666;margin-bottom:8px">推奨理由: 土壌汚染リスクなし・単独所有率が多く権利整理が容易・接道条件良好</p>
-          <div style="font-size:13px;margin-bottom:8px"><span style="color:#888">推定スコア:</span> <strong>82</strong> / <span style="color:#888">推定NOI利回り:</span> <strong>8.2%</strong></div>
-          <button class="acq-btn primary" onclick="exploreAlternativeArea('alt1')">このエリアを調査</button>
-        </div>
-        <div class="alt-card" style="border-left-color:#185FA5">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <strong style="font-size:14px">芝大門二丁目南エリア</strong>
-            <span style="background:#e3f2fd;color:#185FA5;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600">用地取得の難易度が低い</span>
-          </div>
-          <p style="font-size:12px;color:#666;margin-bottom:8px">推奨理由: 土壌汚染リスクなし・単独所有率が多く権利整理が容易・接道条件良好</p>
-          <div style="font-size:13px;margin-bottom:8px"><span style="color:#888">推定スコア:</span> <strong>82</strong> / <span style="color:#888">推定NOI利回り:</span> <strong>7.5%</strong></div>
-          <button class="acq-btn primary" onclick="exploreAlternativeArea('alt2')">このエリアを調査</button>
-        </div>
-      </div>
-
       <button class="acq-back-btn" onclick="showDetailPanel('${p.id}')">← 詳細に戻る</button>
     </div>
   `;
 
-  // Task 35: delayed AI recommendation
+  // Task 35+43: delayed AI recommendation + guide step 11
   setTimeout(() => {
     const altEl = document.getElementById('alt-recommend');
     if (altEl) {
       altEl.style.display = 'block';
       altEl.style.opacity = '0';
       altEl.style.transition = 'opacity 0.5s';
-      setTimeout(() => { altEl.style.opacity = '1'; }, 50);
+      setTimeout(() => {
+        altEl.style.opacity = '1';
+        if (guideStep === 10) guideStep11();
+      }, 50);
     }
   }, 3000);
 }
@@ -1180,6 +1319,8 @@ const loadingSteps = [
 ];
 
 function startAcquisitionLoading(parcelId) {
+  clearGuideUI();
+  guideStep = 10;
   const panel = document.getElementById('side-panel');
   panel.innerHTML = `
     <div class="loading-acq">
@@ -1305,10 +1446,12 @@ function exploreAlternativeArea(areaId) {
 
   map.flyTo(area.center, 17, { duration: 1.5 });
 
+  clearGuideUI();
   setTimeout(() => {
     drawParcels();
     showRankingPanel();
     currentScreen = 2;
+    if (guideStep === 11) guideStep12();
   }, 1600);
 }
 
