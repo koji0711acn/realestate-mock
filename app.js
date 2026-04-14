@@ -192,7 +192,7 @@ function initMap() {
 
   // Task 5: Guide text
   document.getElementById('guide-text').innerHTML =
-    '<b>① </b>左上の「エリア選択」をクリック → <b>② </b>地図上でドラッグ → <b>③ </b>エリア内の全筆を自動評価';
+    '<b>1. </b>左上の「エリア選択」をクリック → <b>2. </b>地図上でドラッグ → <b>3. </b>エリア内の全筆を自動評価';
 
   // Listen for draw start
   map.on('draw:drawstart', function () {
@@ -203,13 +203,13 @@ function initMap() {
     if (drawnRect) drawnItems.removeLayer(drawnRect);
     drawnRect = e.layer;
     drawnItems.addLayer(drawnRect);
+    if (window.guideDashedRect) { map.removeLayer(window.guideDashedRect); window.guideDashedRect = null; }
     clearGuideUI();
     onAreaSelected();
   });
 
-  // Task 50/63: Panel resize handle
+  // Task 50/72: Panel resize handle (fixed position)
   initPanelResize();
-  setupResizeHandleObserver();
 
   // Show guide step 1
   setTimeout(() => advanceGuide(1), 600);
@@ -239,6 +239,7 @@ function initPanelResize() {
     const newWidth = Math.min(700, Math.max(350, startWidth + diff));
     panel.style.width = newWidth + 'px';
     mapEl.style.right = newWidth + 'px';
+    document.getElementById('panel-resize-handle').style.right = newWidth + 'px';
     if (map) map.invalidateSize();
   });
 
@@ -251,22 +252,6 @@ function initPanelResize() {
   });
 }
 
-// Task 63: Ensure resize handle stays in panel after innerHTML changes
-function setupResizeHandleObserver() {
-  const panel = document.getElementById('side-panel');
-  if (!panel) return;
-  const observer = new MutationObserver(() => {
-    if (!panel.querySelector('#panel-resize-handle')) {
-      const handle = document.createElement('div');
-      handle.id = 'panel-resize-handle';
-      handle.className = 'panel-resize-handle';
-      panel.insertBefore(handle, panel.firstChild);
-      initPanelResize();
-    }
-  });
-  observer.observe(panel, { childList: true });
-}
-
 // ===== Task 51: 14-step Guide System =====
 let guideSkipped = false;
 
@@ -274,15 +259,11 @@ function clearGuideUI() {
   if (guideOverlay) { guideOverlay.remove(); guideOverlay = null; }
   if (pulseCircle) { map.removeLayer(pulseCircle); pulseCircle = null; }
   if (dataAreaRect) { map.removeLayer(dataAreaRect); dataAreaRect = null; }
+  if (window.guideDashedRect) { map.removeLayer(window.guideDashedRect); window.guideDashedRect = null; }
   document.querySelectorAll('.shake-btn').forEach(el => el.classList.remove('shake-btn'));
   document.querySelectorAll('.guide-shake').forEach(el => el.classList.remove('guide-shake'));
-  document.querySelectorAll('.guide-pulse').forEach(el => {
-    if (el.tagName === 'DIV' && el.parentElement && (el.parentElement.id === 'screen-map' || el.parentElement.id === 'side-panel')) {
-      el.remove();
-    } else {
-      el.classList.remove('guide-pulse');
-    }
-  });
+  document.querySelectorAll('.guide-bubble').forEach(el => el.remove());
+  document.querySelectorAll('.guide-pulse').forEach(el => el.remove());
 }
 
 function skipGuide() {
@@ -290,35 +271,47 @@ function skipGuide() {
   clearGuideUI();
 }
 
-function showGuideBubble(msg, targetEl, position) {
-  clearGuideUI();
-  if (guideSkipped) return;
-  const bubble = document.createElement('div');
-  bubble.className = 'guide-bubble-box';
-  if (position === 'right') bubble.classList.add('arrow-left');
-  else if (position === 'below') bubble.classList.add('arrow-top');
-  else if (position === 'above') bubble.classList.add('arrow-bottom');
-  bubble.innerHTML = `<span onclick="skipGuide()" style="position:absolute;top:6px;right:6px;width:20px;height:20px;border-radius:50%;background:transparent;color:#999;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">&times;</span><p style="margin:0 0 4px">${msg}</p>`;
-
-  if (targetEl && position !== 'center') {
-    const rect = targetEl.getBoundingClientRect();
-    const mapRect = document.getElementById('screen-map').getBoundingClientRect();
-    if (position === 'right') {
-      bubble.style.left = (rect.right - mapRect.left + 12) + 'px';
-      bubble.style.top = (rect.top - mapRect.top) + 'px';
-    } else if (position === 'below') {
-      bubble.style.left = (rect.left - mapRect.left) + 'px';
-      bubble.style.top = (rect.bottom - mapRect.top + 8) + 'px';
+function showGuideBubble(targetEl, message, position) {
+    clearGuideUI();
+    if (guideSkipped) return;
+    var bubble = document.createElement('div');
+    bubble.className = 'guide-bubble';
+    bubble.innerHTML = '<div class="guide-bubble-close" onclick="skipGuide()">&times;</div><div class="guide-bubble-text">' + message + '</div>';
+    document.body.appendChild(bubble);
+    if (targetEl) {
+        var rect = targetEl.getBoundingClientRect();
+        if (position === 'below') {
+            bubble.style.left = rect.left + 'px';
+            bubble.style.top = (rect.bottom + 8) + 'px';
+        } else if (position === 'above') {
+            bubble.style.left = rect.left + 'px';
+            bubble.style.top = (rect.top - bubble.offsetHeight - 8) + 'px';
+        } else {
+            bubble.style.left = (rect.right + 12) + 'px';
+            bubble.style.top = rect.top + 'px';
+        }
     } else {
-      bubble.style.left = (rect.left - mapRect.left) + 'px';
-      bubble.style.top = (rect.top - mapRect.top - 60) + 'px';
+        bubble.style.left = '80px';
+        bubble.style.top = '80px';
     }
-  } else {
-    bubble.style.top = '80px';
-    bubble.style.left = '80px';
-  }
-  document.getElementById('screen-map').appendChild(bubble);
-  guideOverlay = bubble;
+    guideOverlay = bubble;
+}
+
+function showGuidePulse(targetEl) {
+    var existing = document.querySelector('.guide-pulse');
+    if (existing) existing.remove();
+    var pulse = document.createElement('div');
+    pulse.className = 'guide-pulse';
+    document.body.appendChild(pulse);
+    var rect = targetEl.getBoundingClientRect();
+    pulse.style.left = (rect.left + rect.width/2 - 25) + 'px';
+    pulse.style.top = (rect.top + rect.height/2 - 25) + 'px';
+}
+
+function applyGuideShake(targetEl) {
+    var prev = document.querySelector('.guide-shake');
+    if (prev) prev.classList.remove('guide-shake');
+    targetEl.classList.add('guide-shake');
 }
 
 function advanceGuide(step) {
@@ -330,14 +323,9 @@ function advanceGuide(step) {
       const drawBtn = document.querySelector('.leaflet-draw-draw-rectangle');
       if (drawBtn) {
         drawBtn.classList.add('shake-btn');
-        const pulseEl = document.createElement('div');
-        pulseEl.className = 'guide-pulse';
-        const btnRect = drawBtn.getBoundingClientRect();
-        const mapRect = document.getElementById('screen-map').getBoundingClientRect();
-        pulseEl.style.left = (btnRect.left - mapRect.left + btnRect.width/2 - 25) + 'px';
-        pulseEl.style.top = (btnRect.top - mapRect.top + btnRect.height/2 - 25) + 'px';
-        document.getElementById('screen-map').appendChild(pulseEl);
-        showGuideBubble('① まず選択ツールをクリックしてください', drawBtn, 'below');
+        showGuidePulse(drawBtn);
+        applyGuideShake(drawBtn);
+        showGuideBubble(drawBtn, '1. まず選択ツールをクリックしてください', 'below');
       }
       break;
     }
@@ -347,7 +335,13 @@ function advanceGuide(step) {
       const center = DATA_BOUNDS.getCenter();
       pulseCircle = L.circle(center, { radius: 150, color: '#0067B3', weight: 3, fill: false, className: 'pulse-circle' }).addTo(map);
       dataAreaRect = L.rectangle(DATA_BOUNDS, { color: '#0067B3', weight: 2, dashArray: '8,6', fill: false }).addTo(map);
-      showGuideBubble('② 点線の範囲をドラッグで囲んでください', null, 'center');
+      if (!window.guideDashedRect) {
+          window.guideDashedRect = L.rectangle(DATA_BOUNDS, {
+              color: '#0067B3', weight: 2, dashArray: '8,6',
+              fill: true, fillColor: '#0067B3', fillOpacity: 0.05
+          }).addTo(map);
+      }
+      showGuideBubble(null, '2. 点線の範囲をドラッグで囲んでください', 'center');
       break;
     }
     case 3: { // Click rank-1 parcel
@@ -357,8 +351,9 @@ function advanceGuide(step) {
         if (guideSkipped) return;
         const firstRow = document.querySelector('.ranking-item');
         if (firstRow) {
-          firstRow.classList.add('guide-shake');
-          showGuideBubble('③ 最高スコアの筆をクリックして詳細を確認しましょう', firstRow, 'above');
+          showGuidePulse(firstRow);
+          applyGuideShake(firstRow);
+          showGuideBubble(firstRow, '3. 最高スコアの筆をクリックして詳細を確認しましょう', 'above');
         }
       }, 500);
       break;
@@ -370,9 +365,9 @@ function advanceGuide(step) {
         if (guideSkipped) return;
         const btn = document.querySelector('.scenario-proceed-btn');
         if (btn) {
-          btn.classList.add('guide-shake');
-          btn.classList.add('guide-pulse');
-          showGuideBubble('④ 開発シナリオを検討して施設タイプ・延床面積を設定します', btn, 'above');
+          showGuidePulse(btn);
+          applyGuideShake(btn);
+          showGuideBubble(btn, '4. 開発シナリオを検討して施設タイプ・延床面積を設定します', 'above');
         }
       }, 500);
       break;
@@ -382,8 +377,9 @@ function advanceGuide(step) {
       guideStep = 5;
       const sel = document.getElementById('scenario-facility-type');
       if (sel) {
-        sel.classList.add('guide-shake');
-        showGuideBubble('⑤ 施設タイプを変更してシナリオを調整できます', sel, 'below');
+        showGuidePulse(sel);
+        applyGuideShake(sel);
+        showGuideBubble(sel, '5. 施設タイプを変更してシナリオを調整できます', 'below');
       }
       break;
     }
@@ -394,9 +390,9 @@ function advanceGuide(step) {
         if (guideSkipped) return;
         const btn = document.querySelector('.scenario-confirm-btn');
         if (btn) {
-          btn.classList.add('guide-shake');
-          btn.classList.add('guide-pulse');
-          showGuideBubble('⑥ シナリオを確定して分析結果を表示します', btn, 'above');
+          showGuidePulse(btn);
+          applyGuideShake(btn);
+          showGuideBubble(btn, '6. シナリオを確定して分析結果を表示します', 'above');
         }
       }, 1000);
       break;
@@ -404,7 +400,7 @@ function advanceGuide(step) {
     case 7: { // Volume check tab shown (auto 3s)
       clearGuideUI();
       guideStep = 7;
-      showGuideBubble('⑦ ボリュームチェック結果を確認しています...', null, 'center');
+      showGuideBubble(null, '7. ボリュームチェック結果を確認しています...', 'center');
       setTimeout(() => {
         if (guideSkipped) return;
         advanceGuide(8);
@@ -416,9 +412,9 @@ function advanceGuide(step) {
       guideStep = 8;
       const finTab = document.querySelector('.analysis-tab[data-tab="finance"]');
       if (finTab) {
-        finTab.classList.add('guide-shake');
-        finTab.classList.add('guide-pulse');
-        showGuideBubble('⑧ 事業収支タブでNOI利回り・IRR・プロフォーマを確認できます', finTab, 'below');
+        showGuidePulse(finTab);
+        applyGuideShake(finTab);
+        showGuideBubble(finTab, '8. 事業収支タブでNOI利回り・IRR・プロフォーマを確認できます', 'below');
       }
       break;
     }
@@ -428,10 +424,12 @@ function advanceGuide(step) {
       setTimeout(() => {
         if (guideSkipped) return;
         const impTab = document.querySelector('.analysis-tab[data-tab="impact"]');
-        if (impTab) {
-          impTab.classList.add('guide-shake');
-          impTab.classList.add('guide-pulse');
-          showGuideBubble('⑨ インパクト推計タブで周辺への影響を確認できます', impTab, 'below');
+        const riskTab = document.querySelector('.analysis-tab[data-tab="risk"]');
+        const targetTab = impTab || riskTab;
+        if (targetTab) {
+          showGuidePulse(targetTab);
+          applyGuideShake(targetTab);
+          showGuideBubble(targetTab, '9. インパクト推計タブで周辺への影響を確認できます', 'below');
         }
       }, 3000);
       break;
@@ -443,9 +441,9 @@ function advanceGuide(step) {
         if (guideSkipped) return;
         const btn = document.querySelector('.analysis-fixed-footer .acq-proceed-btn');
         if (btn) {
-          btn.classList.add('guide-shake');
-          btn.classList.add('guide-pulse');
-          showGuideBubble('⑩ ターゲット候補の選定に進みます', btn, 'above');
+          showGuidePulse(btn);
+          applyGuideShake(btn);
+          showGuideBubble(btn, '10. ターゲット候補の選定に進みます', 'above');
         }
       }, 3000);
       break;
@@ -458,7 +456,7 @@ function advanceGuide(step) {
     case 12: { // Target list shown (auto 3s)
       clearGuideUI();
       guideStep = 12;
-      showGuideBubble('⑫ ターゲットリストが生成されました。CSVエクスポートも可能です', null, 'center');
+      showGuideBubble(null, '12. ターゲットリストが生成されました。CSVエクスポートも可能です', 'center');
       setTimeout(() => {
         if (guideSkipped) return;
         advanceGuide(13);
@@ -472,12 +470,9 @@ function advanceGuide(step) {
         if (guideSkipped) return;
         const btn = document.querySelector('.alt-card .alt-explore-btn');
         if (btn) {
-          const card = btn.closest('.alt-card');
-          if (card) {
-            card.classList.add('guide-shake');
-            card.classList.add('guide-pulse');
-          }
-          showGuideBubble('⑫ AIが推奨する近隣エリアを調査しましょう。権利整理が容易で、大規模開発の余地があるエリアです', btn, 'above');
+          showGuidePulse(btn);
+          applyGuideShake(btn);
+          showGuideBubble(btn, '13. AIが推奨する近隣エリアを調査しましょう。権利整理が容易で、大規模開発の余地があるエリアです', 'above');
         }
       }, 1000);
       break;
@@ -487,7 +482,7 @@ function advanceGuide(step) {
       guideStep = 14;
       setTimeout(() => {
         if (guideSkipped) return;
-        showGuideBubble('AI推奨エリアに移動しました。同じように筆の詳細確認・シナリオ分析が可能です', null, 'center');
+        showGuideBubble(null, 'AI推奨エリアに移動しました。同じように筆の詳細確認・シナリオ分析が可能です', 'center');
         setTimeout(() => clearGuideUI(), 5000);
       }, 2000);
       break;
@@ -767,6 +762,8 @@ function setPanelWidth(w) {
   const mapEl = document.getElementById('map');
   panel.style.width = w + 'px';
   mapEl.style.right = w + 'px';
+  const handle = document.getElementById('panel-resize-handle');
+  if (handle) handle.style.right = w + 'px';
   setTimeout(() => { if (map) map.invalidateSize(); }, 50);
 }
 
@@ -1158,7 +1155,7 @@ function switchAnalysisTab(tab, parcelId, facilityType, floorArea) {
     }, 100);
   } else if (tab === 'finance') {
     content.innerHTML = getFinanceTabContent(p, facilityType, floorArea);
-    setTimeout(() => renderCFChart(p, facilityType, floorArea), 100);
+    setTimeout(() => initCFChart(p), 100);
   } else if (tab === 'impact') {
     content.innerHTML = getImpactTabContent(p, facilityType, floorArea);
   } else if (tab === 'risk') {
@@ -1195,85 +1192,145 @@ function getVolumeTabContent(p, facilityType, floorArea) {
 }
 
 function getFinanceTabContent(p, facilityType, floorArea) {
-  const ba = p.buildableArea || Math.round(p.area * p.far / 100 * 0.93);
-  const rr = (p.rentableRatio || 73) / 100;
-  const landCost = Math.round(p.landPrice * p.area / 100);
-  const designFee = Math.round(p.cost * 0.08);
-  const expenses = Math.round(p.cost * 0.05);
-  const contingency = Math.round(p.cost * 0.10);
-  const totalInvest = landCost + p.cost + designFee + expenses + contingency;
-  const grossRent = Math.round(p.rent * ba * rr * 12 / 1000000);
-  const annualRent = Math.round(grossRent * (1 - p.vacancy / 100));
-  const commonFee = Math.round(annualRent * 0.1);
-  const opex = Math.round(annualRent * 0.2);
-  const noi = annualRent + commonFee - opex;
-  const loanAmt = Math.round(totalInvest * 0.7);
-  const mr = 0.02/12; const annualDebt = Math.round(loanAmt * mr * Math.pow(1+mr,360) / (Math.pow(1+mr,360)-1) * 12);
-  const preTaxCF = noi - annualDebt;
-  const dscrVal = annualDebt > 0 ? (noi / annualDebt).toFixed(2) : 'N/A';
-  const dscrColor = parseFloat(dscrVal) >= 1.3 ? '#2d8a4e' : '#c0392b';
+  var ba = p.buildableArea || Math.round(p.area * p.far / 100 * 0.93);
+  var rr = (p.rentableRatio || 73) / 100;
+  var landCost = Math.round(p.landPrice * p.area / 100);
+  var designFee = Math.round(p.cost * 0.08);
+  var expenses = Math.round(p.cost * 0.05);
+  var contingency = Math.round(p.cost * 0.10);
+  var totalInvest = landCost + p.cost + designFee + expenses + contingency;
+  var grossRent = Math.round(p.rent * ba * rr * 12 / 1000000);
+  var annualRent = Math.round(grossRent * (1 - p.vacancy / 100));
+  var commonFee = Math.round(annualRent * 0.1);
+  var opex = Math.round(annualRent * 0.2);
+  var noi = annualRent + commonFee - opex;
+  var loanAmt = Math.round(totalInvest * 0.7);
+  var mr = 0.02/12;
+  var annualDebt = Math.round(loanAmt * mr * Math.pow(1+mr,360) / (Math.pow(1+mr,360)-1) * 12);
+  var preTaxCF = noi - annualDebt;
+  var dscrVal = annualDebt > 0 ? (noi / annualDebt).toFixed(2) : 'N/A';
+  var dscrColor = parseFloat(dscrVal) >= 1.3 ? '#2d8a4e' : '#c0392b';
 
-  return `
-    <div class="detail-grid-4" style="margin-bottom:16px">
-      <div class="metric-card"><div class="metric-label">NOI利回り</div><div class="metric-value" style="font-size:16px">${p.noiYield}%</div></div>
-      <div class="metric-card"><div class="metric-label">想定IRR</div><div class="metric-value" style="font-size:16px">${p.irr}%</div></div>
-      <div class="metric-card"><div class="metric-label">粗利率</div><div class="metric-value" style="font-size:16px">${p.grossMargin}%</div></div>
-      <div class="metric-card"><div class="metric-label">DSCR</div><div class="metric-value" style="font-size:16px;color:${dscrColor}">${dscrVal}</div></div>
-    </div>
-    <h4 style="font-size:13px;color:#888;margin-bottom:8px">初期投資</h4>
-    <table class="detail-table" style="margin-bottom:12px">
-      <tr><td>土地取得費</td><td>${landCost.toLocaleString()}百万円</td></tr>
-      <tr><td>建築工事費</td><td>${p.cost.toLocaleString()}百万円</td></tr>
-      <tr><td>設計・監理費</td><td>${designFee}百万円</td></tr>
-      <tr><td>諸経費</td><td>${expenses}百万円</td></tr>
-      <tr><td>予備費</td><td>${contingency}百万円</td></tr>
-      <tr style="font-weight:700;border-top:2px solid #333"><td>合計</td><td>${totalInvest.toLocaleString()}百万円</td></tr>
-    </table>
-    <h4 style="font-size:13px;color:#888;margin:12px 0 8px">年間収支（安定稼働時）</h4>
-    <table class="detail-table" style="margin-bottom:12px">
-      <tr><td>賃料収入</td><td>${annualRent}百万円</td></tr>
-      <tr><td>共益費収入</td><td>${commonFee}百万円</td></tr>
-      <tr><td>運営費</td><td>-${opex}百万円</td></tr>
-      <tr style="font-weight:700"><td>NOI</td><td>${noi}百万円</td></tr>
-      <tr><td>借入金返済</td><td>-${annualDebt}百万円</td></tr>
-      <tr style="font-weight:700;border-top:2px solid #333"><td>税前CF</td><td>${preTaxCF}百万円</td></tr>
-    </table>
-    <h4 style="font-size:13px;color:#888;margin-bottom:8px">累積CF推移</h4>
-    <div style="height:250px"><canvas id="cf-chart"></canvas></div>
-  `;
+  return '<div class="detail-grid-4" style="margin-bottom:16px">' +
+    '<div class="metric-card"><div class="metric-label">NOI利回り</div><div class="metric-value" style="font-size:16px">' + p.noiYield + '%</div></div>' +
+    '<div class="metric-card"><div class="metric-label">想定IRR</div><div class="metric-value" style="font-size:16px">' + p.irr + '%</div></div>' +
+    '<div class="metric-card"><div class="metric-label">粗利率</div><div class="metric-value" style="font-size:16px">' + p.grossMargin + '%</div></div>' +
+    '<div class="metric-card"><div class="metric-label">DSCR</div><div class="metric-value" style="font-size:16px;color:' + dscrColor + '">' + dscrVal + '</div></div>' +
+    '</div>' +
+    '<h4 style="font-size:13px;color:#888;margin-bottom:8px">初期投資</h4>' +
+    '<table class="detail-table" style="margin-bottom:12px">' +
+    '<tr><td>土地取得費</td><td>' + landCost.toLocaleString() + '百万円</td></tr>' +
+    '<tr><td>建築工事費</td><td>' + p.cost.toLocaleString() + '百万円</td></tr>' +
+    '<tr><td>設計・監理費</td><td>' + designFee + '百万円</td></tr>' +
+    '<tr><td>諸経費</td><td>' + expenses + '百万円</td></tr>' +
+    '<tr><td>予備費</td><td>' + contingency + '百万円</td></tr>' +
+    '<tr style="font-weight:700;border-top:2px solid #333"><td>合計</td><td>' + totalInvest.toLocaleString() + '百万円</td></tr>' +
+    '</table>' +
+    '<h4 style="font-size:13px;color:#888;margin:12px 0 8px">年間収支（安定稼働時）</h4>' +
+    '<table class="detail-table" style="margin-bottom:12px">' +
+    '<tr><td>賃料収入</td><td>' + annualRent + '百万円</td></tr>' +
+    '<tr><td>共益費収入</td><td>' + commonFee + '百万円</td></tr>' +
+    '<tr><td>運営費</td><td>-' + opex + '百万円</td></tr>' +
+    '<tr style="font-weight:700"><td>NOI</td><td>' + noi + '百万円</td></tr>' +
+    '<tr><td>借入金返済</td><td>-' + annualDebt + '百万円</td></tr>' +
+    '<tr style="font-weight:700;border-top:2px solid #333"><td>税前CF</td><td>' + preTaxCF + '百万円</td></tr>' +
+    '</table>' +
+    '<h4 style="font-size:13px;color:#888;margin-bottom:8px">累積CF推移</h4>' +
+    '<div style="display:flex;gap:4px;margin-bottom:8px">' +
+    '<button class="cf-scenario-tab active" data-scenario="pessimistic" style="flex:1;padding:6px 0;font-size:11px;font-weight:600;border:1px solid #ddd;border-radius:4px;background:#fff;cursor:pointer;font-family:inherit">悲観</button>' +
+    '<button class="cf-scenario-tab" data-scenario="base" style="flex:1;padding:6px 0;font-size:11px;font-weight:600;border:1px solid #185FA5;border-radius:4px;background:#185FA5;color:#fff;cursor:pointer;font-family:inherit">基本</button>' +
+    '<button class="cf-scenario-tab" data-scenario="optimistic" style="flex:1;padding:6px 0;font-size:11px;font-weight:600;border:1px solid #ddd;border-radius:4px;background:#fff;cursor:pointer;font-family:inherit">楽観</button>' +
+    '</div>' +
+    '<div id="cfParams" style="font-size:11px;color:#888;margin-bottom:8px"></div>' +
+    '<div style="height:250px"><canvas id="cfChart"></canvas></div>' +
+    '<div id="cfLegend" style="display:flex;gap:12px;justify-content:center;margin-top:8px;font-size:11px">' +
+    '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#d94f43;border-radius:2px;display:inline-block"></span>赤字</span>' +
+    '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#0067B3;border-radius:2px;display:inline-block"></span>黒字</span>' +
+    '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border:2px solid #2d8a4e;border-radius:2px;display:inline-block"></span>回収年</span>' +
+    '</div>' +
+    '<div id="cfSummary" style="margin-top:12px;background:#f7f8fa;border-radius:6px;padding:10px 12px;font-size:12px;color:#555"></div>';
 }
 
 function renderCFChart(p, facilityType, floorArea) {
-  const annualRentIncome = p.rent * (p.buildableArea || p.area * p.far / 100 * 0.93) * (p.rentableRatio || 73) / 100 * 12 / 1000000;
-  const effectiveIncome = annualRentIncome * (1 - p.vacancy / 100);
-  const noi = effectiveIncome * 0.80;
-  const landCost = Math.round(p.landPrice * p.area / 100);
-  const totalInvest = landCost + p.cost + Math.round(p.cost * 0.08) + Math.round(p.cost * 0.05) + Math.round(p.cost * 0.10);
-  const loanAmt = Math.round(totalInvest * 0.70);
-  const mr = 0.02 / 12;
-  const annualDebt = loanAmt * (mr * Math.pow(1+mr, 360)) / (Math.pow(1+mr, 360) - 1) * 12;
-  const annualCF = noi - annualDebt;
+  initCFChart(p);
+}
 
-  const cfData = [-totalInvest];
-  let cumCF = -totalInvest;
-  for (let y = 1; y <= 30; y++) {
-    cumCF += annualCF;
-    cfData.push(Math.round(cumCF));
+function initCFChart(parcel) {
+  var p = parcel;
+  var ba = p.buildableArea || Math.round(p.area * p.far / 100 * 0.93);
+  var rr = (p.rentableRatio || 73) / 100;
+  var landCost = Math.round(p.landPrice * p.area / 100);
+  var totalInvest = landCost + p.cost + Math.round(p.cost * 0.08) + Math.round(p.cost * 0.05) + Math.round(p.cost * 0.10);
+  var equity = Math.round(totalInvest * 0.30);
+  var loanAmt = Math.round(totalInvest * 0.70);
+  var mr = 0.02 / 12;
+  var annualDebt = loanAmt * (mr * Math.pow(1+mr,360)) / (Math.pow(1+mr,360)-1) * 12;
+
+  var scenarios = {
+    pessimistic: { label: '悲観', vacAdj: 1.5, rentAdj: 0.9, opexAdj: 1.1 },
+    base:        { label: '基本', vacAdj: 0,   rentAdj: 1.0, opexAdj: 1.0 },
+    optimistic:  { label: '楽観', vacAdj: -1.0, rentAdj: 1.1, opexAdj: 0.9 }
+  };
+
+  function calcCF(scenario) {
+    var s = scenarios[scenario];
+    var adjRent = p.rent * s.rentAdj;
+    var adjVac = Math.max(0, p.vacancy + s.vacAdj);
+    var grossRent = Math.round(adjRent * ba * rr * 12 / 1000000);
+    var annualRent = Math.round(grossRent * (1 - adjVac / 100));
+    var commonFee = Math.round(annualRent * 0.1);
+    var opex = Math.round(annualRent * 0.2 * s.opexAdj);
+    var noi = annualRent + commonFee - opex;
+    var annualCF = noi - annualDebt;
+    var data = [-equity];
+    var cum = -equity;
+    for (var y = 1; y <= 30; y++) {
+      cum += annualCF;
+      data.push(Math.round(cum));
+    }
+    return { data: data, noi: noi, annualCF: annualCF, adjRent: adjRent, adjVac: adjVac };
   }
-  const breakEvenYear = cfData.findIndex(v => v >= 0);
-  const yearLabels = Array.from({length:31}, (_,i) => (i % 5 === 0) ? `${i}年` : '');
 
-  const ctx = document.getElementById('cf-chart');
-  if (ctx && typeof Chart !== 'undefined') {
-    new Chart(ctx, {
+  function getColors(data) {
+    return data.map(function(v) { return v >= 0 ? '#0067B3' : '#d94f43'; });
+  }
+
+  function getPayback(data) {
+    for (var i = 1; i < data.length; i++) {
+      if (data[i] >= 0) return i;
+    }
+    return -1;
+  }
+
+  var cfChartInstance = null;
+
+  function updateCFChart(scenario) {
+    var result = calcCF(scenario);
+    var data = result.data;
+    var payback = getPayback(data);
+    var yearLabels = [];
+    for (var i = 0; i <= 30; i++) { yearLabels.push(i % 5 === 0 ? i + '年' : ''); }
+
+    var paramsEl = document.getElementById('cfParams');
+    if (paramsEl) {
+      var s = scenarios[scenario];
+      paramsEl.innerHTML = '賃料倍率: ' + s.rentAdj.toFixed(1) + 'x / 空室率調整: ' + (s.vacAdj >= 0 ? '+' : '') + s.vacAdj.toFixed(1) + '% / 運営費倍率: ' + s.opexAdj.toFixed(1) + 'x';
+    }
+
+    var ctx = document.getElementById('cfChart');
+    if (!ctx || typeof Chart === 'undefined') return;
+
+    if (cfChartInstance) { cfChartInstance.destroy(); cfChartInstance = null; }
+
+    cfChartInstance = new Chart(ctx, {
       type: 'bar',
       data: {
         labels: yearLabels,
         datasets: [{
-          data: cfData,
-          backgroundColor: cfData.map(v => v >= 0 ? '#0067B3' : '#d94f43'),
-          borderColor: cfData.map((v,i) => i === breakEvenYear && breakEvenYear > 0 ? '#2d8a4e' : 'transparent'),
-          borderWidth: cfData.map((v,i) => i === breakEvenYear && breakEvenYear > 0 ? 3 : 0),
+          data: data,
+          backgroundColor: getColors(data),
+          borderColor: data.map(function(v,i) { return i === payback && payback > 0 ? '#2d8a4e' : 'transparent'; }),
+          borderWidth: data.map(function(v,i) { return i === payback && payback > 0 ? 3 : 0; }),
           borderRadius: 3
         }]
       },
@@ -1283,14 +1340,41 @@ function renderCFChart(p, facilityType, floorArea) {
         plugins: { legend: { display: false } },
         scales: {
           y: {
-            ticks: { callback: v => Math.round(v).toLocaleString() + '百万' },
+            ticks: { callback: function(v) { return Math.round(v).toLocaleString() + '百万'; } },
             grid: { color: '#f0f0f0' }
           },
           x: { grid: { display: false } }
         }
       }
     });
+
+    var summaryEl = document.getElementById('cfSummary');
+    if (summaryEl) {
+      summaryEl.innerHTML = '<strong>' + scenarios[scenario].label + 'シナリオ</strong>: ' +
+        'NOI ' + result.noi + '百万円/年 / 年間CF ' + result.annualCF + '百万円 / ' +
+        (payback > 0 ? '回収年 ' + payback + '年目' : '30年以内に回収不可');
+    }
   }
+
+  // Tab click listeners
+  document.querySelectorAll('.cf-scenario-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.cf-scenario-tab').forEach(function(t) {
+        t.classList.remove('active');
+        t.style.background = '#fff';
+        t.style.color = '';
+        t.style.borderColor = '#ddd';
+      });
+      tab.classList.add('active');
+      tab.style.background = '#185FA5';
+      tab.style.color = '#fff';
+      tab.style.borderColor = '#185FA5';
+      updateCFChart(tab.getAttribute('data-scenario'));
+    });
+  });
+
+  // Initial render with base scenario
+  updateCFChart('base');
 }
 
 function getImpactTabContent(p, facilityType, floorArea) {
