@@ -1441,21 +1441,19 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
 .loading-step-img span { font-size: 9px; color: #aaa; }
 .loading-complete { padding: 20px 0; }
 
-/* ===== Task 50: Panel Resize Handle ===== */
+/* ===== Task 50/63: Panel Resize Handle ===== */
 .panel-resize-handle {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: #d0d0d0;
-  cursor: col-resize;
-  z-index: 9999;
-  transition: background 0.15s;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 6px;
+    height: 100%;
+    cursor: col-resize;
+    z-index: 9999;
+    background: transparent;
 }
-.panel-resize-handle:hover,
-.panel-resize-handle.dragging {
-  background: #999;
-}
+.panel-resize-handle:hover { background: rgba(0,103,179,0.15); }
+.panel-resize-handle:active { background: rgba(0,103,179,0.25); }
 
 /* ===== Task 51: Guide Pulse Ring ===== */
 .guide-pulse {
@@ -1478,7 +1476,8 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
 /* ===== Task 51: Guide Bubble Box ===== */
 .guide-bubble-box {
   position: absolute;
-  background: #fff;
+  background: #FFF0F3;
+  border: 1px solid #d94f43;
   padding: 14px 18px;
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.18);
@@ -1494,9 +1493,10 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
   position: absolute;
   width: 12px;
   height: 12px;
-  background: #fff;
+  background: #FFF0F3;
+  border: 1px solid #d94f43;
   transform: rotate(45deg);
-  box-shadow: -2px -2px 4px rgba(0,0,0,0.06);
+  box-shadow: none;
 }
 .guide-bubble-box.arrow-left::before {
   left: -6px;
@@ -1511,15 +1511,7 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
   left: 24px;
   box-shadow: 2px 2px 4px rgba(0,0,0,0.06);
 }
-.guide-bubble-box .guide-skip {
-  display: inline-block;
-  margin-top: 6px;
-  font-size: 11px;
-  color: #aaa;
-  cursor: pointer;
-  text-decoration: underline;
-}
-.guide-bubble-box .guide-skip:hover { color: #666; }
+/* guide-skip replaced by close button in Task 60 */
 
 /* ===== Task 49: Analysis Result Tabs ===== */
 .analysis-tab-bar {
@@ -1622,3 +1614,6 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
   0%, 100% { border-color: #0067B3; }
   50% { border-color: #4da3e0; }
 }
+
+/* ===== Task 65: Risk item expand ===== */
+.risk-item.expanded .risk-detail { max-height: 100px !important; }

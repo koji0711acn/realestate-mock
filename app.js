@@ -207,8 +207,9 @@ function initMap() {
     onAreaSelected();
   });
 
-  // Task 50: Panel resize handle
+  // Task 50/63: Panel resize handle
   initPanelResize();
+  setupResizeHandleObserver();
 
   // Show guide step 1
   setTimeout(() => advanceGuide(1), 600);
@@ -223,24 +224,10 @@ function initPanelResize() {
   let startX = 0;
   let startWidth = 0;
 
-  function updateHandlePosition() {
-    const w = panel.offsetWidth;
-    handle.style.right = w + 'px';
-  }
-
-  // Position handle initially and on panel width changes
-  const observer = new MutationObserver(() => updateHandlePosition());
-  observer.observe(panel, { attributes: true, attributeFilter: ['style'] });
-  setTimeout(updateHandlePosition, 100);
-
-  // Task 56: Ensure resize handle z-index
-  handle.style.zIndex = '9999';
-
   handle.addEventListener('mousedown', (e) => {
     isDragging = true;
     startX = e.clientX;
     startWidth = panel.offsetWidth;
-    handle.classList.add('dragging');
     document.body.style.cursor = 'col-resize';
     document.body.style.userSelect = 'none';
     e.preventDefault();
@@ -252,20 +239,32 @@ function initPanelResize() {
     const newWidth = Math.min(700, Math.max(350, startWidth + diff));
     panel.style.width = newWidth + 'px';
     mapEl.style.right = newWidth + 'px';
-    handle.style.cursor = 'col-resize';
-    updateHandlePosition();
     if (map) map.invalidateSize();
   });
 
   document.addEventListener('mouseup', () => {
     if (!isDragging) return;
     isDragging = false;
-    handle.classList.remove('dragging');
     document.body.style.cursor = '';
     document.body.style.userSelect = '';
-    handle.style.cursor = 'col-resize';
     if (map) map.invalidateSize();
   });
+}
+
+// Task 63: Ensure resize handle stays in panel after innerHTML changes
+function setupResizeHandleObserver() {
+  const panel = document.getElementById('side-panel');
+  if (!panel) return;
+  const observer = new MutationObserver(() => {
+    if (!panel.querySelector('#panel-resize-handle')) {
+      const handle = document.createElement('div');
+      handle.id = 'panel-resize-handle';
+      handle.className = 'panel-resize-handle';
+      panel.insertBefore(handle, panel.firstChild);
+      initPanelResize();
+    }
+  });
+  observer.observe(panel, { childList: true });
 }
 
 // ===== Task 51: 14-step Guide System =====
@@ -277,7 +276,13 @@ function clearGuideUI() {
   if (dataAreaRect) { map.removeLayer(dataAreaRect); dataAreaRect = null; }
   document.querySelectorAll('.shake-btn').forEach(el => el.classList.remove('shake-btn'));
   document.querySelectorAll('.guide-shake').forEach(el => el.classList.remove('guide-shake'));
-  document.querySelectorAll('.guide-pulse').forEach(el => el.classList.remove('guide-pulse'));
+  document.querySelectorAll('.guide-pulse').forEach(el => {
+    if (el.tagName === 'DIV' && el.parentElement && (el.parentElement.id === 'screen-map' || el.parentElement.id === 'side-panel')) {
+      el.remove();
+    } else {
+      el.classList.remove('guide-pulse');
+    }
+  });
 }
 
 function skipGuide() {
@@ -293,7 +298,7 @@ function showGuideBubble(msg, targetEl, position) {
   if (position === 'right') bubble.classList.add('arrow-left');
   else if (position === 'below') bubble.classList.add('arrow-top');
   else if (position === 'above') bubble.classList.add('arrow-bottom');
-  bubble.innerHTML = `<p style="margin:0 0 4px">${msg}</p><a class="guide-skip" onclick="skipGuide()">ガイドをスキップ</a>`;
+  bubble.innerHTML = `<span onclick="skipGuide()" style="position:absolute;top:6px;right:6px;width:20px;height:20px;border-radius:50%;background:transparent;color:#999;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">&times;</span><p style="margin:0 0 4px">${msg}</p>`;
 
   if (targetEl && position !== 'center') {
     const rect = targetEl.getBoundingClientRect();
@@ -325,6 +330,13 @@ function advanceGuide(step) {
       const drawBtn = document.querySelector('.leaflet-draw-draw-rectangle');
       if (drawBtn) {
         drawBtn.classList.add('shake-btn');
+        const pulseEl = document.createElement('div');
+        pulseEl.className = 'guide-pulse';
+        const btnRect = drawBtn.getBoundingClientRect();
+        const mapRect = document.getElementById('screen-map').getBoundingClientRect();
+        pulseEl.style.left = (btnRect.left - mapRect.left + btnRect.width/2 - 25) + 'px';
+        pulseEl.style.top = (btnRect.top - mapRect.top + btnRect.height/2 - 25) + 'px';
+        document.getElementById('screen-map').appendChild(pulseEl);
         showGuideBubble('① まず選択ツールをクリックしてください', drawBtn, 'below');
       }
       break;
@@ -333,8 +345,8 @@ function advanceGuide(step) {
       clearGuideUI();
       guideStep = 2;
       const center = DATA_BOUNDS.getCenter();
-      pulseCircle = L.circle(center, { radius: 150, color: '#1565c0', weight: 3, fill: false, className: 'pulse-circle' }).addTo(map);
-      dataAreaRect = L.rectangle(DATA_BOUNDS, { color: '#1565c0', weight: 2, dashArray: '6 4', fillColor: '#1565c0', fillOpacity: 0.05, interactive: false }).addTo(map);
+      pulseCircle = L.circle(center, { radius: 150, color: '#0067B3', weight: 3, fill: false, className: 'pulse-circle' }).addTo(map);
+      dataAreaRect = L.rectangle(DATA_BOUNDS, { color: '#0067B3', weight: 2, dashArray: '8,6', fill: false }).addTo(map);
       showGuideBubble('② 点線の範囲をドラッグで囲んでください', null, 'center');
       break;
     }
@@ -358,6 +370,7 @@ function advanceGuide(step) {
         if (guideSkipped) return;
         const btn = document.querySelector('.scenario-proceed-btn');
         if (btn) {
+          btn.classList.add('guide-shake');
           btn.classList.add('guide-pulse');
           showGuideBubble('④ 開発シナリオを検討して施設タイプ・延床面積を設定します', btn, 'above');
         }
@@ -381,6 +394,7 @@ function advanceGuide(step) {
         if (guideSkipped) return;
         const btn = document.querySelector('.scenario-confirm-btn');
         if (btn) {
+          btn.classList.add('guide-shake');
           btn.classList.add('guide-pulse');
           showGuideBubble('⑥ シナリオを確定して分析結果を表示します', btn, 'above');
         }
@@ -402,6 +416,7 @@ function advanceGuide(step) {
       guideStep = 8;
       const finTab = document.querySelector('.analysis-tab[data-tab="finance"]');
       if (finTab) {
+        finTab.classList.add('guide-shake');
         finTab.classList.add('guide-pulse');
         showGuideBubble('⑧ 事業収支タブでNOI利回り・IRR・プロフォーマを確認できます', finTab, 'below');
       }
@@ -414,6 +429,7 @@ function advanceGuide(step) {
         if (guideSkipped) return;
         const impTab = document.querySelector('.analysis-tab[data-tab="impact"]');
         if (impTab) {
+          impTab.classList.add('guide-shake');
           impTab.classList.add('guide-pulse');
           showGuideBubble('⑨ インパクト推計タブで周辺への影響を確認できます', impTab, 'below');
         }
@@ -427,6 +443,7 @@ function advanceGuide(step) {
         if (guideSkipped) return;
         const btn = document.querySelector('.analysis-fixed-footer .acq-proceed-btn');
         if (btn) {
+          btn.classList.add('guide-shake');
           btn.classList.add('guide-pulse');
           showGuideBubble('⑩ ターゲット候補の選定に進みます', btn, 'above');
         }
@@ -456,7 +473,10 @@ function advanceGuide(step) {
         const btn = document.querySelector('.alt-card .alt-explore-btn');
         if (btn) {
           const card = btn.closest('.alt-card');
-          if (card) card.classList.add('guide-shake');
+          if (card) {
+            card.classList.add('guide-shake');
+            card.classList.add('guide-pulse');
+          }
           showGuideBubble('⑫ AIが推奨する近隣エリアを調査しましょう。権利整理が容易で、大規模開発の余地があるエリアです', btn, 'above');
         }
       }, 1000);
@@ -1103,6 +1123,7 @@ function showAnalysisResults(id, facilityType, floorArea) {
         <button class="analysis-tab active" data-tab="volume" onclick="switchAnalysisTab('volume','${p.id}','${facilityType}',${floorArea})">ボリューム</button>
         <button class="analysis-tab" data-tab="finance" onclick="switchAnalysisTab('finance','${p.id}','${facilityType}',${floorArea})">事業収支</button>
         <button class="analysis-tab" data-tab="impact" onclick="switchAnalysisTab('impact','${p.id}','${facilityType}',${floorArea})">インパクト</button>
+        <button class="analysis-tab" data-tab="risk" onclick="switchAnalysisTab('risk','${p.id}','${facilityType}',${floorArea})">リスク</button>
       </div>
       <div class="analysis-content" id="analysis-content">
         ${getVolumeTabContent(p, facilityType, floorArea)}
@@ -1140,6 +1161,8 @@ function switchAnalysisTab(tab, parcelId, facilityType, floorArea) {
     setTimeout(() => renderCFChart(p, facilityType, floorArea), 100);
   } else if (tab === 'impact') {
     content.innerHTML = getImpactTabContent(p, facilityType, floorArea);
+  } else if (tab === 'risk') {
+    content.innerHTML = getRiskTabContent(p);
   }
 
   // Guide transitions
@@ -1221,39 +1244,34 @@ function getFinanceTabContent(p, facilityType, floorArea) {
 }
 
 function renderCFChart(p, facilityType, floorArea) {
-  const ba = p.buildableArea || Math.round(p.area * p.far / 100 * 0.93);
-  const rr = (p.rentableRatio || 73) / 100;
+  const annualRentIncome = p.rent * (p.buildableArea || p.area * p.far / 100 * 0.93) * (p.rentableRatio || 73) / 100 * 12 / 1000000;
+  const effectiveIncome = annualRentIncome * (1 - p.vacancy / 100);
+  const noi = effectiveIncome * 0.80;
   const landCost = Math.round(p.landPrice * p.area / 100);
-  const designFee = Math.round(p.cost * 0.08);
-  const expenses = Math.round(p.cost * 0.05);
-  const contingency = Math.round(p.cost * 0.10);
-  const totalInvest = landCost + p.cost + designFee + expenses + contingency;
-  const grossRent = Math.round(p.rent * ba * rr * 12 / 1000000);
-  const annualRent = Math.round(grossRent * (1 - p.vacancy / 100));
-  const commonFee = Math.round(annualRent * 0.1);
-  const opex = Math.round(annualRent * 0.2);
-  const noi = annualRent + commonFee - opex;
-  const loanAmt = Math.round(totalInvest * 0.7);
-  const mr = 0.02/12; const annualDebt = Math.round(loanAmt * mr * Math.pow(1+mr,360) / (Math.pow(1+mr,360)-1) * 12);
-  const preTaxCF = noi - annualDebt;
+  const totalInvest = landCost + p.cost + Math.round(p.cost * 0.08) + Math.round(p.cost * 0.05) + Math.round(p.cost * 0.10);
+  const loanAmt = Math.round(totalInvest * 0.70);
+  const mr = 0.02 / 12;
+  const annualDebt = loanAmt * (mr * Math.pow(1+mr, 360)) / (Math.pow(1+mr, 360) - 1) * 12;
+  const annualCF = noi - annualDebt;
 
   const cfData = [-totalInvest];
   let cumCF = -totalInvest;
-  for (let y = 1; y <= 10; y++) {
-    cumCF += preTaxCF;
+  for (let y = 1; y <= 30; y++) {
+    cumCF += annualCF;
     cfData.push(Math.round(cumCF));
   }
   const breakEvenYear = cfData.findIndex(v => v >= 0);
+  const yearLabels = Array.from({length:31}, (_,i) => (i % 5 === 0) ? `${i}年` : '');
 
   const ctx = document.getElementById('cf-chart');
   if (ctx && typeof Chart !== 'undefined') {
     new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: Array.from({length:11}, (_,i) => `${i}年目`),
+        labels: yearLabels,
         datasets: [{
           data: cfData,
-          backgroundColor: cfData.map(v => v >= 0 ? 'rgba(0,103,179,0.7)' : 'rgba(217,79,67,0.5)'),
+          backgroundColor: cfData.map(v => v >= 0 ? '#0067B3' : '#d94f43'),
           borderColor: cfData.map((v,i) => i === breakEvenYear && breakEvenYear > 0 ? '#2d8a4e' : 'transparent'),
           borderWidth: cfData.map((v,i) => i === breakEvenYear && breakEvenYear > 0 ? 3 : 0),
           borderRadius: 3
@@ -1306,6 +1324,48 @@ function getImpactTabContent(p, facilityType, floorArea) {
         <div class="impact-collapse-content">開業時期: 着工から36ヶ月後 / 稼働率想定: 初年度85%、3年目以降95% / テナント構成: 物販40%・飲食30%・サービス30%</div>
       </div>
     </div>
+  `;
+}
+
+function getRiskTabContent(p) {
+  const risks = p.risks || {};
+  const riskItems = [
+    { key: 'flood', label: '洪水リスク', detail: '河川氾濫・内水氾濫のリスク評価。ハザードマップに基づく浸水想定区域の確認結果。' },
+    { key: 'soil', label: '土壌汚染', detail: '土壌汚染対策法に基づく調査結果。過去の土地利用履歴から推定される汚染可能性の評価。' },
+    { key: 'cultural', label: '埋蔵文化財', detail: '文化財保護法に基づく埋蔵文化財包蔵地の確認。試掘調査の要否判定。' },
+    { key: 'liquefaction', label: '液状化リスク', detail: '地盤データに基づく液状化危険度の評価。地下水位・地盤構成を考慮した判定。' },
+    { key: 'road', label: '接道条件', detail: '建築基準法42条に基づく接道義務の充足状況。前面道路の幅員・種別の確認。' },
+    { key: 'adjacentUse', label: '隣接地用途', detail: '隣接する土地の利用状況と将来の開発計画の確認。周辺環境への影響評価。' }
+  ];
+
+  function riskColor(val) {
+    if (!val) return '#999';
+    if (['低', 'なし', '適合', '問題なし'].includes(val)) return '#2d8a4e';
+    if (['中', '包蔵地隣接'].includes(val)) return '#c4840a';
+    if (val === '要調査') return '#c0392b';
+    return '#999';
+  }
+
+  return `
+    <h4 style="font-size:14px;font-weight:600;margin-bottom:12px">リスク評価</h4>
+    ${riskItems.map(item => {
+      const val = risks[item.key] || '未評価';
+      const color = riskColor(val);
+      return `
+        <div class="risk-item" onclick="this.classList.toggle('expanded')" style="border:1px solid #e0e0e0;border-radius:8px;padding:12px 14px;margin-bottom:8px;cursor:pointer">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${color}"></span>
+              <span style="font-size:13px;font-weight:500">${item.label}</span>
+            </div>
+            <span style="font-size:12px;font-weight:600;color:${color}">${val}</span>
+          </div>
+          <div class="risk-detail" style="max-height:0;overflow:hidden;transition:max-height 0.3s ease">
+            <p style="font-size:12px;color:#666;margin:10px 0 0;line-height:1.6">${item.detail}</p>
+          </div>
+        </div>`;
+    }).join('')}
+    <p style="font-size:10px;color:#999;margin-top:12px">※リスク評価は公開データに基づく概算判定です。正式な調査は別途必要です</p>
   `;
 }
 
@@ -1428,33 +1488,56 @@ function showAcquisitionPanel(id) {
       </div>
 
       <div id="alt-recommend" style="display:none">
-        <div style="background:#0067B3;color:#fff;padding:12px 16px;border-radius:8px 8px 0 0;display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600">
+        <div style="background:#0067B3;color:#fff;padding:12px 16px;border-radius:8px 8px 0 0;display:flex;align-items:center;gap:8px">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z" fill="#FFD600"/></svg>
-          <span>AI分析結果</span>
+          <div>
+            <div style="font-size:15px;font-weight:600">AI分析結果</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.7)">より有望な近隣エリアが3件見つかりました</div>
+          </div>
         </div>
-        <div style="display:flex;gap:10px;padding:12px;background:#f7f8fa;border-radius:0 0 8px 8px;margin-bottom:12px">
-          <div class="alt-card" style="flex:1;border:2px solid #0067B3;border-left:2px solid #0067B3;margin-bottom:0;animation:card-nudge 2s ease-in-out infinite, pulse-border 2s ease-in-out infinite;position:relative">
+        <div style="display:flex;gap:10px;padding:12px;background:#f7f8fa;border-radius:0 0 8px 8px;margin-bottom:4px">
+          <!-- Card 1: Recommended -->
+          <div class="alt-card" style="flex:1;border:2px solid #0067B3;margin-bottom:0;animation:card-nudge 2s ease-in-out infinite, pulse-border 2s ease-in-out infinite;position:relative;border-radius:8px;overflow:visible">
             <span style="position:absolute;top:-8px;right:8px;background:#c0392b;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px">推奨</span>
-            <strong style="font-size:13px;display:block;margin-bottom:4px">芝大門二丁目北</strong>
-            <div style="font-size:22px;font-weight:700;color:#0067B3;margin-bottom:2px">88</div>
-            <div style="font-size:11px;color:#888;margin-bottom:8px">NOI 8.2%</div>
-            <button class="alt-explore-btn" onclick="exploreAlternativeArea('alt1')" style="height:32px;font-size:12px">このエリアを調査</button>
+            <div style="background:#E8F2FB;padding:10px 12px;border-radius:6px 6px 0 0;margin:-12px -12px 10px">
+              <strong style="font-size:13px;display:block">芝大門二丁目北</strong>
+            </div>
+            <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px">
+              <div style="font-size:22px;font-weight:700;color:#0067B3">88</div>
+              <div style="font-size:11px;color:#888">NOI 8.2%</div>
+            </div>
+            <div style="background:#EAF3DE;border-radius:4px;padding:6px 8px;font-size:11px;color:#333;margin-bottom:10px;line-height:1.5">権利整理が容易で大規模開発の余地あり</div>
+            <button class="alt-explore-btn" onclick="exploreAlternativeArea('alt1')" style="height:32px;font-size:12px;background:#0067B3;color:#fff;border:none;border-radius:6px;width:100%;cursor:pointer;font-family:inherit">このエリアを調査</button>
           </div>
-          <div class="alt-card" style="flex:1;border:2px solid #e0e0e0;border-left:2px solid #e0e0e0;margin-bottom:0;opacity:0.85">
-            <strong style="font-size:13px;display:block;margin-bottom:4px">芝大門二丁目南</strong>
-            <div style="font-size:22px;font-weight:700;color:#0067B3;margin-bottom:2px">82</div>
-            <div style="font-size:11px;color:#888;margin-bottom:8px">NOI 7.5%</div>
-            <button class="alt-explore-btn" onclick="showToast('詳細データを準備中です')" style="height:32px;font-size:12px">このエリアを調査</button>
+          <!-- Card 2 -->
+          <div class="alt-card" style="flex:1;border:2px solid #e0e0e0;margin-bottom:0;opacity:0.85;border-radius:8px;overflow:visible;position:relative">
+            <div style="background:#f4f6f9;padding:10px 12px;border-radius:6px 6px 0 0;margin:-12px -12px 10px;display:flex;align-items:center;justify-content:space-between">
+              <strong style="font-size:13px;display:block">芝大門二丁目南</strong>
+              <span style="font-size:10px;color:#888;background:#e0e0e0;padding:1px 6px;border-radius:3px">候補</span>
+            </div>
+            <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px">
+              <div style="font-size:22px;font-weight:700;color:#0067B3">82</div>
+              <div style="font-size:11px;color:#888">NOI 7.5%</div>
+            </div>
+            <div style="background:#E6F1FB;border-radius:4px;padding:6px 8px;font-size:11px;color:#333;margin-bottom:10px;line-height:1.5">駅近で高い賃料水準が期待</div>
+            <button class="alt-explore-btn" onclick="showToast('詳細データを準備中です')" style="height:32px;font-size:12px;background:transparent;color:#0067B3;border:1px solid #0067B3;border-radius:6px;width:100%;cursor:pointer;font-family:inherit">このエリアを調査</button>
           </div>
-          <div class="alt-card" style="flex:1;border:2px solid #e0e0e0;border-left:2px solid #e0e0e0;margin-bottom:0;opacity:0.85">
-            <strong style="font-size:13px;display:block;margin-bottom:4px">新橋五丁目</strong>
-            <div style="font-size:22px;font-weight:700;color:#0067B3;margin-bottom:2px">76</div>
-            <div style="font-size:11px;color:#888;margin-bottom:8px">NOI 6.8%</div>
-            <button class="alt-explore-btn" onclick="showToast('詳細データを準備中です')" style="height:32px;font-size:12px">このエリアを調査</button>
+          <!-- Card 3 -->
+          <div class="alt-card" style="flex:1;border:2px solid #e0e0e0;margin-bottom:0;opacity:0.85;border-radius:8px;overflow:visible;position:relative">
+            <div style="background:#f4f6f9;padding:10px 12px;border-radius:6px 6px 0 0;margin:-12px -12px 10px;display:flex;align-items:center;justify-content:space-between">
+              <strong style="font-size:13px;display:block">新橋五丁目</strong>
+              <span style="font-size:10px;color:#888;background:#e0e0e0;padding:1px 6px;border-radius:3px">候補</span>
+            </div>
+            <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px">
+              <div style="font-size:22px;font-weight:700;color:#0067B3">76</div>
+              <div style="font-size:11px;color:#888">NOI 6.8%</div>
+            </div>
+            <div style="background:#FAEEDA;border-radius:4px;padding:6px 8px;font-size:11px;color:#333;margin-bottom:10px;line-height:1.5">将来価値の上昇余地あり</div>
+            <button class="alt-explore-btn" onclick="showToast('詳細データを準備中です')" style="height:32px;font-size:12px;background:transparent;color:#0067B3;border:1px solid #0067B3;border-radius:6px;width:100%;cursor:pointer;font-family:inherit">このエリアを調査</button>
           </div>
         </div>
         <div style="text-align:center;margin-bottom:12px">
-          <button style="background:none;border:none;color:#0067B3;font-size:12px;cursor:pointer;font-family:inherit;font-weight:500">...他の候補エリアを表示</button>
+          <button style="background:none;border:none;color:#0067B3;font-size:12px;cursor:pointer;font-family:inherit;font-weight:500">... 他の候補エリアを表示</button>
         </div>
       </div>
 
