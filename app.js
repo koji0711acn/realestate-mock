@@ -272,7 +272,9 @@ function skipGuide() {
 }
 
 function showGuideBubble(targetEl, message, position) {
-    clearGuideUI();
+    // Only remove old bubble, not map layers
+    if (guideOverlay) { guideOverlay.remove(); guideOverlay = null; }
+    document.querySelectorAll('.guide-bubble').forEach(el => el.remove());
     if (guideSkipped) return;
     var bubble = document.createElement('div');
     bubble.className = 'guide-bubble';
@@ -332,15 +334,26 @@ function advanceGuide(step) {
     case 2: { // Draw area
       clearGuideUI();
       guideStep = 2;
-      const center = DATA_BOUNDS.getCenter();
-      pulseCircle = L.circle(center, { radius: 150, color: '#0067B3', weight: 3, fill: false, className: 'pulse-circle' }).addTo(map);
-      dataAreaRect = L.rectangle(DATA_BOUNDS, { color: '#0067B3', weight: 2, dashArray: '8,6', fill: false }).addTo(map);
-      if (!window.guideDashedRect) {
-          window.guideDashedRect = L.rectangle(DATA_BOUNDS, {
-              color: '#0067B3', weight: 2, dashArray: '8,6',
-              fill: true, fillColor: '#0067B3', fillOpacity: 0.05
-          }).addTo(map);
-      }
+      // Show dotted rectangle on map
+      window.guideDashedRect = L.rectangle(DATA_BOUNDS, {
+        color: '#0067B3', weight: 2, dashArray: '8,6',
+        fill: true, fillColor: '#0067B3', fillOpacity: 0.05
+      }).addTo(map);
+      // Fit map to show the target area
+      map.fitBounds(DATA_BOUNDS, { padding: [50, 50] });
+      // Show pulse at center of bounds
+      setTimeout(() => {
+        const center = DATA_BOUNDS.getCenter();
+        const centerPx = map.latLngToContainerPoint(center);
+        const pulse = document.createElement('div');
+        pulse.className = 'guide-pulse';
+        pulse.style.position = 'fixed';
+        const mapEl = document.getElementById('map');
+        const mapRect = mapEl.getBoundingClientRect();
+        pulse.style.left = (mapRect.left + centerPx.x - 25) + 'px';
+        pulse.style.top = (mapRect.top + centerPx.y - 25) + 'px';
+        document.body.appendChild(pulse);
+      }, 300);
       showGuideBubble(null, '2. 点線の範囲をドラッグで囲んでください', 'center');
       break;
     }
