@@ -233,6 +233,9 @@ function initPanelResize() {
   observer.observe(panel, { attributes: true, attributeFilter: ['style'] });
   setTimeout(updateHandlePosition, 100);
 
+  // Task 56: Ensure resize handle z-index
+  handle.style.zIndex = '9999';
+
   handle.addEventListener('mousedown', (e) => {
     isDragging = true;
     startX = e.clientX;
@@ -249,6 +252,7 @@ function initPanelResize() {
     const newWidth = Math.min(700, Math.max(350, startWidth + diff));
     panel.style.width = newWidth + 'px';
     mapEl.style.right = newWidth + 'px';
+    handle.style.cursor = 'col-resize';
     updateHandlePosition();
     if (map) map.invalidateSize();
   });
@@ -259,6 +263,7 @@ function initPanelResize() {
     handle.classList.remove('dragging');
     document.body.style.cursor = '';
     document.body.style.userSelect = '';
+    handle.style.cursor = 'col-resize';
     if (map) map.invalidateSize();
   });
 }
@@ -452,7 +457,7 @@ function advanceGuide(step) {
         if (btn) {
           const card = btn.closest('.alt-card');
           if (card) card.classList.add('guide-shake');
-          showGuideBubble('⑬ 近隣により有望なエリアが見つかりました。詳細を調査しましょう', btn, 'above');
+          showGuideBubble('⑫ AIが推奨する近隣エリアを調査しましょう。権利整理が容易で、大規模開発の余地があるエリアです', btn, 'above');
         }
       }, 1000);
       break;
@@ -885,6 +890,26 @@ function onScenarioSliderChange(id) {
   const fa = parseInt(document.getElementById('scenario-floor-area').value);
   document.getElementById('scenario-floor-area-val').textContent = fa.toLocaleString() + ' m²';
   updateScenarioBimPreview(id);
+
+  // Task 55: Keep map focus on selected parcel during scenario editing
+  const p = parcelsData.find(d => d.id === id);
+  if (!p) return;
+  const layer = parcelLayers[p.id];
+  if (layer) {
+    // Highlight parcel polygon
+    layer.setStyle({ weight: 4, color: '#0067B3', fillOpacity: 0.7 });
+    const center = layer.getBounds().getCenter();
+    // Show semi-transparent blue rectangle proportional to floor area
+    if (window._scenarioFloorRect) { map.removeLayer(window._scenarioFloorRect); }
+    const rectSize = Math.sqrt(fa) * 0.0000035;
+    window._scenarioFloorRect = L.rectangle(
+      [[center.lat - rectSize, center.lng - rectSize * 1.2],
+       [center.lat + rectSize, center.lng + rectSize * 1.2]],
+      { color: '#0067B3', weight: 2, fillColor: '#0067B3', fillOpacity: 0.25, interactive: false }
+    ).addTo(map);
+    // Keep parcel centered
+    map.panTo(center);
+  }
 }
 
 function updateScenarioBimPreview(id) {
@@ -1403,27 +1428,33 @@ function showAcquisitionPanel(id) {
       </div>
 
       <div id="alt-recommend" style="display:none">
-        <div class="alt-header">
-          <span class="alt-star">★</span>
-          <span>AI分析結果: より有望な近隣エリアが見つかりました</span>
+        <div style="background:#0067B3;color:#fff;padding:12px 16px;border-radius:8px 8px 0 0;display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z" fill="#FFD600"/></svg>
+          <span>AI分析結果</span>
         </div>
-        <div class="alt-card" style="border-left-color:#2d8a4e">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <strong style="font-size:14px">芝大門二丁目北エリア</strong>
-            <span style="background:#e8f5e9;color:#2d8a4e;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600">合筆による大規模開発が可能</span>
+        <div style="display:flex;gap:10px;padding:12px;background:#f7f8fa;border-radius:0 0 8px 8px;margin-bottom:12px">
+          <div class="alt-card" style="flex:1;border:2px solid #0067B3;border-left:2px solid #0067B3;margin-bottom:0;animation:card-nudge 2s ease-in-out infinite, pulse-border 2s ease-in-out infinite;position:relative">
+            <span style="position:absolute;top:-8px;right:8px;background:#c0392b;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px">推奨</span>
+            <strong style="font-size:13px;display:block;margin-bottom:4px">芝大門二丁目北</strong>
+            <div style="font-size:22px;font-weight:700;color:#0067B3;margin-bottom:2px">88</div>
+            <div style="font-size:11px;color:#888;margin-bottom:8px">NOI 8.2%</div>
+            <button class="alt-explore-btn" onclick="exploreAlternativeArea('alt1')" style="height:32px;font-size:12px">このエリアを調査</button>
           </div>
-          <p style="font-size:12px;color:#666;margin-bottom:8px">推奨理由: 土壌汚染リスクなし・単独所有率が多く権利整理が容易・接道条件良好</p>
-          <div style="font-size:13px;margin-bottom:10px"><span style="color:#888">推定スコア:</span> <strong>82</strong> / <span style="color:#888">推定NOI利回り:</span> <strong>8.2%</strong></div>
-          <button class="alt-explore-btn" onclick="exploreAlternativeArea('alt1')">このエリアを調査</button>
+          <div class="alt-card" style="flex:1;border:2px solid #e0e0e0;border-left:2px solid #e0e0e0;margin-bottom:0;opacity:0.85">
+            <strong style="font-size:13px;display:block;margin-bottom:4px">芝大門二丁目南</strong>
+            <div style="font-size:22px;font-weight:700;color:#0067B3;margin-bottom:2px">82</div>
+            <div style="font-size:11px;color:#888;margin-bottom:8px">NOI 7.5%</div>
+            <button class="alt-explore-btn" onclick="showToast('詳細データを準備中です')" style="height:32px;font-size:12px">このエリアを調査</button>
+          </div>
+          <div class="alt-card" style="flex:1;border:2px solid #e0e0e0;border-left:2px solid #e0e0e0;margin-bottom:0;opacity:0.85">
+            <strong style="font-size:13px;display:block;margin-bottom:4px">新橋五丁目</strong>
+            <div style="font-size:22px;font-weight:700;color:#0067B3;margin-bottom:2px">76</div>
+            <div style="font-size:11px;color:#888;margin-bottom:8px">NOI 6.8%</div>
+            <button class="alt-explore-btn" onclick="showToast('詳細データを準備中です')" style="height:32px;font-size:12px">このエリアを調査</button>
+          </div>
         </div>
-        <div class="alt-card" style="border-left-color:#185FA5">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <strong style="font-size:14px">芝大門二丁目南エリア</strong>
-            <span style="background:#e3f2fd;color:#185FA5;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600">用地取得の難易度が低い</span>
-          </div>
-          <p style="font-size:12px;color:#666;margin-bottom:8px">推奨理由: 土壌汚染リスクなし・単独所有率が多く権利整理が容易・接道条件良好</p>
-          <div style="font-size:13px;margin-bottom:10px"><span style="color:#888">推定スコア:</span> <strong>82</strong> / <span style="color:#888">推定NOI利回り:</span> <strong>7.5%</strong></div>
-          <button class="alt-explore-btn" onclick="exploreAlternativeArea('alt2')">このエリアを調査</button>
+        <div style="text-align:center;margin-bottom:12px">
+          <button style="background:none;border:none;color:#0067B3;font-size:12px;cursor:pointer;font-family:inherit;font-weight:500">...他の候補エリアを表示</button>
         </div>
       </div>
 

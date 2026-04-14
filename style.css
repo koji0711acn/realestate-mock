@@ -1449,7 +1449,7 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
   width: 4px;
   background: #d0d0d0;
   cursor: col-resize;
-  z-index: 1100;
+  z-index: 9999;
   transition: background 0.15s;
 }
 .panel-resize-handle:hover,
@@ -1612,3 +1612,13 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
   margin-top: auto;
 }
 .scenario-confirm-btn:hover { background: #14508c; }
+
+/* ===== Task 57: Alt recommendation card animations ===== */
+@keyframes card-nudge {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+@keyframes pulse-border {
+  0%, 100% { border-color: #0067B3; }
+  50% { border-color: #4da3e0; }
+}
