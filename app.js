@@ -108,14 +108,14 @@ function startGifSlideshow() {
       display.style.opacity = '1';
       textEl.classList.remove('fade-out');
       textEl.classList.add('fade-in');
-    }, 500);
+    }, 1000);
   }
 
   showSlide(0);
   gifInterval = setInterval(() => {
     slideIndex = (slideIndex + 1) % slideImages.length;
     showSlide(slideIndex);
-  }, 3000);
+  }, 6000);
 }
 
 // ===== Task 19: Comparison tab switch =====
@@ -256,15 +256,30 @@ function initPanelResize() {
 let guideSkipped = false;
 
 function clearGuideUI() {
-  if (guideOverlay) { guideOverlay.remove(); guideOverlay = null; }
-  if (pulseCircle) { map.removeLayer(pulseCircle); pulseCircle = null; }
-  if (dataAreaRect) { map.removeLayer(dataAreaRect); dataAreaRect = null; }
-  if (window.guideDashedRect) { map.removeLayer(window.guideDashedRect); window.guideDashedRect = null; }
-  if (window.guidePulseMarker) { map.removeLayer(window.guidePulseMarker); window.guidePulseMarker = null; }
-  document.querySelectorAll('.shake-btn').forEach(el => el.classList.remove('shake-btn'));
-  document.querySelectorAll('.guide-shake').forEach(el => el.classList.remove('guide-shake'));
-  document.querySelectorAll('.guide-bubble').forEach(el => el.remove());
-  document.querySelectorAll('.guide-pulse').forEach(el => el.remove());
+    if (guideOverlay) { guideOverlay.remove(); guideOverlay = null; }
+    if (pulseCircle) { map.removeLayer(pulseCircle); pulseCircle = null; }
+    if (dataAreaRect) { map.removeLayer(dataAreaRect); dataAreaRect = null; }
+    if (window.guideDashedRect) { map.removeLayer(window.guideDashedRect); window.guideDashedRect = null; }
+    if (window.guidePulseMarker) { map.removeLayer(window.guidePulseMarker); window.guidePulseMarker = null; }
+    document.querySelectorAll('.shake-btn').forEach(function(el) { el.classList.remove('shake-btn'); });
+    document.querySelectorAll('.guide-shake').forEach(function(el) { el.classList.remove('guide-shake'); });
+    document.querySelectorAll('.guide-bubble').forEach(function(el) { el.remove(); });
+    document.querySelectorAll('.guide-pulse').forEach(function(el) { el.remove(); });
+    document.querySelectorAll('.guide-pulse-fixed').forEach(function(el) { el.remove(); });
+    if (window._guidePulseScroll) {
+        var panel = document.getElementById('side-panel');
+        if (panel) panel.removeEventListener('scroll', window._guidePulseScroll);
+        window._guidePulseScroll = null;
+    }
+    if (window._guidePulseResize) {
+        window.removeEventListener('resize', window._guidePulseResize);
+        window._guidePulseResize = null;
+    }
+    if (window._guideBubbleScroll) {
+        var panel2 = document.getElementById('side-panel');
+        if (panel2) panel2.removeEventListener('scroll', window._guideBubbleScroll);
+        window._guideBubbleScroll = null;
+    }
 }
 
 function skipGuide() {
@@ -272,43 +287,64 @@ function skipGuide() {
   clearGuideUI();
 }
 
-function showGuideBubble(targetEl, message, position) {
-    // Only remove old bubble, not map layers
-    if (guideOverlay) { guideOverlay.remove(); guideOverlay = null; }
-    document.querySelectorAll('.guide-bubble').forEach(el => el.remove());
+function showGuideBubble(targetEl, message) {
+    var existing = document.querySelector('.guide-bubble');
+    if (existing) existing.remove();
     if (guideSkipped) return;
+
     var bubble = document.createElement('div');
     bubble.className = 'guide-bubble';
     bubble.innerHTML = '<div class="guide-bubble-close" onclick="skipGuide()">&times;</div><div class="guide-bubble-text">' + message + '</div>';
     document.body.appendChild(bubble);
-    if (targetEl) {
+    guideOverlay = bubble;
+
+    if (!targetEl) {
+        bubble.style.left = '80px';
+        bubble.style.top = '80px';
+        return;
+    }
+
+    function updatePos() {
+        if (!targetEl || !targetEl.getBoundingClientRect) return;
         var rect = targetEl.getBoundingClientRect();
-        if (position === 'below') {
+        var isInPanel = targetEl.closest && targetEl.closest('#side-panel');
+        if (isInPanel) {
             bubble.style.left = rect.left + 'px';
             bubble.style.top = (rect.bottom + 8) + 'px';
-        } else if (position === 'above') {
-            bubble.style.left = rect.left + 'px';
-            bubble.style.top = (rect.top - bubble.offsetHeight - 8) + 'px';
         } else {
             bubble.style.left = (rect.right + 12) + 'px';
             bubble.style.top = rect.top + 'px';
         }
-    } else {
-        bubble.style.left = '80px';
-        bubble.style.top = '80px';
     }
-    guideOverlay = bubble;
+    updatePos();
+
+    window._guideBubbleScroll = function() { updatePos(); };
+    var panel = document.getElementById('side-panel');
+    if (panel) panel.addEventListener('scroll', window._guideBubbleScroll);
 }
 
 function showGuidePulse(targetEl) {
-    var existing = document.querySelector('.guide-pulse');
+    var existing = document.querySelector('.guide-pulse-fixed');
     if (existing) existing.remove();
+    if (!targetEl) return;
+
     var pulse = document.createElement('div');
-    pulse.className = 'guide-pulse';
+    pulse.className = 'guide-pulse-fixed';
     document.body.appendChild(pulse);
-    var rect = targetEl.getBoundingClientRect();
-    pulse.style.left = (rect.left + rect.width/2 - 25) + 'px';
-    pulse.style.top = (rect.top + rect.height/2 - 25) + 'px';
+
+    function updatePos() {
+        if (!targetEl || !targetEl.getBoundingClientRect) return;
+        var rect = targetEl.getBoundingClientRect();
+        pulse.style.left = (rect.left + rect.width / 2 - 25) + 'px';
+        pulse.style.top = (rect.top + rect.height / 2 - 25) + 'px';
+    }
+    updatePos();
+
+    window._guidePulseScroll = function() { updatePos(); };
+    window._guidePulseResize = function() { updatePos(); };
+    var panel = document.getElementById('side-panel');
+    if (panel) panel.addEventListener('scroll', window._guidePulseScroll);
+    window.addEventListener('resize', window._guidePulseResize);
 }
 
 function applyGuideShake(targetEl) {
@@ -328,7 +364,7 @@ function advanceGuide(step) {
         drawBtn.classList.add('shake-btn');
         showGuidePulse(drawBtn);
         applyGuideShake(drawBtn);
-        showGuideBubble(drawBtn, '1. まず選択ツールをクリックしてください', 'below');
+        showGuideBubble(drawBtn, '1. まず選択ツールをクリックしてください');
       }
       break;
     }
@@ -351,7 +387,7 @@ function advanceGuide(step) {
         fill: false,
         className: 'guide-pulse-leaflet'
       }).addTo(map);
-      showGuideBubble(null, '2. 点線の範囲をドラッグで囲んでください', 'center');
+      showGuideBubble(null, '2. 点線の範囲をドラッグで囲んでください');
       break;
     }
     case 3: { // Click rank-1 parcel
@@ -359,11 +395,13 @@ function advanceGuide(step) {
       guideStep = 3;
       setTimeout(() => {
         if (guideSkipped) return;
-        const firstRow = document.querySelector('.ranking-item');
+        var firstRow = document.querySelector('.ranking-item');
         if (firstRow) {
-          showGuidePulse(firstRow);
+          var badge = firstRow.querySelector('.recommend-badge');
+          var pulseTarget = badge || firstRow;
+          showGuidePulse(pulseTarget);
           applyGuideShake(firstRow);
-          showGuideBubble(firstRow, '3. 最高スコアの筆をクリックして詳細を確認しましょう', 'above');
+          showGuideBubble(firstRow, '3. 最高スコアの筆をクリックして詳細を確認しましょう');
         }
       }, 500);
       break;
@@ -377,7 +415,7 @@ function advanceGuide(step) {
         if (btn) {
           showGuidePulse(btn);
           applyGuideShake(btn);
-          showGuideBubble(btn, '4. 開発シナリオを検討して施設タイプ・延床面積を設定します', 'above');
+          showGuideBubble(btn, '4. 開発シナリオを検討して施設タイプ・延床面積を設定します');
         }
       }, 500);
       break;
@@ -389,7 +427,7 @@ function advanceGuide(step) {
       if (sel) {
         showGuidePulse(sel);
         applyGuideShake(sel);
-        showGuideBubble(sel, '5. 施設タイプを変更してシナリオを調整できます', 'below');
+        showGuideBubble(sel, '5. 施設タイプを変更してシナリオを調整できます');
       }
       break;
     }
@@ -402,7 +440,7 @@ function advanceGuide(step) {
         if (btn) {
           showGuidePulse(btn);
           applyGuideShake(btn);
-          showGuideBubble(btn, '6. シナリオを確定して分析結果を表示します', 'above');
+          showGuideBubble(btn, '6. シナリオを確定して分析結果を表示します');
         }
       }, 1000);
       break;
@@ -410,7 +448,7 @@ function advanceGuide(step) {
     case 7: { // Volume check tab shown (auto 3s)
       clearGuideUI();
       guideStep = 7;
-      showGuideBubble(null, '7. ボリュームチェック結果を確認しています...', 'center');
+      showGuideBubble(null, '7. ボリュームチェック結果を確認しています...');
       setTimeout(() => {
         if (guideSkipped) return;
         advanceGuide(8);
@@ -424,7 +462,7 @@ function advanceGuide(step) {
       if (finTab) {
         showGuidePulse(finTab);
         applyGuideShake(finTab);
-        showGuideBubble(finTab, '8. 事業収支タブでNOI利回り・IRR・プロフォーマを確認できます', 'below');
+        showGuideBubble(finTab, '8. 事業収支タブでNOI利回り・IRR・プロフォーマを確認できます');
       }
       break;
     }
@@ -439,7 +477,7 @@ function advanceGuide(step) {
         if (targetTab) {
           showGuidePulse(targetTab);
           applyGuideShake(targetTab);
-          showGuideBubble(targetTab, '9. インパクト推計タブで周辺への影響を確認できます', 'below');
+          showGuideBubble(targetTab, '9. インパクト推計タブで周辺への影響を確認できます');
         }
       }, 3000);
       break;
@@ -453,7 +491,7 @@ function advanceGuide(step) {
         if (btn) {
           showGuidePulse(btn);
           applyGuideShake(btn);
-          showGuideBubble(btn, '10. ターゲット候補の選定に進みます', 'above');
+          showGuideBubble(btn, '10. ターゲット候補の選定に進みます');
         }
       }, 3000);
       break;
@@ -466,7 +504,7 @@ function advanceGuide(step) {
     case 12: { // Target list shown (auto 3s)
       clearGuideUI();
       guideStep = 12;
-      showGuideBubble(null, '12. ターゲットリストが生成されました。CSVエクスポートも可能です', 'center');
+      showGuideBubble(null, '12. ターゲットリストが生成されました。CSVエクスポートも可能です');
       setTimeout(() => {
         if (guideSkipped) return;
         advanceGuide(13);
@@ -482,7 +520,7 @@ function advanceGuide(step) {
         if (btn) {
           showGuidePulse(btn);
           applyGuideShake(btn);
-          showGuideBubble(btn, '13. AIが推奨する近隣エリアを調査しましょう。権利整理が容易で、大規模開発の余地があるエリアです', 'above');
+          showGuideBubble(btn, '13. AIが推奨する近隣エリアを調査しましょう。権利整理が容易で、大規模開発の余地があるエリアです');
         }
       }, 1000);
       break;
@@ -492,7 +530,7 @@ function advanceGuide(step) {
       guideStep = 14;
       setTimeout(() => {
         if (guideSkipped) return;
-        showGuideBubble(null, 'AI推奨エリアに移動しました。同じように筆の詳細確認・シナリオ分析が可能です', 'center');
+        showGuideBubble(null, 'AI推奨エリアに移動しました。同じように筆の詳細確認・シナリオ分析が可能です');
         setTimeout(() => clearGuideUI(), 5000);
       }, 2000);
       break;
@@ -1266,123 +1304,166 @@ function renderCFChart(p, facilityType, floorArea) {
 }
 
 function initCFChart(parcel) {
-  var p = parcel;
-  var ba = p.buildableArea || Math.round(p.area * p.far / 100 * 0.93);
-  var rr = (p.rentableRatio || 73) / 100;
-  var landCost = Math.round(p.landPrice * p.area / 100);
-  var totalInvest = landCost + p.cost + Math.round(p.cost * 0.08) + Math.round(p.cost * 0.05) + Math.round(p.cost * 0.10);
-  var equity = Math.round(totalInvest * 0.30);
-  var loanAmt = Math.round(totalInvest * 0.70);
-  var mr = 0.02 / 12;
-  var annualDebt = loanAmt * (mr * Math.pow(1+mr,360)) / (Math.pow(1+mr,360)-1) * 12;
+    var scenarios = {
+        pessimistic: { vacancy: 10, growth: 0, rate: 2.5, opex: 0.25 },
+        base: { vacancy: 5, growth: 1.5, rate: 2.0, opex: 0.20 },
+        optimistic: { vacancy: 3, growth: 3.0, rate: 1.5, opex: 0.15 }
+    };
 
-  var scenarios = {
-    pessimistic: { label: '悲観', vacancy: 12, growth: 0, rate: 3.0, opexRatio: 0.25 },
-    base:        { label: '基本', vacancy: 5, growth: 1.5, rate: 2.0, opexRatio: 0.20 },
-    optimistic:  { label: '楽観', vacancy: 2, growth: 3.0, rate: 1.0, opexRatio: 0.15 }
-  };
+    var p = parcel;
+    var landCost = p.landPrice * p.area / 100;
+    var constructionCost = p.cost;
+    var designFee = constructionCost * 0.08;
+    var miscFee = constructionCost * 0.05;
+    var contingency = constructionCost * 0.10;
+    var totalInvestment = landCost + constructionCost + designFee + miscFee + contingency;
+    var equityAmount = totalInvestment * 0.30;
+    var loanAmount = totalInvestment * 0.70;
 
-  function calcCF(scenario) {
-    var s = scenarios[scenario];
-    var smr = (s.rate / 100) / 12;
-    var scenarioDebt = smr > 0 ? loanAmt * (smr * Math.pow(1+smr,360)) / (Math.pow(1+smr,360)-1) * 12 : loanAmt / 30;
-    var baseAnnualRent = p.rent * ba * rr * 12 / 1000000;
-    var effIncome = baseAnnualRent * (1 - s.vacancy / 100);
-    var noi = effIncome * (1 - s.opexRatio);
-    var annualCF = noi - scenarioDebt;
-    var data = [-equity];
-    var cum = -equity;
-    for (var y = 1; y <= 30; y++) {
-      cum += annualCF;
-      data.push(Math.round(cum));
-    }
-    return { data: data, noi: Math.round(noi), annualCF: Math.round(annualCF), adjVac: s.vacancy, opexRatio: s.opexRatio };
-  }
+    var baseAnnualRent = p.rent * p.buildableArea * (p.rentableRatio / 100) * 12 / 1000000;
 
-  function getColors(data) {
-    return data.map(function(v) { return v >= 0 ? '#0067B3' : '#d94f43'; });
-  }
-
-  function getPayback(data) {
-    for (var i = 1; i < data.length; i++) {
-      if (data[i] >= 0) return i;
-    }
-    return -1;
-  }
-
-  var cfChartInstance = null;
-
-  function updateCFChart(scenario) {
-    var result = calcCF(scenario);
-    var data = result.data;
-    var payback = getPayback(data);
-    var yearLabels = [];
-    for (var i = 0; i <= 30; i++) { yearLabels.push(i % 5 === 0 ? i + '年' : ''); }
-
-    var paramsEl = document.getElementById('cfParams');
-    if (paramsEl) {
-      var s = scenarios[scenario];
-      paramsEl.innerHTML = '空室率: ' + s.vacancy + '% / 賃料成長率: ' + s.growth + '% / 借入金利: ' + s.rate.toFixed(1) + '% / 運営費率: ' + (s.opexRatio * 100).toFixed(0) + '%';
-    }
-
-    var ctx = document.getElementById('cfChart');
-    if (!ctx || typeof Chart === 'undefined') return;
-
-    if (cfChartInstance) { cfChartInstance.destroy(); cfChartInstance = null; }
-
-    cfChartInstance = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: yearLabels,
-        datasets: [{
-          data: data,
-          backgroundColor: getColors(data),
-          borderColor: data.map(function(v,i) { return i === payback && payback > 0 ? '#2d8a4e' : 'transparent'; }),
-          borderWidth: data.map(function(v,i) { return i === payback && payback > 0 ? 3 : 0; }),
-          borderRadius: 3
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: {
-            ticks: { callback: function(v) { return Math.round(v).toLocaleString() + '百万'; } },
-            grid: { color: '#f0f0f0' }
-          },
-          x: { grid: { display: false } }
+    function calcCF(s) {
+        var mr = s.rate / 100 / 12;
+        var np = 360;
+        var annualRepay = loanAmount * (mr * Math.pow(1 + mr, np)) / (Math.pow(1 + mr, np) - 1) * 12;
+        var data = [];
+        var cum = Math.round(-equityAmount);
+        data.push(cum);
+        for (var y = 1; y <= 30; y++) {
+            var rentY = baseAnnualRent * Math.pow(1 + s.growth / 100, y - 1);
+            var grossIncome = rentY * (1 - s.vacancy / 100);
+            var noi = grossIncome * (1 - s.opex);
+            var cf = noi - annualRepay;
+            cum = Math.round(cum + cf);
+            data.push(cum);
         }
-      }
-    });
-
-    var summaryEl = document.getElementById('cfSummary');
-    if (summaryEl) {
-      summaryEl.innerHTML = '<strong>' + scenarios[scenario].label + 'シナリオ</strong>: ' +
-        'NOI ' + result.noi + '百万円/年 / 年間CF ' + result.annualCF + '百万円 / ' +
-        (payback > 0 ? '回収年 ' + payback + '年目' : '30年以内に回収不可');
+        return data;
     }
-  }
 
-  // Tab click listeners
-  document.querySelectorAll('.cf-scenario-tab').forEach(function(tab) {
-    tab.addEventListener('click', function() {
-      document.querySelectorAll('.cf-scenario-tab').forEach(function(t) {
-        t.classList.remove('active');
-        t.style.background = '#fff';
-        t.style.color = '';
-        t.style.borderColor = '#ddd';
-      });
-      tab.classList.add('active');
-      tab.style.background = '#185FA5';
-      tab.style.color = '#fff';
-      tab.style.borderColor = '#185FA5';
-      updateCFChart(tab.getAttribute('data-scenario'));
+    var debugS = scenarios.base;
+    var debugMR = debugS.rate / 100 / 12;
+    var debugRepay = loanAmount * (debugMR * Math.pow(1 + debugMR, 360)) / (Math.pow(1 + debugMR, 360) - 1) * 12;
+    var debugGross = baseAnnualRent * (1 - debugS.vacancy / 100);
+    var debugNOI = debugGross * (1 - debugS.opex);
+    console.log('=== CF DEBUG ===');
+    console.log('landCost:', landCost, 'constructionCost:', constructionCost);
+    console.log('totalInvestment:', totalInvestment, 'equity:', equityAmount, 'loan:', loanAmount);
+    console.log('baseAnnualRent:', baseAnnualRent, 'grossIncome:', debugGross, 'NOI:', debugNOI);
+    console.log('annualRepay:', debugRepay, 'annualCF:', debugNOI - debugRepay);
+    console.log('Year1 cumCF:', Math.round(-equityAmount + debugNOI - debugRepay));
+
+    if (debugNOI - debugRepay < 0) {
+        console.log('WARNING: Annual CF is negative. Adjusting LTV to 60%');
+        equityAmount = totalInvestment * 0.40;
+        loanAmount = totalInvestment * 0.60;
+    }
+
+    function getColors(data) {
+        return data.map(function(v) { return v >= 0 ? '#0067B3' : '#d94f43'; });
+    }
+
+    function getPayback(data) {
+        for (var i = 1; i < data.length; i++) {
+            if (data[i] >= 0 && data[i - 1] < 0) return i;
+        }
+        return null;
+    }
+
+    var labels = [];
+    for (var i = 0; i <= 30; i++) labels.push(i % 5 === 0 ? i + '年' : '');
+
+    var canvas = document.getElementById('cfChart');
+    if (!canvas) return;
+    if (window.cfChartInstance) window.cfChartInstance.destroy();
+
+    var baseData = calcCF(scenarios.base);
+    window.cfChartInstance = new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: baseData,
+                backgroundColor: getColors(baseData),
+                borderRadius: 2,
+                barPercentage: 0.85
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        title: function(ctx) { return ctx[0].dataIndex + '年目'; },
+                        label: function(ctx) { return ctx.parsed.y.toLocaleString() + '百万円'; }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    ticks: {
+                        callback: function(v) { return v.toLocaleString(); },
+                        font: { size: 10 },
+                        color: '#999'
+                    },
+                    grid: { color: 'rgba(0,0,0,0.06)' }
+                },
+                x: {
+                    ticks: {
+                        font: { size: 9 },
+                        color: '#999',
+                        maxRotation: 0
+                    },
+                    grid: { display: false }
+                }
+            }
+        }
     });
-  });
 
-  // Initial render with base scenario
-  updateCFChart('base');
+    function updateCFChart(key) {
+        var s = scenarios[key];
+        var data = calcCF(s);
+        window.cfChartInstance.data.datasets[0].data = data;
+        window.cfChartInstance.data.datasets[0].backgroundColor = getColors(data);
+        window.cfChartInstance.update();
+
+        var paramsEl = document.getElementById('cf-params');
+        if (paramsEl) {
+            paramsEl.innerHTML = '空室率: <b>' + s.vacancy + '%</b> / 賃料成長率: <b>' + s.growth + '%/年</b> / 借入金利: <b>' + s.rate + '%</b> / 運営費率: <b>' + (s.opex * 100) + '%</b>';
+        }
+
+        var pb = getPayback(data);
+        var summaryEl = document.getElementById('cf-summary');
+        if (summaryEl) {
+            var label = key === 'pessimistic' ? '悲観' : key === 'base' ? '基本' : '楽観';
+            var pbText = pb ? pb + '年目に回収' : '30年以内に回収不可';
+            var cfText = (data[30] >= 0 ? '+' : '') + data[30].toLocaleString() + '百万円';
+            summaryEl.innerHTML = '<b>' + label + 'シナリオ:</b> NOI ' + Math.round(debugNOI) + '百万円/年 / 年間CF ' + Math.round(debugNOI - debugRepay) + '百万円 / ' + pbText;
+        }
+
+        document.querySelectorAll('.cf-tab').forEach(function(t) {
+            if (t.dataset.scenario === key) {
+                t.style.background = '#0067B3';
+                t.style.color = '#fff';
+                t.style.borderColor = '#0067B3';
+                t.style.fontWeight = '500';
+            } else {
+                t.style.background = '#fff';
+                t.style.color = '#888';
+                t.style.borderColor = '#e0e0e0';
+                t.style.fontWeight = '400';
+            }
+        });
+    }
+
+    document.querySelectorAll('.cf-tab').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            updateCFChart(this.dataset.scenario);
+        });
+    });
+
+    updateCFChart('base');
 }
 
 function getImpactTabContent(p, facilityType, floorArea) {
@@ -1669,7 +1750,7 @@ function showAcquisitionPanel(id) {
     if (altEl) {
       altEl.style.display = 'block';
       altEl.style.opacity = '0';
-      altEl.style.transition = 'opacity 0.5s';
+      altEl.style.transition = 'opacity 1.0s';
       setTimeout(() => {
         altEl.style.opacity = '1';
         if (guideStep === 12) advanceGuide(13);
