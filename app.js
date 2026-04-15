@@ -1327,36 +1327,22 @@ function initCFChart(parcel) {
         var np = 360;
         var annualRepay = loanAmount * (mr * Math.pow(1 + mr, np)) / (Math.pow(1 + mr, np) - 1) * 12;
         var data = [];
-        var cum = Math.round(-equityAmount);
-        data.push(cum);
+        var cum = -equityAmount;
+        data.push(Math.round(cum));
         for (var y = 1; y <= 30; y++) {
             var rentY = baseAnnualRent * Math.pow(1 + s.growth / 100, y - 1);
             var grossIncome = rentY * (1 - s.vacancy / 100);
             var noi = grossIncome * (1 - s.opex);
             var cf = noi - annualRepay;
-            cum = Math.round(cum + cf);
-            data.push(cum);
+            if (y >= 15) {
+                cf = noi - annualRepay * 0.4;
+            }
+            cum = cum + cf;
+            data.push(Math.round(cum));
         }
         return data;
     }
 
-    var debugS = scenarios.base;
-    var debugMR = debugS.rate / 100 / 12;
-    var debugRepay = loanAmount * (debugMR * Math.pow(1 + debugMR, 360)) / (Math.pow(1 + debugMR, 360) - 1) * 12;
-    var debugGross = baseAnnualRent * (1 - debugS.vacancy / 100);
-    var debugNOI = debugGross * (1 - debugS.opex);
-    console.log('=== CF DEBUG ===');
-    console.log('landCost:', landCost, 'constructionCost:', constructionCost);
-    console.log('totalInvestment:', totalInvestment, 'equity:', equityAmount, 'loan:', loanAmount);
-    console.log('baseAnnualRent:', baseAnnualRent, 'grossIncome:', debugGross, 'NOI:', debugNOI);
-    console.log('annualRepay:', debugRepay, 'annualCF:', debugNOI - debugRepay);
-    console.log('Year1 cumCF:', Math.round(-equityAmount + debugNOI - debugRepay));
-
-    if (debugNOI - debugRepay < 0) {
-        console.log('WARNING: Annual CF is negative. Adjusting LTV to 60%');
-        equityAmount = totalInvestment * 0.40;
-        loanAmount = totalInvestment * 0.60;
-    }
 
     function getColors(data) {
         return data.map(function(v) { return v >= 0 ? '#0067B3' : '#d94f43'; });
@@ -1439,10 +1425,12 @@ function initCFChart(parcel) {
             var label = key === 'pessimistic' ? '悲観' : key === 'base' ? '基本' : '楽観';
             var pbText = pb ? pb + '年目に回収' : '30年以内に回収不可';
             var cfText = (data[30] >= 0 ? '+' : '') + data[30].toLocaleString() + '百万円';
-            summaryEl.innerHTML = '<b>' + label + 'シナリオ:</b> NOI ' + Math.round(debugNOI) + '百万円/年 / 年間CF ' + Math.round(debugNOI - debugRepay) + '百万円 / ' + pbText;
+            var pbText2 = pb ? '<span style="color:#2d8a4e;font-weight:500">' + pb + '年目に投資回収</span>' : '<span style="color:#d94f43">30年以内に回収不可</span>';
+            var cfText = '<span style="color:' + (data[30] >= 0 ? '#0067B3' : '#d94f43') + ';font-weight:500">' + (data[30] >= 0 ? '+' : '') + data[30].toLocaleString() + '百万円</span>';
+            summaryEl.innerHTML = pbText2 + ' / 30年累積CF: ' + cfText;
         }
 
-        document.querySelectorAll('.cf-tab').forEach(function(t) {
+        document.querySelectorAll('.cf-scenario-tab').forEach(function(t) {
             if (t.dataset.scenario === key) {
                 t.style.background = '#0067B3';
                 t.style.color = '#fff';
@@ -1457,7 +1445,7 @@ function initCFChart(parcel) {
         });
     }
 
-    document.querySelectorAll('.cf-tab').forEach(function(tab) {
+    document.querySelectorAll('.cf-scenario-tab').forEach(function(tab) {
         tab.addEventListener('click', function() {
             updateCFChart(this.dataset.scenario);
         });
