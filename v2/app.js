@@ -19,7 +19,7 @@ let currentAreaLabel = null;
 // Task 40: Alternative area data
 const alternativeAreas = [
   {
-    areaId: 'alt1', areaName: '芝大門二丁目北エリア', center: [35.6620, 139.7545],
+    areaId: 'alt1', areaName: '芝大門二丁目北エリア', center: [35.6575, 139.7555],
     parcels: [
       {"id":"A001","name":"芝大門2-8","lat":35.6618,"lng":139.7540,"polygon":[[35.6616,139.7537],[35.6616,139.7543],[35.6620,139.7543],[35.6620,139.7537]],"zone":"商業地域","far":700,"score":88,"noiYield":4.5,"irr":11.0,"rent":6800,"area":600,"vacancy":3.5,"floors":10,"units":48,"cost":2058,"landPrice":650,"grossMargin":20,"dscr":1.5,"capRate":3.8,"buildableArea":3906,"rentableRatio":74,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
       {"id":"A002","name":"芝大門2-11","lat":35.6622,"lng":139.7548,"polygon":[[35.6620,139.7545],[35.6620,139.7551],[35.6624,139.7551],[35.6624,139.7545]],"zone":"商業地域","far":600,"score":75,"noiYield":3.8,"irr":10.2,"rent":6500,"area":450,"vacancy":4.0,"floors":8,"units":32,"cost":1580,"landPrice":600,"grossMargin":18,"dscr":1.4,"capRate":3.6,"buildableArea":2520,"rentableRatio":72,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
@@ -30,7 +30,7 @@ const alternativeAreas = [
     ]
   },
   {
-    areaId: 'alt2', areaName: '芝大門二丁目南エリア', center: [35.6570, 139.7555],
+    areaId: 'alt2', areaName: '芝大門二丁目南エリア', center: [35.6548, 139.7525],
     parcels: [
       {"id":"B001","name":"芝大門2-31","lat":35.6572,"lng":139.7552,"polygon":[[35.6570,139.7549],[35.6570,139.7555],[35.6574,139.7555],[35.6574,139.7549]],"zone":"商業地域","far":700,"score":85,"noiYield":4.3,"irr":11.5,"rent":7000,"area":550,"vacancy":3.2,"floors":10,"units":42,"cost":1890,"landPrice":680,"grossMargin":21,"dscr":1.55,"capRate":3.5,"buildableArea":3581,"rentableRatio":75,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
       {"id":"B002","name":"芝大門2-33","lat":35.6568,"lng":139.7558,"polygon":[[35.6566,139.7555],[35.6566,139.7561],[35.6570,139.7561],[35.6570,139.7555]],"zone":"商業地域","far":600,"score":79,"noiYield":4.0,"irr":10.8,"rent":6700,"area":480,"vacancy":3.8,"floors":8,"units":34,"cost":1640,"landPrice":640,"grossMargin":19,"dscr":1.45,"capRate":3.7,"buildableArea":2678,"rentableRatio":73,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
@@ -43,7 +43,7 @@ const alternativeAreas = [
 ];
 
 // Data bounds (Task 30: Shibadaimon 1-chome NW, away from tracks)
-const DATA_BOUNDS = L.latLngBounds([35.6553, 139.7503], [35.6580, 139.7542]);
+const DATA_BOUNDS = L.latLngBounds([35.655600, 139.752800], [35.656900, 139.754500]);
 
 // ===== Task 11: Login =====
 const VALID_ID = 'rwai';
@@ -184,7 +184,7 @@ function startDemo() {
 
 // ===== Map Init (Screen 1) =====
 function initMap() {
-  map = L.map('map', { zoomControl: true }).setView([35.6567, 139.7523], 17);
+  map = L.map('map', { zoomControl: true }).setView([35.6563, 139.7537], 17);
 
   // Task 1: Carto Positron tile
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
