@@ -124,7 +124,7 @@
           <tbody>
             <tr style="border-bottom:1px solid #f0f0f0">
               <td style="padding:14px 8px;text-align:center;color:#ccc;font-size:11px">1</td>
-              <td style="padding:14px 8px;font-weight:500;color:#333;font-size:13px">候補地の発見</td>
+              <td style="padding:14px 8px;font-weight:500;color:#333;font-size:13px">開発候補地探索</td>
               <td style="padding:14px 8px;text-align:center;border-left:2px solid #d94f43;border-right:2px solid #d94f43;background:#fef5f4"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#d94f43;color:#fff;font-size:12px">&#10003;</span> <button onclick="toggleCompDetail(this)" style="border:none;background:none;color:#d94f43;font-size:16px;cursor:pointer;vertical-align:middle;margin-left:4px">+</button></td>
               <td style="padding:14px 8px;text-align:center"><span style="color:#c4840a;font-size:14px">&#9650;</span></td>
               <td style="padding:14px 8px;text-align:center"><span style="color:#0067B3;font-size:14px">&#9679;</span></td>
@@ -133,24 +133,15 @@
             <tr class="comp-detail-row" style="display:none"><td colspan="6" style="padding:0 8px 14px 48px;font-size:12px;color:#666;line-height:1.7;background:#fef5f4">エリア指定で全筆を一括スキャンし、法規制・賃料・ハザード等を統合した魅力度スコアで自動順位付け。オフマーケット候補も含めて網羅的に評価。</td></tr>
             <tr style="border-bottom:1px solid #f0f0f0">
               <td style="padding:14px 8px;text-align:center;color:#ccc;font-size:11px">2</td>
-              <td style="padding:14px 8px;font-weight:500;color:#333;font-size:13px">単一敷地の事業性評価</td>
+              <td style="padding:14px 8px;font-weight:500;color:#333;font-size:13px">開発エリアの事業性評価</td>
               <td style="padding:14px 8px;text-align:center;border-left:2px solid #d94f43;border-right:2px solid #d94f43;background:#fef5f4"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#d94f43;color:#fff;font-size:12px">&#10003;</span> <button onclick="toggleCompDetail(this)" style="border:none;background:none;color:#d94f43;font-size:16px;cursor:pointer;vertical-align:middle;margin-left:4px">+</button></td>
               <td style="padding:14px 8px;text-align:center"><span style="color:#0067B3;font-size:14px">&#9679;</span></td>
               <td style="padding:14px 8px;text-align:center"><span style="color:#ccc;font-size:14px">&#10005;</span></td>
               <td style="padding:14px 8px;text-align:center"><span style="color:#0067B3;font-size:14px">&#9679;</span></td>
             </tr>
-            <tr class="comp-detail-row" style="display:none"><td colspan="6" style="padding:0 8px 14px 48px;font-size:12px;color:#666;line-height:1.7;background:#fef5f4">施設タイプを選ぶだけで、斜線制限・天空率を考慮したボリュームチェック、NOI利回り・IRR等の事業収支、感度分析まで自動算出。</td></tr>
+            <tr class="comp-detail-row" style="display:none"><td colspan="6" style="padding:0 8px 14px 48px;font-size:12px;color:#666;line-height:1.7;background:#fef5f4">単一敷地はもちろん、エリア内の全筆を一括評価。NOI利回り・リスク等の複数軸で収益性ランキングを即時生成し、従来1件ずつ数日かけていた作業を一括実行。</td></tr>
             <tr style="border-bottom:1px solid #f0f0f0">
               <td style="padding:14px 8px;text-align:center;color:#ccc;font-size:11px">3</td>
-              <td style="padding:14px 8px;font-weight:500;color:#333;font-size:13px">エリア全筆の一括評価</td>
-              <td style="padding:14px 8px;text-align:center;border-left:2px solid #d94f43;border-right:2px solid #d94f43;background:#fef5f4"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#d94f43;color:#fff;font-size:12px">&#10003;</span> <button onclick="toggleCompDetail(this)" style="border:none;background:none;color:#d94f43;font-size:16px;cursor:pointer;vertical-align:middle;margin-left:4px">+</button></td>
-              <td style="padding:14px 8px;text-align:center"><span style="color:#ccc;font-size:14px">&#10005;</span></td>
-              <td style="padding:14px 8px;text-align:center"><span style="color:#ccc;font-size:14px">&#10005;</span></td>
-              <td style="padding:14px 8px;text-align:center"><span style="color:#c4840a;font-size:14px">&#9650;</span></td>
-            </tr>
-            <tr class="comp-detail-row" style="display:none"><td colspan="6" style="padding:0 8px 14px 48px;font-size:12px;color:#666;line-height:1.7;background:#fef5f4">数十〜数百筆を同時に評価し、NOI利回り・リスク等の複数軸で収益性ランキングを即時生成。従来1件ずつ数日かけていた作業を一括実行。</td></tr>
-            <tr style="border-bottom:1px solid #f0f0f0">
-              <td style="padding:14px 8px;text-align:center;color:#ccc;font-size:11px">4</td>
               <td style="padding:14px 8px;font-weight:500;color:#333;font-size:13px">開発インパクト→賃料波及推計</td>
               <td style="padding:14px 8px;text-align:center;border-left:2px solid #d94f43;border-right:2px solid #d94f43;background:#fef5f4"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#d94f43;color:#fff;font-size:12px">&#10003;</span> <button onclick="toggleCompDetail(this)" style="border:none;background:none;color:#d94f43;font-size:16px;cursor:pointer;vertical-align:middle;margin-left:4px">+</button></td>
               <td style="padding:14px 8px;text-align:center"><span style="color:#ccc;font-size:14px">&#10005;</span></td>
@@ -159,7 +150,7 @@
             </tr>
             <tr class="comp-detail-row" style="display:none"><td colspan="6" style="padding:0 8px 14px 48px;font-size:12px;color:#666;line-height:1.7;background:#fef5f4">施設建設が周辺の賃料・空室率・Cap Rateに与える影響を、類似開発事例に基づいて定量推計。投資委員会での追加エビデンスとして活用可能。</td></tr>
             <tr style="border-bottom:1px solid #f0f0f0">
-              <td style="padding:14px 8px;text-align:center;color:#ccc;font-size:11px">5</td>
+              <td style="padding:14px 8px;text-align:center;color:#ccc;font-size:11px">4</td>
               <td style="padding:14px 8px;font-weight:500;color:#333;font-size:13px">ターゲットリスト生成</td>
               <td style="padding:14px 8px;text-align:center;border-left:2px solid #d94f43;border-right:2px solid #d94f43;border-bottom:2px solid #d94f43;background:#fef5f4;border-radius:0 0 6px 6px"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#d94f43;color:#fff;font-size:12px">&#10003;</span> <button onclick="toggleCompDetail(this)" style="border:none;background:none;color:#d94f43;font-size:16px;cursor:pointer;vertical-align:middle;margin-left:4px">+</button></td>
               <td style="padding:14px 8px;text-align:center"><span style="color:#ccc;font-size:14px">&#10005;</span></td>
@@ -174,53 +165,17 @@
 
       <!-- Unified flow bar -->
       <div style="background:#0067B3;border-radius:10px;padding:24px;margin:28px 0 0">
-        <p style="font-size:12px;color:rgba(255,255,255,0.5);margin:0 0 12px;text-align:center">Real World AI: 1〜5の全機能が同一基盤上で一気通貫に接続</p>
+        <p style="font-size:22px;font-weight:500;color:#fff;text-align:center;margin:0 0 16px">仕掛け営業の初期検討サイクルを、6〜8週間から数時間に短縮</p>
         <div style="display:flex;align-items:center;justify-content:center;gap:0;margin:0 0 20px">
-          <div style="display:flex;flex-direction:column;align-items:center"><div style="width:32px;height:32px;border-radius:50%;background:#fff;color:#0067B3;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600">1</div><p style="font-size:10px;color:rgba(255,255,255,0.6);margin:6px 0 0;white-space:nowrap">候補地発見</p></div>
+          <div style="display:flex;flex-direction:column;align-items:center"><div style="width:32px;height:32px;border-radius:50%;background:#fff;color:#0067B3;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600">1</div><p style="font-size:10px;color:rgba(255,255,255,0.6);margin:6px 0 0;white-space:nowrap">候補地探索</p></div>
           <div style="width:36px;height:2px;background:rgba(255,255,255,0.3)"></div>
           <div style="display:flex;flex-direction:column;align-items:center"><div style="width:32px;height:32px;border-radius:50%;background:#fff;color:#0067B3;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600">2</div><p style="font-size:10px;color:rgba(255,255,255,0.6);margin:6px 0 0;white-space:nowrap">事業性評価</p></div>
           <div style="width:36px;height:2px;background:rgba(255,255,255,0.3)"></div>
-          <div style="display:flex;flex-direction:column;align-items:center"><div style="width:32px;height:32px;border-radius:50%;background:#fff;color:#0067B3;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600">3</div><p style="font-size:10px;color:rgba(255,255,255,0.6);margin:6px 0 0;white-space:nowrap">一括評価</p></div>
+          <div style="display:flex;flex-direction:column;align-items:center"><div style="width:32px;height:32px;border-radius:50%;background:#fff;color:#0067B3;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600">3</div><p style="font-size:10px;color:rgba(255,255,255,0.6);margin:6px 0 0;white-space:nowrap">インパクト推計</p></div>
           <div style="width:36px;height:2px;background:rgba(255,255,255,0.3)"></div>
-          <div style="display:flex;flex-direction:column;align-items:center"><div style="width:32px;height:32px;border-radius:50%;background:#fff;color:#0067B3;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600">4</div><p style="font-size:10px;color:rgba(255,255,255,0.6);margin:6px 0 0;white-space:nowrap">インパクト推計</p></div>
-          <div style="width:36px;height:2px;background:rgba(255,255,255,0.3)"></div>
-          <div style="display:flex;flex-direction:column;align-items:center"><div style="width:32px;height:32px;border-radius:50%;background:#fff;color:#0067B3;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600">5</div><p style="font-size:10px;color:rgba(255,255,255,0.6);margin:6px 0 0;white-space:nowrap">リスト生成</p></div>
+          <div style="display:flex;flex-direction:column;align-items:center"><div style="width:32px;height:32px;border-radius:50%;background:#fff;color:#0067B3;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600">4</div><p style="font-size:10px;color:rgba(255,255,255,0.6);margin:6px 0 0;white-space:nowrap">リスト生成</p></div>
         </div>
-        <p style="font-size:22px;font-weight:500;color:#fff;text-align:center;margin:0 0 6px">仕掛け営業の初期検討サイクルを、6〜8週間から数時間に短縮</p>
         <p style="font-size:13px;color:rgba(255,255,255,0.6);text-align:center;margin:0">ツール間のデータ転記・Excel統合が不要に。検討の速度と精度を同時に引き上げます。</p>
-      </div>
-    </div>
-
-    <!-- Section 4: Before/After -->
-    <div style="background:#f6f8fb;padding:48px 32px">
-      <div style="max-width:880px;margin:0 auto">
-        <p style="font-size:20px;font-weight:500;text-align:center;margin:0 0 28px">仕掛け営業の1サイクルが、こう変わる</p>
-        <div style="background:#fff;border-radius:10px;padding:24px;margin:0 0 16px;border:1px solid #eee">
-          <p style="font-size:13px;font-weight:600;color:#555;margin:0 0 16px">従来の業務フロー</p>
-          <div style="display:flex;align-items:center;gap:4px;flex-wrap:nowrap;margin:0 0 12px">
-            <div style="flex:1;min-width:0;background:#f9f9f9;border-radius:6px;padding:10px;text-align:center;border:1px solid #eee"><p style="font-size:12px;font-weight:600;color:#333;margin:0 0 4px">候補地選定</p><p style="font-size:11px;color:#c0392b;font-weight:600;margin:0 0 2px">3〜4週</p><p style="font-size:10px;color:#999;margin:0">リード抽出ツール+手動調査</p></div>
-            <span style="color:#bbb;font-size:14px">→</span>
-            <div style="flex:1;min-width:0;background:#f9f9f9;border-radius:6px;padding:10px;text-align:center;border:1px solid #eee"><p style="font-size:12px;font-weight:600;color:#333;margin:0 0 4px">ボリュームチェック</p><p style="font-size:11px;color:#c0392b;font-weight:600;margin:0 0 2px">1〜3週</p><p style="font-size:10px;color:#999;margin:0">設計事務所に外注</p></div>
-            <span style="color:#bbb;font-size:14px">→</span>
-            <div style="flex:1;min-width:0;background:#f9f9f9;border-radius:6px;padding:10px;text-align:center;border:1px solid #eee"><p style="font-size:12px;font-weight:600;color:#333;margin:0 0 4px">事業収支作成</p><p style="font-size:11px;color:#c0392b;font-weight:600;margin:0 0 2px">2〜4週</p><p style="font-size:10px;color:#999;margin:0">Excel手作業</p></div>
-            <span style="color:#bbb;font-size:14px">→</span>
-            <div style="flex:1;min-width:0;background:#f9f9f9;border-radius:6px;padding:10px;text-align:center;border:1px solid #eee"><p style="font-size:12px;font-weight:600;color:#333;margin:0 0 4px">リスク調査</p><p style="font-size:11px;color:#c0392b;font-weight:600;margin:0 0 2px">2〜4週</p><p style="font-size:10px;color:#999;margin:0">ハザード+土壌+登記</p></div>
-            <span style="color:#bbb;font-size:14px">→</span>
-            <div style="flex:1;min-width:0;background:#f9f9f9;border-radius:6px;padding:10px;text-align:center;border:1px solid #eee"><p style="font-size:12px;font-weight:600;color:#333;margin:0 0 4px">地権者調査</p><p style="font-size:11px;color:#c0392b;font-weight:600;margin:0 0 2px">1週</p><p style="font-size:10px;color:#999;margin:0">登記簿手動取得</p></div>
-          </div>
-          <p style="font-size:12px;color:#c0392b;text-align:right;margin:0;font-weight:600">合計: 約6〜8週間 / 使用ツール: 5種以上+Excel</p>
-        </div>
-        <div style="background:#0067B3;border-radius:10px;padding:24px">
-          <p style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.7);margin:0 0 12px">Real World AI 導入後</p>
-          <div style="display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(255,255,255,0.1);padding:14px 20px;border-radius:8px;margin:0 0 12px">
-            <span style="font-size:13px;color:#fff;font-weight:500">エリア指定</span><span style="color:rgba(255,255,255,0.4)">→</span>
-            <span style="font-size:13px;color:#fff;font-weight:500">全筆評価</span><span style="color:rgba(255,255,255,0.4)">→</span>
-            <span style="font-size:13px;color:#fff;font-weight:500">シナリオ分析</span><span style="color:rgba(255,255,255,0.4)">→</span>
-            <span style="font-size:13px;color:#fff;font-weight:500">インパクト推計</span><span style="color:rgba(255,255,255,0.4)">→</span>
-            <span style="font-size:13px;color:#fff;font-weight:500">リスト生成</span>
-          </div>
-          <p style="font-size:14px;color:#fff;text-align:center;margin:0;font-weight:500">所要時間: 数時間 / 単一基盤 / データ手動転記ゼロ</p>
-        </div>
       </div>
     </div>
 

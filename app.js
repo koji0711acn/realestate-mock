@@ -260,6 +260,7 @@ function clearGuideUI() {
   if (pulseCircle) { map.removeLayer(pulseCircle); pulseCircle = null; }
   if (dataAreaRect) { map.removeLayer(dataAreaRect); dataAreaRect = null; }
   if (window.guideDashedRect) { map.removeLayer(window.guideDashedRect); window.guideDashedRect = null; }
+  if (window.guidePulseMarker) { map.removeLayer(window.guidePulseMarker); window.guidePulseMarker = null; }
   document.querySelectorAll('.shake-btn').forEach(el => el.classList.remove('shake-btn'));
   document.querySelectorAll('.guide-shake').forEach(el => el.classList.remove('guide-shake'));
   document.querySelectorAll('.guide-bubble').forEach(el => el.remove());
@@ -341,19 +342,15 @@ function advanceGuide(step) {
       }).addTo(map);
       // Fit map to show the target area
       map.fitBounds(DATA_BOUNDS, { padding: [50, 50] });
-      // Show pulse at center of bounds
-      setTimeout(() => {
-        const center = DATA_BOUNDS.getCenter();
-        const centerPx = map.latLngToContainerPoint(center);
-        const pulse = document.createElement('div');
-        pulse.className = 'guide-pulse';
-        pulse.style.position = 'fixed';
-        const mapEl = document.getElementById('map');
-        const mapRect = mapEl.getBoundingClientRect();
-        pulse.style.left = (mapRect.left + centerPx.x - 25) + 'px';
-        pulse.style.top = (mapRect.top + centerPx.y - 25) + 'px';
-        document.body.appendChild(pulse);
-      }, 300);
+      // Show pulse as Leaflet circleMarker
+      var boundsCenter = DATA_BOUNDS.getCenter();
+      window.guidePulseMarker = L.circleMarker(boundsCenter, {
+        radius: 45,
+        color: '#0067B3',
+        weight: 3,
+        fill: false,
+        className: 'guide-pulse-leaflet'
+      }).addTo(map);
       showGuideBubble(null, '2. 点線の範囲をドラッグで囲んでください', 'center');
       break;
     }
@@ -1280,28 +1277,26 @@ function initCFChart(parcel) {
   var annualDebt = loanAmt * (mr * Math.pow(1+mr,360)) / (Math.pow(1+mr,360)-1) * 12;
 
   var scenarios = {
-    pessimistic: { label: '悲観', vacAdj: 1.5, rentAdj: 0.9, opexAdj: 1.1 },
-    base:        { label: '基本', vacAdj: 0,   rentAdj: 1.0, opexAdj: 1.0 },
-    optimistic:  { label: '楽観', vacAdj: -1.0, rentAdj: 1.1, opexAdj: 0.9 }
+    pessimistic: { label: '悲観', vacancy: 12, growth: 0, rate: 3.0, opexRatio: 0.25 },
+    base:        { label: '基本', vacancy: 5, growth: 1.5, rate: 2.0, opexRatio: 0.20 },
+    optimistic:  { label: '楽観', vacancy: 2, growth: 3.0, rate: 1.0, opexRatio: 0.15 }
   };
 
   function calcCF(scenario) {
     var s = scenarios[scenario];
-    var adjRent = p.rent * s.rentAdj;
-    var adjVac = Math.max(0, p.vacancy + s.vacAdj);
-    var grossRent = Math.round(adjRent * ba * rr * 12 / 1000000);
-    var annualRent = Math.round(grossRent * (1 - adjVac / 100));
-    var commonFee = Math.round(annualRent * 0.1);
-    var opex = Math.round(annualRent * 0.2 * s.opexAdj);
-    var noi = annualRent + commonFee - opex;
-    var annualCF = noi - annualDebt;
+    var smr = (s.rate / 100) / 12;
+    var scenarioDebt = smr > 0 ? loanAmt * (smr * Math.pow(1+smr,360)) / (Math.pow(1+smr,360)-1) * 12 : loanAmt / 30;
+    var baseAnnualRent = p.rent * ba * rr * 12 / 1000000;
+    var effIncome = baseAnnualRent * (1 - s.vacancy / 100);
+    var noi = effIncome * (1 - s.opexRatio);
+    var annualCF = noi - scenarioDebt;
     var data = [-equity];
     var cum = -equity;
     for (var y = 1; y <= 30; y++) {
       cum += annualCF;
       data.push(Math.round(cum));
     }
-    return { data: data, noi: noi, annualCF: annualCF, adjRent: adjRent, adjVac: adjVac };
+    return { data: data, noi: Math.round(noi), annualCF: Math.round(annualCF), adjVac: s.vacancy, opexRatio: s.opexRatio };
   }
 
   function getColors(data) {
@@ -1327,7 +1322,7 @@ function initCFChart(parcel) {
     var paramsEl = document.getElementById('cfParams');
     if (paramsEl) {
       var s = scenarios[scenario];
-      paramsEl.innerHTML = '賃料倍率: ' + s.rentAdj.toFixed(1) + 'x / 空室率調整: ' + (s.vacAdj >= 0 ? '+' : '') + s.vacAdj.toFixed(1) + '% / 運営費倍率: ' + s.opexAdj.toFixed(1) + 'x';
+      paramsEl.innerHTML = '空室率: ' + s.vacancy + '% / 賃料成長率: ' + s.growth + '% / 借入金利: ' + s.rate.toFixed(1) + '% / 運営費率: ' + (s.opexRatio * 100).toFixed(0) + '%';
     }
 
     var ctx = document.getElementById('cfChart');
@@ -1707,7 +1702,7 @@ function startAcquisitionLoading(parcelId) {
               <div class="loading-step-text">${s.text}</div>
               <div class="loading-step-sub">${s.sub}</div>
             </div>
-            <div class="loading-step-img" id="limg-${i}"><span>参照中...</span></div>
+            <div class="loading-step-img" id="limg-${i}"><img src="data/loading-${i+1}.png" style="width:200px;height:auto;border-radius:8px" onerror="this.parentElement.innerHTML='<span>参照中...</span>'"></div>
           </div>
         `).join('')}
       </div>
@@ -1811,13 +1806,26 @@ function exploreAlternativeArea(areaId) {
     originalParcelsData = [...parcelsData];
   }
 
+  // Grey out old parcel layers instead of removing
+  Object.values(parcelLayers).forEach(l => {
+    l.setStyle({ fillColor: '#999', fillOpacity: 0.2, color: '#999', weight: 1 });
+  });
+  Object.values(parcelTooltips).forEach(t => {
+    if (t.getElement) {
+      var el = t.getElement();
+      if (el) el.style.color = '#999';
+    }
+  });
+
+  // Store old layers reference
+  window.oldParcelLayers = {...parcelLayers};
+  window.oldParcelTooltips = {...parcelTooltips};
+
   // Switch to new parcels
   parcelsData = area.parcels;
   currentAreaLabel = area.areaName;
 
-  // Clear existing and fly to new area
-  Object.values(parcelLayers).forEach(l => map.removeLayer(l));
-  Object.values(parcelTooltips).forEach(t => map.removeLayer(t));
+  // Reset for new parcels
   parcelLayers = {};
   parcelTooltips = {};
 
@@ -1838,10 +1846,21 @@ function returnToOriginalArea() {
   originalParcelsData = null;
   currentAreaLabel = null;
 
+  // Remove current alternative area layers
   Object.values(parcelLayers).forEach(l => map.removeLayer(l));
   Object.values(parcelTooltips).forEach(t => map.removeLayer(t));
   parcelLayers = {};
   parcelTooltips = {};
+
+  // Remove old greyed-out layers
+  if (window.oldParcelLayers) {
+    Object.values(window.oldParcelLayers).forEach(l => map.removeLayer(l));
+    window.oldParcelLayers = null;
+  }
+  if (window.oldParcelTooltips) {
+    Object.values(window.oldParcelTooltips).forEach(t => map.removeLayer(t));
+    window.oldParcelTooltips = null;
+  }
 
   const center = DATA_BOUNDS.getCenter();
   map.flyTo(center, 16, { duration: 1.5 });

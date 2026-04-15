@@ -1484,6 +1484,7 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
   0%, 100% { opacity: 0.3; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.15); }
 }
+.guide-pulse-leaflet { animation: pulse-ring 1.5s ease-out infinite; }
 
 /* guide-bubble-box, arrow-left, arrow-top, arrow-bottom styles removed in Task 68 */
 
