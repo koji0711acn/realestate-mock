@@ -1719,15 +1719,15 @@ function clearImpactOverlay() {
 
 // ===== Task 9: Screen 6 -- Land Acquisition Panel =====
 const ownerData = {
-  P001: { ownership: '所有権', ownerCount: 1, registry: '令和4年8月 所有権移転（売買）', mortgage: 'あり（みずほ銀行）', planning: '特になし',
+  P01: { ownership: '所有権', ownerCount: 1, registry: '令和4年8月 所有権移転（売買）', mortgage: 'あり（みずほ銀行）', planning: '特になし',
     owners: [{ name: '株式会社港南不動産', type: '法人', years: 8, intent: '中', reason: '相続発生後5年経過' }] },
-  P002: { ownership: '所有権', ownerCount: 2, registry: '令和3年3月 所有権移転（相続）', mortgage: 'なし', planning: '地区計画あり',
+  P02: { ownership: '所有権', ownerCount: 2, registry: '令和3年3月 所有権移転（相続）', mortgage: 'なし', planning: '地区計画あり',
     owners: [{ name: '田中太郎', type: '個人', years: 15, intent: '高', reason: '高齢・後継者不在' }, { name: '田中花子', type: '個人', years: 15, intent: '高', reason: '共有持分整理希望' }] },
-  P003: { ownership: '借地権', ownerCount: 1, registry: '令和5年1月 賃借権設定', mortgage: 'なし', planning: '特になし',
-    owners: [{ name: '芝大門ビルディング株式会社', type: '法人', years: 5, intent: '低', reason: '自社利用中' }] },
-  P004: { ownership: '所有権', ownerCount: 3, registry: '平成30年6月 所有権移転（売買）', mortgage: 'あり（三井住友銀行）', planning: '特になし',
-    owners: [{ name: '海岸開発合同会社', type: '法人', years: 12, intent: '中', reason: '事業再編検討中' }, { name: '株式会社MKホールディングス', type: '法人', years: 12, intent: '低', reason: '安定運用方針' }, { name: '佐藤次郎', type: '個人', years: 8, intent: '高', reason: '資金需要あり' }] },
-  P005: { ownership: '所有権', ownerCount: 1, registry: '令和2年11月 所有権移転（売買）', mortgage: 'あり（りそな銀行）', planning: '特になし',
+  P03: { ownership: '共有', ownerCount: 3, registry: '平成28年11月 所有権移転（相続）', mortgage: 'あり（2件：三菱UFJ銀行、りそな銀行）', planning: '特になし',
+    owners: [{ name: '山田一郎', type: '個人', years: 18, intent: '低', reason: '居住中・売却拒否' }, { name: '山田次郎', type: '個人', years: 18, intent: '中', reason: '遠方在住・管理負担' }, { name: '山田三郎', type: '個人', years: 18, intent: '高', reason: '資金需要あり・売却希望' }] },
+  P04: { ownership: '所有権', ownerCount: 1, registry: '令和5年1月 所有権移転（売買）', mortgage: 'あり（三井住友銀行）', planning: '特になし',
+    owners: [{ name: '芝大門開発株式会社', type: '法人', years: 3, intent: '中', reason: '事業再編検討中' }] },
+  P05: { ownership: '所有権', ownerCount: 1, registry: '令和2年11月 所有権移転（売買）', mortgage: 'あり（りそな銀行）', planning: '特になし',
     owners: [{ name: '株式会社芝大門プロパティ', type: '法人', years: 6, intent: '中', reason: 'ポートフォリオ入替検討' }] },
 };
 
