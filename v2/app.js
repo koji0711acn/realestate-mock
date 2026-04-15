@@ -195,27 +195,52 @@ function initMap() {
 
   // Task 94: Debug coordinate mode
   if (window.location.search.includes('debug=1')) {
-    var debugCoords = [];
-    var debugMarkers = [];
+    window.debugCoords = [];
+    window.debugMarkers = [];
     var debugPanel = document.createElement('div');
     debugPanel.id = 'debug-panel';
     debugPanel.style.cssText = 'position:fixed;bottom:10px;left:10px;background:rgba(0,0,0,0.85);color:#0f0;font-family:monospace;font-size:12px;padding:12px;border-radius:8px;z-index:99999;max-width:400px;max-height:300px;overflow-y:auto';
-    debugPanel.innerHTML = '<div style="color:#fff;margin-bottom:8px"><b>Debug Mode</b> - Click map to get coordinates</div><div id="debug-output"></div><div style="margin-top:8px"><button onclick="navigator.clipboard.writeText(document.getElementById(\'debug-output\').textContent)" style="padding:4px 8px;font-size:11px;cursor:pointer">Copy All</button> <button onclick="window.debugCoords=[];window.debugMarkers.forEach(function(m){map.removeLayer(m)});window.debugMarkers=[];document.getElementById(\'debug-output\').innerHTML=\'\'" style="padding:4px 8px;font-size:11px;cursor:pointer">Clear</button></div>';
+    var headerDiv = document.createElement('div');
+    headerDiv.style.cssText = 'color:#fff;margin-bottom:8px';
+    headerDiv.innerHTML = '<b>Debug Mode</b> - Click map to get coordinates';
+    var outputDiv = document.createElement('div');
+    outputDiv.id = 'debug-output';
+    var btnDiv = document.createElement('div');
+    btnDiv.style.marginTop = '8px';
+    var copyBtn = document.createElement('button');
+    copyBtn.textContent = 'Copy All';
+    copyBtn.style.cssText = 'padding:4px 8px;font-size:11px;cursor:pointer;margin-right:4px';
+    copyBtn.addEventListener('click', function() {
+      navigator.clipboard.writeText(outputDiv.textContent);
+    });
+    var clearBtn = document.createElement('button');
+    clearBtn.textContent = 'Clear';
+    clearBtn.style.cssText = 'padding:4px 8px;font-size:11px;cursor:pointer';
+    clearBtn.addEventListener('click', function() {
+      window.debugCoords = [];
+      window.debugMarkers.forEach(function(m) { map.removeLayer(m); });
+      window.debugMarkers = [];
+      outputDiv.innerHTML = '';
+    });
+    btnDiv.appendChild(copyBtn);
+    btnDiv.appendChild(clearBtn);
+    debugPanel.appendChild(headerDiv);
+    debugPanel.appendChild(outputDiv);
+    debugPanel.appendChild(btnDiv);
     document.body.appendChild(debugPanel);
     map.on('click', function(e) {
       var lat = e.latlng.lat.toFixed(6);
       var lng = e.latlng.lng.toFixed(6);
-      debugCoords.push([parseFloat(lat), parseFloat(lng)]);
+      window.debugCoords.push([parseFloat(lat), parseFloat(lng)]);
       var marker = L.circleMarker(e.latlng, {radius: 4, color: '#0f0', fillColor: '#0f0', fillOpacity: 1}).addTo(map);
-      debugMarkers.push(marker);
-      var output = document.getElementById('debug-output');
-      output.innerHTML = '';
-      debugCoords.forEach(function(c, i) {
-        output.innerHTML += '<div>[' + c[0] + ',' + c[1] + ']' + (i < debugCoords.length - 1 ? ',' : '') + '</div>';
+      window.debugMarkers.push(marker);
+      outputDiv.innerHTML = '';
+      window.debugCoords.forEach(function(c, i) {
+        var line = document.createElement('div');
+        line.textContent = '[' + c[0] + ',' + c[1] + ']' + (i < window.debugCoords.length - 1 ? ',' : '');
+        outputDiv.appendChild(line);
       });
     });
-    window.debugCoords = debugCoords;
-    window.debugMarkers = debugMarkers;
   }
 
   // Leaflet.draw - rectangle only
