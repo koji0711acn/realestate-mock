@@ -42,8 +42,16 @@ const alternativeAreas = [
   }
 ];
 
-// Data bounds (Task 30: Shibadaimon 1-chome NW, away from tracks)
-const DATA_BOUNDS = L.latLngBounds([35.655600, 139.752800], [35.656900, 139.754500]);
+const developmentPlans = [
+  { id: 'planA', name: 'Plan A: 単独開発', parcels: ['P01'], siteArea: 500, floorArea: 3720, floors: 17, badge: '1筆', description: '整形地。単独地権者との交渉のみで取得可能', recommended: false },
+  { id: 'planB', name: 'Plan B: 隣接2筆', parcels: ['P01', 'P02'], siteArea: 780, floorArea: 5810, floors: 18, badge: '2筆', description: '北側隣接筆との合筆。接道条件が改善し、容積率の消化効率が向上', recommended: false },
+  { id: 'planC', name: 'Plan C: L字型3筆', parcels: ['P01', 'P02', 'P03'], siteArea: 1160, floorArea: 8630, floors: 20, badge: '3筆', description: 'L字型の敷地形状。大門通り沿いのファサードを確保できる配置', recommended: false },
+  { id: 'planD', name: 'Plan D: 中規模4筆', parcels: ['P01', 'P02', 'P03', 'P04'], siteArea: 1580, floorArea: 11750, floors: 22, badge: '4筆', description: '敷地規模と取得難易度のバランスが最も良い構成。2方向接道により設計自由度が高い', recommended: true },
+  { id: 'planE', name: 'Plan E: 大規模街区', parcels: ['P01', 'P02', 'P03', 'P04', 'P05', 'P06', 'P07'], siteArea: 2420, floorArea: 18020, floors: 28, badge: '7筆', description: '街区北側の大半を取得。地権者数が多く交渉に時間を要する可能性。区道の廃道手続きを含む', recommended: false }
+];
+
+// Data bounds
+const DATA_BOUNDS = L.latLngBounds([35.655950, 139.752840], [35.656940, 139.753740]);
 
 // ===== Task 11: Login =====
 const VALID_ID = 'rwai';
@@ -184,7 +192,7 @@ function startDemo() {
 
 // ===== Map Init (Screen 1) =====
 function initMap() {
-  map = L.map('map', { zoomControl: true }).setView([35.6563, 139.7537], 17);
+  map = L.map('map', { zoomControl: true }).setView([35.6565, 139.7533], 18);
 
   // Task 1: Carto Positron tile
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
@@ -978,93 +986,83 @@ function showScenarioPanel(id) {
   clearGuideUI();
   const p = parcelsData.find(d => d.id === id);
   if (!p) return;
-  const grade = getGrade(p.score);
 
-  setPanelWidth(400);
+  setPanelWidth(420);
+
+  var cardsHTML = '';
+  developmentPlans.forEach(function(plan) {
+    var isRec = plan.recommended;
+    var borderStyle = isRec ? 'border:2px solid #0067B3' : 'border:1px solid #e0e0e0';
+    var recBadge = isRec ? '<div style="position:absolute;top:-1px;right:-1px;background:#0067B3;color:#fff;font-size:10px;padding:3px 10px;border-radius:0 10px 0 10px">AI推奨</div>' : '';
+    var badgeBg = isRec ? 'background:#E6F1FB;color:#0C447C' : 'background:#f4f6f9;color:#888';
+    var descColor = isRec ? 'color:#0C447C' : 'color:#999';
+
+    cardsHTML += '<div class="plan-card" data-plan="' + plan.id + '" style="' + borderStyle + ';border-radius:10px;padding:14px 16px;cursor:pointer;position:relative;transition:all 0.2s" onmouseover="highlightPlanParcels(\'' + plan.id + '\')" onmouseout="clearPlanHighlight()">' +
+      recBadge +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin:0 0 8px">' +
+        '<span style="font-size:13px;font-weight:500;color:#333">' + plan.name + '</span>' +
+        '<span style="font-size:11px;padding:2px 8px;border-radius:4px;' + badgeBg + '">' + plan.badge + '</span>' +
+      '</div>' +
+      '<div style="display:flex;gap:16px;font-size:12px;color:#666;margin:0 0 6px">' +
+        '<span>敷地 ' + plan.siteArea.toLocaleString() + 'm\u00B2</span>' +
+        '<span>延床 ' + plan.floorArea.toLocaleString() + 'm\u00B2</span>' +
+        '<span>' + plan.floors + '階</span>' +
+      '</div>' +
+      '<div style="font-size:11px;' + descColor + '">' + plan.description + '</div>' +
+    '</div>';
+  });
 
   const panel = document.getElementById('side-panel');
-  panel.innerHTML = `
-    <div class="scenario-panel">
-      <button class="impact-back-btn" onclick="showDetailPanel('${p.id}')" style="margin-bottom:12px;margin-top:0;width:auto;display:inline-block">← 詳細に戻る</button>
-      <h3>開発シナリオ選択</h3>
-      <div style="background:#f7f8fa;border-radius:8px;padding:12px;margin-bottom:20px">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
-          <span style="font-size:14px;font-weight:600">${p.name}</span>
-          <span class="rank-badge grade-${grade}" style="font-size:11px">${grade}</span>
-        </div>
-        <div style="font-size:12px;color:#888">${p.zone} / ${p.area.toLocaleString()}m² / 容積率${p.far}%</div>
-      </div>
-      <div class="scenario-control">
-        <label>施設タイプ</label>
-        <select id="scenario-facility-type" onchange="onScenarioChange('${p.id}')">
-          <option value="large-sc">大型ショッピングセンター</option>
-          <option value="office">オフィスビル</option>
-          <option value="tower-mansion">タワーマンション</option>
-          <option value="complex">複合施設</option>
-        </select>
-      </div>
-      <div class="scenario-control">
-        <label>延床面積</label>
-        <input type="range" id="scenario-floor-area" min="5000" max="50000" step="1000" value="20000" oninput="onScenarioSliderChange('${p.id}')">
-        <div class="scenario-range-val" id="scenario-floor-area-val">20,000 m²</div>
-      </div>
-      <div id="scenario-bim-preview" style="margin-top:16px"></div>
-      <button class="scenario-confirm-btn" onclick="confirmScenario('${p.id}')">シナリオを確定して分析開始 →</button>
-    </div>
-  `;
+  panel.innerHTML =
+    '<div style="padding:16px">' +
+      '<div style="margin:0 0 16px">' +
+        '<p style="font-size:11px;color:#999;margin:0 0 4px">' + p.name + '（スコア: ' + p.score + ' / ' + p.zone + ' / 容積率' + p.far + '%）</p>' +
+        '<p style="font-size:16px;font-weight:500;color:#333;margin:0 0 6px">開発シナリオの選択</p>' +
+        '<p style="font-size:12px;color:#666;line-height:1.6;margin:0 0 16px">選択した筆と隣接筆の形状・面積・法規制（用途地域・容積率・接道条件）に基づき、開発可能なパターンをAIが算出しました。筆数が多いほど大規模な施設が建設可能ですが、取得すべき地権者数が増加します。</p>' +
+      '</div>' +
+      '<div style="display:flex;flex-direction:column;gap:8px">' + cardsHTML + '</div>' +
+      '<div style="background:#f7f8fa;border-radius:8px;padding:10px 14px;margin:16px 0 0">' +
+        '<p style="font-size:11px;color:#888;line-height:1.6;margin:0">各プランは、隣接筆の形状・用途地域・容積率・接道条件から算出した開発可能規模です。地権者の特定と売却意向の分析は、プラン選択後に実行されます。</p>' +
+      '</div>' +
+    '</div>';
 
-  // Render initial BIM preview
-  updateScenarioBimPreview(p.id);
+  panel.querySelectorAll('.plan-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+      var planId = this.dataset.plan;
+      var plan = developmentPlans.find(function(dp) { return dp.id === planId; });
+      if (plan) confirmScenario(id, plan);
+    });
+  });
 
-  // Guide
-  if (guideStep === 4) setTimeout(() => advanceGuide(5), 500);
+  if (guideStep === 4) setTimeout(function() { advanceGuide(5); }, 500);
 }
 
-function onScenarioChange(id) {
-  updateScenarioBimPreview(id);
-  if (guideStep === 5) setTimeout(() => advanceGuide(6), 500);
+function highlightPlanParcels(planId) {
+  var plan = developmentPlans.find(function(p) { return p.id === planId; });
+  if (!plan) return;
+  plan.parcels.forEach(function(pid) {
+    if (parcelLayers[pid]) {
+      parcelLayers[pid].setStyle({ fillColor: '#0067B3', fillOpacity: 0.5, weight: 3, color: '#0067B3' });
+    }
+  });
 }
 
-function onScenarioSliderChange(id) {
-  const fa = parseInt(document.getElementById('scenario-floor-area').value);
-  document.getElementById('scenario-floor-area-val').textContent = fa.toLocaleString() + ' m²';
-  updateScenarioBimPreview(id);
-
-  // Task 55: Keep map focus on selected parcel during scenario editing
-  const p = parcelsData.find(d => d.id === id);
-  if (!p) return;
-  const layer = parcelLayers[p.id];
-  if (layer) {
-    // Highlight parcel polygon
-    layer.setStyle({ weight: 4, color: '#0067B3', fillOpacity: 0.7 });
-    const center = layer.getBounds().getCenter();
-    // Show semi-transparent blue rectangle proportional to floor area
-    if (window._scenarioFloorRect) { map.removeLayer(window._scenarioFloorRect); }
-    const rectSize = Math.sqrt(fa) * 0.0000035;
-    window._scenarioFloorRect = L.rectangle(
-      [[center.lat - rectSize, center.lng - rectSize * 1.2],
-       [center.lat + rectSize, center.lng + rectSize * 1.2]],
-      { color: '#0067B3', weight: 2, fillColor: '#0067B3', fillOpacity: 0.25, interactive: false }
-    ).addTo(map);
-    // Keep parcel centered
-    map.panTo(center);
-  }
+function clearPlanHighlight() {
+  Object.keys(parcelLayers).forEach(function(pid) {
+    var p = parcelsData.find(function(d) { return d.id === pid; });
+    if (p) {
+      var grade = getGrade(p.score);
+      parcelLayers[pid].setStyle({ fillColor: gradeFill(grade), fillOpacity: 0.6, weight: 2, color: gradeColor(grade) });
+    }
+  });
 }
 
-function updateScenarioBimPreview(id) {
-  const ft = document.getElementById('scenario-facility-type').value;
-  const fa = parseInt(document.getElementById('scenario-floor-area').value);
-  const preview = document.getElementById('scenario-bim-preview');
-  if (!preview) return;
-  preview.innerHTML = getBimHTML(ft, fa);
-  setTimeout(() => renderBim3D(), 100);
-}
-
-function confirmScenario(id) {
-  const ft = document.getElementById('scenario-facility-type').value;
-  const fa = parseInt(document.getElementById('scenario-floor-area').value);
-  showAnalysisResults(id, ft, fa);
-  if (guideStep === 6) setTimeout(() => advanceGuide(7), 500);
+function confirmScenario(parcelId, plan) {
+  window.selectedPlan = plan;
+  var facilityType = 'complex';
+  var floorArea = plan ? plan.floorArea : 20000;
+  showAnalysisResults(parcelId, facilityType, floorArea);
+  if (guideStep === 5 || guideStep === 6) setTimeout(function() { advanceGuide(7); }, 500);
 }
 
 // ===== Three.js 3D Building Renderer =====
