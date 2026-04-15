@@ -19,25 +19,26 @@ let currentAreaLabel = null;
 // Task 40: Alternative area data
 const alternativeAreas = [
   {
-    areaId: 'alt1', areaName: '芝大門二丁目北エリア', center: [35.6575, 139.7555],
+    areaId: 'alt1',
+    areaName: '新橋四丁目エリア',
+    center: [35.6605, 139.7558],
     parcels: [
-      {"id":"A001","name":"芝大門2-8","lat":35.6618,"lng":139.7540,"polygon":[[35.6616,139.7537],[35.6616,139.7543],[35.6620,139.7543],[35.6620,139.7537]],"zone":"商業地域","far":700,"score":88,"noiYield":4.5,"irr":11.0,"rent":6800,"area":600,"vacancy":3.5,"floors":10,"units":48,"cost":2058,"landPrice":650,"grossMargin":20,"dscr":1.5,"capRate":3.8,"buildableArea":3906,"rentableRatio":74,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
-      {"id":"A002","name":"芝大門2-11","lat":35.6622,"lng":139.7548,"polygon":[[35.6620,139.7545],[35.6620,139.7551],[35.6624,139.7551],[35.6624,139.7545]],"zone":"商業地域","far":600,"score":75,"noiYield":3.8,"irr":10.2,"rent":6500,"area":450,"vacancy":4.0,"floors":8,"units":32,"cost":1580,"landPrice":600,"grossMargin":18,"dscr":1.4,"capRate":3.6,"buildableArea":2520,"rentableRatio":72,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
-      {"id":"A003","name":"芝大門2-14","lat":35.6615,"lng":139.7550,"polygon":[[35.6613,139.7547],[35.6613,139.7553],[35.6617,139.7553],[35.6617,139.7547]],"zone":"商業地域","far":600,"score":78,"noiYield":4.0,"irr":10.5,"rent":6600,"area":520,"vacancy":3.8,"floors":9,"units":38,"cost":1744,"landPrice":620,"grossMargin":19,"dscr":1.45,"capRate":3.7,"buildableArea":2902,"rentableRatio":73,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
-      {"id":"A004","name":"芝大門2-16","lat":35.6625,"lng":139.7542,"polygon":[[35.6623,139.7539],[35.6623,139.7545],[35.6627,139.7545],[35.6627,139.7539]],"zone":"近隣商業地域","far":400,"score":68,"noiYield":3.6,"irr":9.0,"rent":6200,"area":380,"vacancy":4.5,"floors":6,"units":22,"cost":888,"landPrice":580,"grossMargin":17,"dscr":1.35,"capRate":4.0,"buildableArea":1413,"rentableRatio":72,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
-      {"id":"A005","name":"芝大門2-19","lat":35.6618,"lng":139.7555,"polygon":[[35.6616,139.7552],[35.6616,139.7558],[35.6620,139.7558],[35.6620,139.7552]],"zone":"商業地域","far":600,"score":72,"noiYield":3.7,"irr":9.5,"rent":6400,"area":400,"vacancy":4.2,"floors":8,"units":28,"cost":1368,"landPrice":610,"grossMargin":18,"dscr":1.38,"capRate":3.9,"buildableArea":2232,"rentableRatio":72,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
-      {"id":"A006","name":"芝大門2-22","lat":35.6623,"lng":139.7538,"polygon":[[35.6621,139.7535],[35.6621,139.7541],[35.6625,139.7541],[35.6625,139.7535]],"zone":"商業地域","far":700,"score":65,"noiYield":3.5,"irr":8.8,"rent":6100,"area":350,"vacancy":5.0,"floors":9,"units":25,"cost":1200,"landPrice":590,"grossMargin":17,"dscr":1.3,"capRate":4.1,"buildableArea":2282,"rentableRatio":71,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}}
+      {"id":"A01","name":"新橋4-2","lat":35.6607,"lng":139.7558,"polygon":[[35.660713,139.755777],[35.6606,139.75568],[35.66053,139.755841],[35.660548,139.755868],[35.6605,139.755986],[35.660565,139.756042],[35.6607,139.755793]],"zone":"商業地域","far":700,"score":80,"noiYield":4.0,"irr":10.5,"rent":6600,"area":420,"vacancy":4.0,"floors":10,"units":32,"cost":1370,"landPrice":680,"grossMargin":19,"dscr":1.45,"capRate":3.8,"buildableArea":2730,"rentableRatio":73,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
+      {"id":"A02","name":"新橋4-4","lat":35.6604,"lng":139.7557,"polygon":[[35.6606,139.755645],[35.660356,139.755431],[35.660267,139.755565],[35.660291,139.755581],[35.660258,139.75564],[35.660362,139.755742],[35.660299,139.755862],[35.660461,139.755996],[35.660528,139.755878],[35.660504,139.755852],[35.6606,139.755645]],"zone":"商業地域","far":700,"score":75,"noiYield":3.8,"irr":9.8,"rent":6400,"area":520,"vacancy":4.5,"floors":9,"units":36,"cost":1580,"landPrice":650,"grossMargin":18,"dscr":1.4,"capRate":4.0,"buildableArea":3390,"rentableRatio":72,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
+      {"id":"A03","name":"新橋4-6","lat":35.6603,"lng":139.7558,"polygon":[[35.660343,139.755752],[35.660266,139.755677],[35.660268,139.75581],[35.660299,139.755836],[35.660349,139.755751]],"zone":"商業地域","far":600,"score":68,"noiYield":3.6,"irr":9.0,"rent":6200,"area":280,"vacancy":5.0,"floors":8,"units":20,"cost":780,"landPrice":620,"grossMargin":17,"dscr":1.35,"capRate":4.1,"buildableArea":1560,"rentableRatio":71,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}}
     ]
   },
   {
-    areaId: 'alt2', areaName: '芝大門二丁目南エリア', center: [35.6548, 139.7525],
+    areaId: 'alt2',
+    areaName: '芝公園三丁目エリア',
+    center: [35.6617, 139.7522],
     parcels: [
-      {"id":"B001","name":"芝大門2-31","lat":35.6572,"lng":139.7552,"polygon":[[35.6570,139.7549],[35.6570,139.7555],[35.6574,139.7555],[35.6574,139.7549]],"zone":"商業地域","far":700,"score":85,"noiYield":4.3,"irr":11.5,"rent":7000,"area":550,"vacancy":3.2,"floors":10,"units":42,"cost":1890,"landPrice":680,"grossMargin":21,"dscr":1.55,"capRate":3.5,"buildableArea":3581,"rentableRatio":75,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
-      {"id":"B002","name":"芝大門2-33","lat":35.6568,"lng":139.7558,"polygon":[[35.6566,139.7555],[35.6566,139.7561],[35.6570,139.7561],[35.6570,139.7555]],"zone":"商業地域","far":600,"score":79,"noiYield":4.0,"irr":10.8,"rent":6700,"area":480,"vacancy":3.8,"floors":8,"units":34,"cost":1640,"landPrice":640,"grossMargin":19,"dscr":1.45,"capRate":3.7,"buildableArea":2678,"rentableRatio":73,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
-      {"id":"B003","name":"芝大門2-35","lat":35.6574,"lng":139.7548,"polygon":[[35.6572,139.7545],[35.6572,139.7551],[35.6576,139.7551],[35.6576,139.7545]],"zone":"商業地域","far":600,"score":73,"noiYield":3.8,"irr":9.8,"rent":6400,"area":420,"vacancy":4.2,"floors":7,"units":28,"cost":1410,"landPrice":610,"grossMargin":18,"dscr":1.38,"capRate":3.9,"buildableArea":2344,"rentableRatio":72,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
-      {"id":"B004","name":"芝大門2-37","lat":35.6566,"lng":139.7550,"polygon":[[35.6564,139.7547],[35.6564,139.7553],[35.6568,139.7553],[35.6568,139.7547]],"zone":"近隣商業地域","far":400,"score":68,"noiYield":3.6,"irr":9.0,"rent":6100,"area":380,"vacancy":4.8,"floors":5,"units":20,"cost":850,"landPrice":580,"grossMargin":17,"dscr":1.32,"capRate":4.0,"buildableArea":1413,"rentableRatio":71,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
-      {"id":"B005","name":"芝大門2-39","lat":35.6571,"lng":139.7560,"polygon":[[35.6569,139.7557],[35.6569,139.7563],[35.6573,139.7563],[35.6573,139.7557]],"zone":"商業地域","far":600,"score":64,"noiYield":3.5,"irr":8.5,"rent":5900,"area":350,"vacancy":5.2,"floors":7,"units":22,"cost":1180,"landPrice":560,"grossMargin":16,"dscr":1.28,"capRate":4.2,"buildableArea":1953,"rentableRatio":71,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
-      {"id":"B006","name":"芝大門2-41","lat":35.6575,"lng":139.7555,"polygon":[[35.6573,139.7552],[35.6573,139.7558],[35.6577,139.7558],[35.6577,139.7552]],"zone":"商業地域","far":600,"score":60,"noiYield":3.3,"irr":8.0,"rent":5800,"area":300,"vacancy":5.5,"floors":6,"units":18,"cost":1010,"landPrice":540,"grossMargin":15,"dscr":1.25,"capRate":4.3,"buildableArea":1674,"rentableRatio":70,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}}
+      {"id":"B01","name":"芝公園3-2","lat":35.6619,"lng":139.7522,"polygon":[[35.661991,139.75215],[35.661888,139.752094],[35.661823,139.752295],[35.661847,139.752308],[35.661777,139.752496],[35.661875,139.752539],[35.661995,139.752153]],"zone":"商業地域","far":700,"score":84,"noiYield":4.2,"irr":11.0,"rent":6800,"area":450,"vacancy":3.5,"floors":11,"units":38,"cost":1460,"landPrice":720,"grossMargin":20,"dscr":1.5,"capRate":3.6,"buildableArea":2930,"rentableRatio":74,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
+      {"id":"B02","name":"芝公園3-4","lat":35.6618,"lng":139.7521,"polygon":[[35.661879,139.752075],[35.661683,139.751979],[35.661613,139.752201],[35.661807,139.752308],[35.661875,139.752078]],"zone":"商業地域","far":700,"score":78,"noiYield":3.9,"irr":10.2,"rent":6500,"area":380,"vacancy":4.0,"floors":10,"units":30,"cost":1240,"landPrice":680,"grossMargin":19,"dscr":1.45,"capRate":3.8,"buildableArea":2480,"rentableRatio":73,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
+      {"id":"B03","name":"芝公園3-6","lat":35.6617,"lng":139.7524,"polygon":[[35.661803,139.752359],[35.661725,139.752325],[35.661694,139.752443],[35.661768,139.752477],[35.661807,139.752365]],"zone":"商業地域","far":600,"score":72,"noiYield":3.7,"irr":9.5,"rent":6300,"area":280,"vacancy":4.5,"floors":9,"units":22,"cost":780,"landPrice":650,"grossMargin":18,"dscr":1.4,"capRate":3.9,"buildableArea":1560,"rentableRatio":72,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
+      {"id":"B04","name":"芝公園3-8","lat":35.6616,"lng":139.7523,"polygon":[[35.661705,139.752284],[35.661585,139.752228],[35.661537,139.752389],[35.661672,139.752445],[35.661729,139.752292]],"zone":"商業地域","far":600,"score":70,"noiYield":3.6,"irr":9.2,"rent":6200,"area":320,"vacancy":4.5,"floors":8,"units":24,"cost":890,"landPrice":640,"grossMargin":17,"dscr":1.38,"capRate":4.0,"buildableArea":1790,"rentableRatio":72,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
+      {"id":"B05","name":"芝公園3-10","lat":35.6614,"lng":139.7520,"polygon":[[35.66165,139.751981],[35.661546,139.75193],[35.661485,139.752054],[35.661241,139.751941],[35.661162,139.75219],[35.661522,139.752351],[35.661659,139.751979]],"zone":"商業地域","far":700,"score":76,"noiYield":3.8,"irr":10.0,"rent":6400,"area":580,"vacancy":4.0,"floors":10,"units":42,"cost":1890,"landPrice":660,"grossMargin":18,"dscr":1.42,"capRate":3.9,"buildableArea":3780,"rentableRatio":73,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
+      {"id":"B06","name":"芝公園3-12","lat":35.6614,"lng":139.7519,"polygon":[[35.661522,139.751901],[35.661302,139.751804],[35.661252,139.751922],[35.661485,139.752038],[35.661515,139.751917]],"zone":"商業地域","far":600,"score":65,"noiYield":3.5,"irr":8.8,"rent":6100,"area":300,"vacancy":5.0,"floors":8,"units":20,"cost":840,"landPrice":620,"grossMargin":17,"dscr":1.35,"capRate":4.1,"buildableArea":1670,"rentableRatio":71,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}}
     ]
   }
 ];
@@ -1802,48 +1803,48 @@ function showAcquisitionPanel(id) {
           </div>
         </div>
         <div style="display:flex;gap:10px;padding:12px;background:#f7f8fa;border-radius:0 0 8px 8px;margin-bottom:4px">
-          <!-- Card 1: Recommended -->
-          <div class="alt-card" style="flex:1;border:2px solid #0067B3;margin-bottom:0;animation:card-nudge 2s ease-in-out infinite, pulse-border 2s ease-in-out infinite;position:relative;border-radius:8px;overflow:visible">
-            <span style="position:absolute;top:-8px;right:8px;background:#c0392b;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px">推奨</span>
-            <div style="background:#E8F2FB;padding:10px 12px;border-radius:6px 6px 0 0;margin:-12px -12px 10px">
-              <strong style="font-size:13px;display:block">芝大門二丁目北</strong>
-            </div>
-            <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px">
-              <div style="font-size:22px;font-weight:700;color:#0067B3">88</div>
-              <div style="font-size:11px;color:#888">NOI 8.2%</div>
-            </div>
-            <div style="background:#EAF3DE;border-radius:4px;padding:6px 8px;font-size:11px;color:#333;margin-bottom:10px;line-height:1.5">権利整理が容易で大規模開発の余地あり</div>
-            <button class="alt-explore-btn" onclick="exploreAlternativeArea('alt1')" style="height:32px;font-size:12px;background:#0067B3;color:#fff;border:none;border-radius:6px;width:100%;cursor:pointer;font-family:inherit">このエリアを調査</button>
-          </div>
-          <!-- Card 2 -->
+          <!-- Card 1: 新橋四丁目 (候補) -->
           <div class="alt-card" style="flex:1;border:2px solid #e0e0e0;margin-bottom:0;opacity:0.85;border-radius:8px;overflow:visible;position:relative">
             <div style="background:#f4f6f9;padding:10px 12px;border-radius:6px 6px 0 0;margin:-12px -12px 10px;display:flex;align-items:center;justify-content:space-between">
-              <strong style="font-size:13px;display:block">芝大門二丁目南</strong>
+              <strong style="font-size:13px;display:block">新橋四丁目</strong>
               <span style="font-size:10px;color:#888;background:#e0e0e0;padding:1px 6px;border-radius:3px">候補</span>
             </div>
             <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px">
-              <div style="font-size:22px;font-weight:700;color:#0067B3">82</div>
-              <div style="font-size:11px;color:#888">NOI 7.5%</div>
+              <div style="font-size:22px;font-weight:700;color:#0067B3">80</div>
+              <div style="font-size:11px;color:#888">NOI 4.0%</div>
             </div>
-            <div style="background:#E6F1FB;border-radius:4px;padding:6px 8px;font-size:11px;color:#333;margin-bottom:10px;line-height:1.5">駅近で高い賃料水準が期待</div>
-            <button class="alt-explore-btn" onclick="showToast('詳細データを準備中です')" style="height:32px;font-size:12px;background:transparent;color:#0067B3;border:1px solid #0067B3;border-radius:6px;width:100%;cursor:pointer;font-family:inherit">このエリアを調査</button>
+            <div style="background:#E6F1FB;border-radius:4px;padding:6px 8px;font-size:11px;color:#333;margin-bottom:10px;line-height:1.5">商業地域で高容積率の開発が可能</div>
+            <button class="alt-explore-btn" onclick="exploreAlternativeArea('alt1')" style="height:32px;font-size:12px;background:transparent;color:#0067B3;border:1px solid #0067B3;border-radius:6px;width:100%;cursor:pointer;font-family:inherit">このエリアを調査</button>
           </div>
-          <!-- Card 3 -->
-          <div class="alt-card" style="flex:1;border:2px solid #e0e0e0;margin-bottom:0;opacity:0.85;border-radius:8px;overflow:visible;position:relative">
+          <!-- Card 2: 芝公園三丁目 (推奨) -->
+          <div class="alt-card" style="flex:1;border:2px solid #0067B3;margin-bottom:0;animation:card-nudge 2s ease-in-out infinite, pulse-border 2s ease-in-out infinite;position:relative;border-radius:8px;overflow:visible">
+            <span style="position:absolute;top:-8px;right:8px;background:#c0392b;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px">推奨</span>
+            <div style="background:#E8F2FB;padding:10px 12px;border-radius:6px 6px 0 0;margin:-12px -12px 10px">
+              <strong style="font-size:13px;display:block">芝公園三丁目</strong>
+            </div>
+            <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px">
+              <div style="font-size:22px;font-weight:700;color:#0067B3">84</div>
+              <div style="font-size:11px;color:#888">NOI 4.2%</div>
+            </div>
+            <div style="background:#EAF3DE;border-radius:4px;padding:6px 8px;font-size:11px;color:#333;margin-bottom:10px;line-height:1.5">権利整理が容易で大規模開発の余地あり</div>
+            <button class="alt-explore-btn" onclick="exploreAlternativeArea('alt2')" style="height:32px;font-size:12px;background:#0067B3;color:#fff;border:none;border-radius:6px;width:100%;cursor:pointer;font-family:inherit">このエリアを調査</button>
+          </div>
+          <!-- Card 3: 浜松町二丁目 (候補) -->
+          <div class="alt-card" style="flex:1;border:2px solid #e0e0e0;margin-bottom:0;opacity:0.7;border-radius:8px;overflow:visible;position:relative">
             <div style="background:#f4f6f9;padding:10px 12px;border-radius:6px 6px 0 0;margin:-12px -12px 10px;display:flex;align-items:center;justify-content:space-between">
-              <strong style="font-size:13px;display:block">新橋五丁目</strong>
+              <strong style="font-size:13px;display:block">浜松町二丁目</strong>
               <span style="font-size:10px;color:#888;background:#e0e0e0;padding:1px 6px;border-radius:3px">候補</span>
             </div>
             <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px">
               <div style="font-size:22px;font-weight:700;color:#0067B3">76</div>
-              <div style="font-size:11px;color:#888">NOI 6.8%</div>
+              <div style="font-size:11px;color:#888">NOI 3.8%</div>
             </div>
             <div style="background:#FAEEDA;border-radius:4px;padding:6px 8px;font-size:11px;color:#333;margin-bottom:10px;line-height:1.5">将来価値の上昇余地あり</div>
             <button class="alt-explore-btn" onclick="showToast('詳細データを準備中です')" style="height:32px;font-size:12px;background:transparent;color:#0067B3;border:1px solid #0067B3;border-radius:6px;width:100%;cursor:pointer;font-family:inherit">このエリアを調査</button>
           </div>
         </div>
         <div style="text-align:center;margin-bottom:12px">
-          <button style="background:none;border:none;color:#0067B3;font-size:12px;cursor:pointer;font-family:inherit;font-weight:500">... 他の候補エリアを表示</button>
+          <button style="background:none;border:none;color:#0067B3;font-size:12px;cursor:pointer;font-family:inherit;font-weight:500">...他の候補エリアを表示</button>
         </div>
       </div>
 
