@@ -649,7 +649,7 @@ async function onAreaSelected() {
 
   if (parcelsData.length === 0) {
     try {
-      const resp = await fetch('data/parcels.json');
+      const resp = await fetch('data/parcels.json?v=' + Date.now());
       parcelsData = await resp.json();
     } catch (e) {
       console.warn('Fetch failed, using inline data');
