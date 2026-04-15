@@ -71,51 +71,75 @@ const slideTexts = [
   '地権者分析からアタックリスト生成まで、一気通貫で支援'
 ];
 let slideIndex = 0;
+const preloadedImages = [];
 
 function startGifSlideshow() {
-  const display = document.getElementById('gif-display');
-  const textEl = document.getElementById('gif-text');
+  var display = document.getElementById('gif-display');
+  var textEl = document.getElementById('gif-text');
 
-  function showSlide(idx) {
-    // Fade out
-    display.style.opacity = '0';
-    textEl.classList.remove('fade-in');
-    textEl.classList.add('fade-out');
+  var loadedCount = 0;
+  slideImages.forEach(function(src, i) {
+    var img = new Image();
+    img.onload = function() {
+      preloadedImages[i] = img;
+      loadedCount++;
+      if (loadedCount === 1) showFirstSlide();
+    };
+    img.onerror = function() {
+      preloadedImages[i] = null;
+      loadedCount++;
+      if (loadedCount === 1) showFirstSlide();
+    };
+    img.src = src;
+  });
 
-    setTimeout(() => {
-      // Try loading image
-      const img = new Image();
-      img.onload = function() {
-        display.innerHTML = '';
-        img.style.width = '100%';
-        img.style.height = '100%';
-        img.style.objectFit = 'cover';
-        display.appendChild(img);
-      };
-      img.onerror = function() {
-        const fallbacks = [
-          { bg: 'linear-gradient(135deg, #e8f0fe 0%, #c5d9f7 100%)', num: '01', title: 'エリア一括評価' },
-          { bg: 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)', num: '02', title: 'インパクト推計' },
-          { bg: 'linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%)', num: '03', title: 'ターゲット候補選定' }
-        ];
-        const fb = fallbacks[idx];
-        display.innerHTML = `<div class="slide-fallback" style="background:${fb.bg}"><div class="slide-number">${fb.num}</div><div class="slide-title">${fb.title}</div></div>`;
-      };
-      img.src = slideImages[idx];
-
-      textEl.textContent = slideTexts[idx];
-      // Fade in
-      display.style.opacity = '1';
-      textEl.classList.remove('fade-out');
-      textEl.classList.add('fade-in');
-    }, 1000);
+  function showFirstSlide() {
+    displaySlide(0, false);
+    gifInterval = setInterval(function() {
+      slideIndex = (slideIndex + 1) % slideImages.length;
+      displaySlide(slideIndex, true);
+    }, 6000);
   }
 
-  showSlide(0);
-  gifInterval = setInterval(() => {
-    slideIndex = (slideIndex + 1) % slideImages.length;
-    showSlide(slideIndex);
-  }, 6000);
+  function displaySlide(idx, animate) {
+    if (animate) {
+      display.style.transition = 'opacity 0.5s ease';
+      textEl.style.transition = 'opacity 0.5s ease';
+      display.style.opacity = '0';
+      textEl.style.opacity = '0';
+      setTimeout(function() {
+        renderSlide(idx);
+        textEl.textContent = slideTexts[idx];
+        display.style.opacity = '1';
+        textEl.style.opacity = '1';
+      }, 500);
+    } else {
+      display.style.opacity = '1';
+      textEl.style.opacity = '1';
+      renderSlide(idx);
+      textEl.textContent = slideTexts[idx];
+    }
+  }
+
+  function renderSlide(idx) {
+    var cached = preloadedImages[idx];
+    if (cached) {
+      display.innerHTML = '';
+      var imgEl = cached.cloneNode();
+      imgEl.style.width = '100%';
+      imgEl.style.height = '100%';
+      imgEl.style.objectFit = 'cover';
+      display.appendChild(imgEl);
+    } else {
+      var fallbacks = [
+        { bg: 'linear-gradient(135deg, #e8f0fe 0%, #c5d9f7 100%)', num: '01', title: 'エリア一括評価' },
+        { bg: 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)', num: '02', title: 'インパクト推計' },
+        { bg: 'linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%)', num: '03', title: 'ターゲット候補選定' }
+      ];
+      var fb = fallbacks[idx];
+      display.innerHTML = '<div class="slide-fallback" style="background:' + fb.bg + '"><div class="slide-number">' + fb.num + '</div><div class="slide-title">' + fb.title + '</div></div>';
+    }
+  }
 }
 
 // ===== Task 19: Comparison tab switch =====
