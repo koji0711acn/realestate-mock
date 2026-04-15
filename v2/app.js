@@ -502,27 +502,30 @@ function advanceGuide(step) {
       }, 500);
       break;
     }
-    case 5: { // Change facility type dropdown
+    case 5: { // Select facility type card
       clearGuideUI();
       guideStep = 5;
-      const sel = document.getElementById('scenario-facility-type');
-      if (sel) {
-        showGuidePulse(sel);
-        applyGuideShake(sel);
-        showGuideBubble(sel, '5. 施設タイプを変更してシナリオを調整できます');
-      }
+      setTimeout(function() {
+        if (guideSkipped) return;
+        var recCard = document.querySelector('.facility-card[data-type="complex"]');
+        if (recCard) {
+          showGuidePulse(recCard);
+          applyGuideShake(recCard);
+          showGuideBubble(recCard, '5. 施設タイプを選択してください');
+        }
+      }, 500);
       break;
     }
     case 6: { // Click confirm button
       clearGuideUI();
       guideStep = 6;
-      setTimeout(() => {
+      setTimeout(function() {
         if (guideSkipped) return;
-        const btn = document.querySelector('.scenario-confirm-btn');
+        var btn = document.getElementById('facility-confirm-btn');
         if (btn) {
           showGuidePulse(btn);
           applyGuideShake(btn);
-          showGuideBubble(btn, '6. シナリオを確定して分析結果を表示します');
+          showGuideBubble(btn, '6. 分析を開始すると、ボリュームチェック・事業収支・インパクト推計が一括実行されます');
         }
       }, 1000);
       break;
@@ -989,6 +992,13 @@ function showScenarioPanel(id) {
 
   setPanelWidth(420);
 
+  // Grey out all parcels
+  Object.keys(parcelLayers).forEach(function(pid) {
+    parcelLayers[pid].setStyle({ fillColor: '#cccccc', fillOpacity: 0.2, weight: 1, color: '#aaaaaa' });
+  });
+  // Hide score tooltips
+  Object.values(parcelTooltips).forEach(function(t) { t.setOpacity(0); });
+
   var cardsHTML = '';
   developmentPlans.forEach(function(plan) {
     var isRec = plan.recommended;
@@ -1038,31 +1048,94 @@ function showScenarioPanel(id) {
 }
 
 function highlightPlanParcels(planId) {
+  // First grey all
+  Object.keys(parcelLayers).forEach(function(pid) {
+    parcelLayers[pid].setStyle({ fillColor: '#cccccc', fillOpacity: 0.2, weight: 1, color: '#aaaaaa' });
+  });
+  // Highlight plan parcels in red
   var plan = developmentPlans.find(function(p) { return p.id === planId; });
   if (!plan) return;
   plan.parcels.forEach(function(pid) {
     if (parcelLayers[pid]) {
-      parcelLayers[pid].setStyle({ fillColor: '#0067B3', fillOpacity: 0.5, weight: 3, color: '#0067B3' });
+      parcelLayers[pid].setStyle({ fillColor: '#d94f43', fillOpacity: 0.5, weight: 3, color: '#d94f43' });
     }
   });
 }
 
 function clearPlanHighlight() {
+  // Return to grey state (not original colors)
   Object.keys(parcelLayers).forEach(function(pid) {
-    var p = parcelsData.find(function(d) { return d.id === pid; });
-    if (p) {
-      var grade = getGrade(p.score);
-      parcelLayers[pid].setStyle({ fillColor: gradeFill(grade), fillOpacity: 0.6, weight: 2, color: gradeColor(grade) });
-    }
+    parcelLayers[pid].setStyle({ fillColor: '#cccccc', fillOpacity: 0.2, weight: 1, color: '#aaaaaa' });
   });
 }
 
 function confirmScenario(parcelId, plan) {
   window.selectedPlan = plan;
-  var facilityType = 'complex';
-  var floorArea = plan ? plan.floorArea : 20000;
-  showAnalysisResults(parcelId, facilityType, floorArea);
-  if (guideStep === 5 || guideStep === 6) setTimeout(function() { advanceGuide(7); }, 500);
+  currentScreen = 4;
+
+  // Lock plan parcels to red, others grey
+  Object.keys(parcelLayers).forEach(function(pid) {
+    parcelLayers[pid].setStyle({ fillColor: '#cccccc', fillOpacity: 0.2, weight: 1, color: '#aaaaaa' });
+  });
+  plan.parcels.forEach(function(pid) {
+    if (parcelLayers[pid]) {
+      parcelLayers[pid].setStyle({ fillColor: '#d94f43', fillOpacity: 0.6, weight: 3, color: '#d94f43' });
+    }
+  });
+
+  var panel = document.getElementById('side-panel');
+  panel.innerHTML =
+    '<div style="padding:16px">' +
+      '<button onclick="showScenarioPanel(\'' + parcelId + '\')" style="background:none;border:none;color:#0067B3;cursor:pointer;font-size:12px;padding:0;margin:0 0 12px;font-family:inherit">\u2190 プラン選択に戻る</button>' +
+      '<p style="font-size:11px;color:#999;margin:0 0 4px">' + plan.name + '（' + plan.parcels.join(', ') + '）</p>' +
+      '<p style="font-size:15px;font-weight:500;color:#333;margin:0 0 6px">施設タイプの選択</p>' +
+      '<p style="font-size:12px;color:#666;line-height:1.6;margin:0 0 14px">合筆後の敷地面積 ' + plan.siteArea.toLocaleString() + 'm\u00B2 に対して、建設する施設の用途を選択してください。用途に応じてボリュームチェックと事業収支が自動計算されます。</p>' +
+      '<div style="display:flex;flex-direction:column;gap:6px;margin:0 0 16px">' +
+        '<div class="facility-card" data-type="office" style="border:1px solid #e0e0e0;border-radius:8px;padding:12px;cursor:pointer">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center">' +
+            '<span style="font-size:13px;font-weight:500;color:#333">オフィスビル</span>' +
+            '<span style="font-size:11px;color:#999">延床 ' + plan.floorArea.toLocaleString() + 'm\u00B2 / ' + plan.floors + '階</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="facility-card" data-type="complex" style="border:2px solid #0067B3;border-radius:8px;padding:12px;cursor:pointer;position:relative">' +
+          '<div style="position:absolute;top:-1px;right:-1px;background:#0067B3;color:#fff;font-size:9px;padding:2px 8px;border-radius:0 8px 0 8px">推奨</div>' +
+          '<div style="display:flex;justify-content:space-between;align-items:center">' +
+            '<span style="font-size:13px;font-weight:500;color:#333">複合施設（商業＋オフィス）</span>' +
+            '<span style="font-size:11px;color:#0C447C">延床 ' + plan.floorArea.toLocaleString() + 'm\u00B2 / ' + plan.floors + '階</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="facility-card" data-type="tower-mansion" style="border:1px solid #e0e0e0;border-radius:8px;padding:12px;cursor:pointer">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center">' +
+            '<span style="font-size:13px;font-weight:500;color:#333">タワーマンション</span>' +
+            '<span style="font-size:11px;color:#999">延床 ' + plan.floorArea.toLocaleString() + 'm\u00B2 / ' + Math.round(plan.floors * 1.3) + '階</span>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div id="facility-confirm-btn" style="background:#0067B3;color:#fff;text-align:center;padding:12px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;opacity:0.4;pointer-events:none">施設タイプを選択してください</div>' +
+    '</div>';
+
+  var selectedFacility = null;
+  panel.querySelectorAll('.facility-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+      selectedFacility = this.dataset.type;
+      panel.querySelectorAll('.facility-card').forEach(function(c) {
+        c.style.borderColor = '#e0e0e0';
+        c.style.borderWidth = '1px';
+      });
+      this.style.borderColor = '#0067B3';
+      this.style.borderWidth = '2px';
+      var btn = document.getElementById('facility-confirm-btn');
+      btn.style.opacity = '1';
+      btn.style.pointerEvents = 'auto';
+      btn.textContent = '分析を開始する';
+      btn.onclick = function() {
+        showAnalysisResults(parcelId, selectedFacility, plan.floorArea);
+        if (guideStep === 6) setTimeout(function() { advanceGuide(7); }, 500);
+      };
+    });
+  });
+
+  if (guideStep === 5) setTimeout(function() { advanceGuide(6); }, 500);
 }
 
 // ===== Three.js 3D Building Renderer =====
@@ -1772,6 +1845,27 @@ function showAcquisitionPanel(id) {
         <div style="text-align:center;margin-bottom:12px">
           <button style="background:none;border:none;color:#0067B3;font-size:12px;cursor:pointer;font-family:inherit;font-weight:500">... 他の候補エリアを表示</button>
         </div>
+      </div>
+
+      <div style="background:#FCEBEB;border:1px solid #E24B4A;border-radius:8px;padding:14px 16px;margin:16px 0">
+        <div style="display:flex;align-items:center;gap:8px;margin:0 0 8px">
+          <div style="width:20px;height:20px;border-radius:50%;background:#E24B4A;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0">!</div>
+          <span style="font-size:13px;font-weight:500;color:#791F1F">用地取得リスクが検出されました</span>
+        </div>
+        <p style="font-size:12px;color:#A32D2D;line-height:1.6;margin:0 0 10px">P03（芝大門1-3）の登記情報を分析した結果、以下のリスクが特定されました。</p>
+        <div style="background:#fff;border-radius:6px;padding:10px 12px;margin:0 0 10px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin:0 0 6px"><span style="color:#791F1F">所有形態</span><span style="font-weight:500">共有（3名）</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin:0 0 6px"><span style="color:#791F1F">抵当権</span><span style="font-weight:500">あり（2件、異なる債権者）</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:#791F1F">推定取得難易度</span><span style="color:#E24B4A;font-weight:500">高（全権利者の合意に12〜18ヶ月）</span></div>
+        </div>
+        <p style="font-size:11px;color:#A32D2D;line-height:1.5;margin:0">この筆を含むプランの実行には、権利整理に相当の期間を要する可能性があります。</p>
+      </div>
+      <div style="background:#E6F1FB;border:1px solid #0067B3;border-radius:8px;padding:14px 16px;margin:0 0 16px">
+        <div style="display:flex;align-items:center;gap:8px;margin:0 0 8px">
+          <div style="width:20px;height:20px;border-radius:50%;background:#0067B3;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0">AI</div>
+          <span style="font-size:13px;font-weight:500;color:#0C447C">代替候補エリアが見つかりました</span>
+        </div>
+        <p style="font-size:12px;color:#0C447C;line-height:1.6;margin:0">分析対象エリアの周辺500m圏内で、同等の開発ポテンシャルを持ち、かつ権利整理が比較的容易な候補地を3件特定しました。</p>
       </div>
 
       <div class="acq-section">
