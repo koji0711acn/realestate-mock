@@ -1,110 +1,950 @@
 [
   {
-    "id": "P001", "name": "芝大門1-1", "lat": 35.65915, "lng": 139.75420,
-    "polygon": [[35.65930,139.75405],[35.65930,139.75435],[35.65900,139.75435],[35.65900,139.75405]],
-    "zone": "商業地域", "far": 800, "score": 92, "rent": 7200, "area": 620, "vacancy": 2.1,
-    "floors": 12, "units": 54, "cost": 2254, "landPrice": 780,
-    "noiYield": 4.2, "irr": 12.5, "grossMargin": 22, "dscr": 1.6, "capRate": 3.5,
-    "landUnitPrice": 32.2, "buildableArea": 4613, "rentableRatio": 76,
-    "risks": {"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}
+    "id": "P01",
+    "name": "芝大門1-2",
+    "zone": "商業地域",
+    "far": 800,
+    "score": 92,
+    "area": 680,
+    "rent": 7200,
+    "vacancy": 3.0,
+    "floors": 14,
+    "units": 56,
+    "cost": 2450,
+    "landPrice": 780,
+    "noiYield": 4.2,
+    "irr": 12.5,
+    "grossMargin": 22,
+    "dscr": 1.6,
+    "capRate": 3.5,
+    "buildableArea": 5050,
+    "rentableRatio": 76,
+    "polygon": [
+      [
+        35.65682,
+        139.75295
+      ],
+      [
+        35.65681,
+        139.75328
+      ],
+      [
+        35.65665,
+        139.75327
+      ],
+      [
+        35.65665,
+        139.7531
+      ],
+      [
+        35.65672,
+        139.75309
+      ],
+      [
+        35.65673,
+        139.75294
+      ]
+    ],
+    "risks": {
+      "flood": "低",
+      "soil": "なし",
+      "cultural": "なし",
+      "liquefaction": "低",
+      "road": "適合",
+      "adjacentUse": "問題なし"
+    }
   },
   {
-    "id": "P002", "name": "芝大門1-3", "lat": 35.65950, "lng": 139.75480,
-    "polygon": [[35.65965,139.75465],[35.65965,139.75495],[35.65935,139.75495],[35.65935,139.75465]],
-    "zone": "商業地域", "far": 700, "score": 85, "rent": 6800, "area": 530, "vacancy": 3.0,
-    "floors": 10, "units": 46, "cost": 1778, "landPrice": 720,
-    "noiYield": 4.0, "irr": 11.8, "grossMargin": 20, "dscr": 1.5, "capRate": 3.6,
-    "landUnitPrice": 33.9, "buildableArea": 3450, "rentableRatio": 75,
-    "risks": {"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}
+    "id": "P02",
+    "name": "芝大門1-4",
+    "zone": "商業地域",
+    "far": 700,
+    "score": 85,
+    "area": 520,
+    "rent": 6800,
+    "vacancy": 3.5,
+    "floors": 11,
+    "units": 42,
+    "cost": 1780,
+    "landPrice": 720,
+    "noiYield": 4.0,
+    "irr": 11.0,
+    "grossMargin": 20,
+    "dscr": 1.5,
+    "capRate": 3.7,
+    "buildableArea": 3390,
+    "rentableRatio": 74,
+    "polygon": [
+      [
+        35.65681,
+        139.75332
+      ],
+      [
+        35.6568,
+        139.75362
+      ],
+      [
+        35.65664,
+        139.75361
+      ],
+      [
+        35.65665,
+        139.75331
+      ]
+    ],
+    "risks": {
+      "flood": "低",
+      "soil": "なし",
+      "cultural": "なし",
+      "liquefaction": "低",
+      "road": "適合",
+      "adjacentUse": "問題なし"
+    }
   },
   {
-    "id": "P003", "name": "芝大門1-5", "lat": 35.65990, "lng": 139.75430,
-    "polygon": [[35.66010,139.75415],[35.66010,139.75450],[35.65975,139.75450],[35.65975,139.75415]],
-    "zone": "商業地域", "far": 600, "score": 81, "rent": 6500, "area": 480, "vacancy": 3.5,
-    "floors": 8, "units": 35, "cost": 1380, "landPrice": 700,
-    "noiYield": 3.9, "irr": 10.5, "grossMargin": 19, "dscr": 1.45, "capRate": 3.8,
-    "landUnitPrice": 38.5, "buildableArea": 2678, "rentableRatio": 74,
-    "risks": {"flood":"低","soil":"なし","cultural":"包蔵地隣接","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}
+    "id": "P03",
+    "name": "芝大門1-6",
+    "zone": "商業地域",
+    "far": 700,
+    "score": 81,
+    "area": 450,
+    "rent": 6600,
+    "vacancy": 4.0,
+    "floors": 10,
+    "units": 35,
+    "cost": 1540,
+    "landPrice": 680,
+    "noiYield": 3.9,
+    "irr": 10.5,
+    "grossMargin": 19,
+    "dscr": 1.45,
+    "capRate": 3.8,
+    "buildableArea": 2930,
+    "rentableRatio": 73,
+    "polygon": [
+      [
+        35.65661,
+        139.75296
+      ],
+      [
+        35.6566,
+        139.75327
+      ],
+      [
+        35.6564,
+        139.75325
+      ],
+      [
+        35.65641,
+        139.75298
+      ]
+    ],
+    "risks": {
+      "flood": "低",
+      "soil": "なし",
+      "cultural": "なし",
+      "liquefaction": "低",
+      "road": "適合",
+      "adjacentUse": "問題なし"
+    }
   },
   {
-    "id": "P004", "name": "芝大門1-7", "lat": 35.66020, "lng": 139.75510,
-    "polygon": [[35.66040,139.75495],[35.66040,139.75530],[35.66005,139.75530],[35.66005,139.75495]],
-    "zone": "近隣商業地域", "far": 400, "score": 74, "rent": 6200, "area": 750, "vacancy": 4.2,
-    "floors": 6, "units": 25, "cost": 1439, "landPrice": 650,
-    "noiYield": 3.8, "irr": 9.8, "grossMargin": 18, "dscr": 1.4, "capRate": 4.0,
-    "landUnitPrice": 53.6, "buildableArea": 2790, "rentableRatio": 73,
-    "risks": {"flood":"中","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}
+    "id": "P04",
+    "name": "芝大門1-8",
+    "zone": "商業地域",
+    "far": 600,
+    "score": 74,
+    "area": 580,
+    "rent": 6400,
+    "vacancy": 4.5,
+    "floors": 9,
+    "units": 38,
+    "cost": 1650,
+    "landPrice": 650,
+    "noiYield": 3.7,
+    "irr": 9.8,
+    "grossMargin": 18,
+    "dscr": 1.4,
+    "capRate": 4.0,
+    "buildableArea": 3240,
+    "rentableRatio": 72,
+    "polygon": [
+      [
+        35.6566,
+        139.75331
+      ],
+      [
+        35.65659,
+        139.75361
+      ],
+      [
+        35.65639,
+        139.75359
+      ],
+      [
+        35.6564,
+        139.75329
+      ]
+    ],
+    "risks": {
+      "flood": "低",
+      "soil": "なし",
+      "cultural": "包蔵地隣接",
+      "liquefaction": "低",
+      "road": "適合",
+      "adjacentUse": "問題なし"
+    }
   },
   {
-    "id": "P005", "name": "芝大門1-9", "lat": 35.65910, "lng": 139.75490,
-    "polygon": [[35.65925,139.75478],[35.65925,139.75505],[35.65898,139.75505],[35.65898,139.75478]],
-    "zone": "商業地域", "far": 600, "score": 71, "rent": 6400, "area": 350, "vacancy": 4.8,
-    "floors": 8, "units": 26, "cost": 1006, "landPrice": 680,
-    "noiYield": 3.7, "irr": 9.2, "grossMargin": 17, "dscr": 1.35, "capRate": 4.0,
-    "landUnitPrice": 37.4, "buildableArea": 1953, "rentableRatio": 73,
-    "risks": {"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}
+    "id": "P05",
+    "name": "芝大門1-10",
+    "zone": "商業地域",
+    "far": 600,
+    "score": 71,
+    "area": 380,
+    "rent": 6200,
+    "vacancy": 4.0,
+    "floors": 8,
+    "units": 28,
+    "cost": 1120,
+    "landPrice": 640,
+    "noiYield": 3.6,
+    "irr": 9.5,
+    "grossMargin": 17,
+    "dscr": 1.38,
+    "capRate": 4.1,
+    "buildableArea": 2120,
+    "rentableRatio": 72,
+    "polygon": [
+      [
+        35.65636,
+        139.75299
+      ],
+      [
+        35.65635,
+        139.75325
+      ],
+      [
+        35.65618,
+        139.75323
+      ],
+      [
+        35.65619,
+        139.75301
+      ]
+    ],
+    "risks": {
+      "flood": "低",
+      "soil": "なし",
+      "cultural": "なし",
+      "liquefaction": "低",
+      "road": "適合",
+      "adjacentUse": "問題なし"
+    }
   },
   {
-    "id": "P006", "name": "芝大門1-11", "lat": 35.65970, "lng": 139.75540,
-    "polygon": [[35.65985,139.75525],[35.65985,139.75555],[35.65955,139.75555],[35.65955,139.75525]],
-    "zone": "商業地域", "far": 700, "score": 67, "rent": 6100, "area": 420, "vacancy": 5.1,
-    "floors": 9, "units": 37, "cost": 1410, "landPrice": 660,
-    "noiYield": 3.6, "irr": 8.8, "grossMargin": 17, "dscr": 1.3, "capRate": 4.1,
-    "landUnitPrice": 31.1, "buildableArea": 2733, "rentableRatio": 72,
-    "risks": {"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}
+    "id": "P06",
+    "name": "芝大門1-12",
+    "zone": "商業地域",
+    "far": 700,
+    "score": 78,
+    "area": 550,
+    "rent": 6900,
+    "vacancy": 3.5,
+    "floors": 11,
+    "units": 44,
+    "cost": 1890,
+    "landPrice": 740,
+    "noiYield": 4.1,
+    "irr": 11.2,
+    "grossMargin": 20,
+    "dscr": 1.5,
+    "capRate": 3.6,
+    "buildableArea": 3590,
+    "rentableRatio": 74,
+    "polygon": [
+      [
+        35.65679,
+        139.7537
+      ],
+      [
+        35.65677,
+        139.75405
+      ],
+      [
+        35.65662,
+        139.75404
+      ],
+      [
+        35.65664,
+        139.75369
+      ]
+    ],
+    "risks": {
+      "flood": "低",
+      "soil": "なし",
+      "cultural": "なし",
+      "liquefaction": "低",
+      "road": "適合",
+      "adjacentUse": "問題なし"
+    }
   },
   {
-    "id": "P007", "name": "芝大門1-13", "lat": 35.66000, "lng": 139.75390,
-    "polygon": [[35.66015,139.75380],[35.66015,139.75405],[35.65988,139.75405],[35.65988,139.75380]],
-    "zone": "近隣商業地域", "far": 400, "score": 62, "rent": 5900, "area": 380, "vacancy": 5.5,
-    "floors": 5, "units": 17, "cost": 729, "landPrice": 620,
-    "noiYield": 3.6, "irr": 8.5, "grossMargin": 16, "dscr": 1.3, "capRate": 4.2,
-    "landUnitPrice": 51.2, "buildableArea": 1414, "rentableRatio": 72,
-    "risks": {"flood":"低","soil":"要調査","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}
+    "id": "P07",
+    "name": "芝大門1-14",
+    "zone": "商業地域",
+    "far": 600,
+    "score": 67,
+    "area": 420,
+    "rent": 6500,
+    "vacancy": 4.5,
+    "floors": 9,
+    "units": 32,
+    "cost": 1230,
+    "landPrice": 680,
+    "noiYield": 3.8,
+    "irr": 10.0,
+    "grossMargin": 18,
+    "dscr": 1.42,
+    "capRate": 3.9,
+    "buildableArea": 2350,
+    "rentableRatio": 72,
+    "polygon": [
+      [
+        35.65677,
+        139.75409
+      ],
+      [
+        35.65675,
+        139.75442
+      ],
+      [
+        35.65661,
+        139.7544
+      ],
+      [
+        35.65662,
+        139.75408
+      ]
+    ],
+    "risks": {
+      "flood": "低",
+      "soil": "要調査",
+      "cultural": "なし",
+      "liquefaction": "低",
+      "road": "適合",
+      "adjacentUse": "問題なし"
+    }
   },
   {
-    "id": "P008", "name": "芝大門1-15", "lat": 35.65895, "lng": 139.75450,
-    "polygon": [[35.65910,139.75438],[35.65910,139.75465],[35.65880,139.75465],[35.65880,139.75438]],
-    "zone": "準工業地域", "far": 300, "score": 53, "rent": 5700, "area": 450, "vacancy": 6.8,
-    "floors": 4, "units": 12, "cost": 614, "landPrice": 560,
-    "noiYield": 3.5, "irr": 7.8, "grossMargin": 16, "dscr": 1.25, "capRate": 4.3,
-    "landUnitPrice": 61.6, "buildableArea": 1256, "rentableRatio": 71,
-    "risks": {"flood":"中","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}
+    "id": "P08",
+    "name": "芝大門1-16",
+    "zone": "商業地域",
+    "far": 600,
+    "score": 62,
+    "area": 480,
+    "rent": 6300,
+    "vacancy": 5.0,
+    "floors": 9,
+    "units": 35,
+    "cost": 1380,
+    "landPrice": 660,
+    "noiYield": 3.6,
+    "irr": 9.2,
+    "grossMargin": 17,
+    "dscr": 1.35,
+    "capRate": 4.0,
+    "buildableArea": 2680,
+    "rentableRatio": 72,
+    "polygon": [
+      [
+        35.65658,
+        139.7537
+      ],
+      [
+        35.65657,
+        139.75404
+      ],
+      [
+        35.6564,
+        139.75402
+      ],
+      [
+        35.65641,
+        139.75369
+      ]
+    ],
+    "risks": {
+      "flood": "中",
+      "soil": "なし",
+      "cultural": "なし",
+      "liquefaction": "低",
+      "road": "適合",
+      "adjacentUse": "問題なし"
+    }
   },
   {
-    "id": "P009", "name": "芝大門1-17", "lat": 35.66030, "lng": 139.75460,
-    "polygon": [[35.66045,139.75448],[35.66045,139.75475],[35.66018,139.75475],[35.66018,139.75448]],
-    "zone": "準工業地域", "far": 300, "score": 48, "rent": 5600, "area": 350, "vacancy": 7.2,
-    "floors": 4, "units": 9, "cost": 477, "landPrice": 540,
-    "noiYield": 3.5, "irr": 7.5, "grossMargin": 15, "dscr": 1.22, "capRate": 4.4,
-    "landUnitPrice": 59.4, "buildableArea": 977, "rentableRatio": 71,
-    "risks": {"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}
+    "id": "P09",
+    "name": "芝大門1-18",
+    "zone": "商業地域",
+    "far": 600,
+    "score": 58,
+    "area": 390,
+    "rent": 6100,
+    "vacancy": 5.0,
+    "floors": 8,
+    "units": 28,
+    "cost": 1100,
+    "landPrice": 640,
+    "noiYield": 3.5,
+    "irr": 8.8,
+    "grossMargin": 16,
+    "dscr": 1.32,
+    "capRate": 4.1,
+    "buildableArea": 2180,
+    "rentableRatio": 71,
+    "polygon": [
+      [
+        35.65657,
+        139.75408
+      ],
+      [
+        35.65655,
+        139.7544
+      ],
+      [
+        35.65639,
+        139.75438
+      ],
+      [
+        35.6564,
+        139.75406
+      ]
+    ],
+    "risks": {
+      "flood": "低",
+      "soil": "なし",
+      "cultural": "なし",
+      "liquefaction": "低",
+      "road": "適合",
+      "adjacentUse": "問題なし"
+    }
   },
   {
-    "id": "P010", "name": "芝大門1-19", "lat": 35.65940, "lng": 139.75560,
-    "polygon": [[35.65955,139.75548],[35.65955,139.75575],[35.65928,139.75575],[35.65928,139.75548]],
-    "zone": "商業地域", "far": 600, "score": 44, "rent": 5800, "area": 280, "vacancy": 7.8,
-    "floors": 7, "units": 18, "cost": 806, "landPrice": 600,
-    "noiYield": 3.5, "irr": 7.2, "grossMargin": 15, "dscr": 1.2, "capRate": 4.3,
-    "landUnitPrice": 33.0, "buildableArea": 1562, "rentableRatio": 70,
-    "risks": {"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}
+    "id": "P10",
+    "name": "芝大門1-20",
+    "zone": "近隣商業地域",
+    "far": 400,
+    "score": 53,
+    "area": 350,
+    "rent": 5800,
+    "vacancy": 5.5,
+    "floors": 7,
+    "units": 22,
+    "cost": 780,
+    "landPrice": 600,
+    "noiYield": 3.4,
+    "irr": 8.5,
+    "grossMargin": 15,
+    "dscr": 1.28,
+    "capRate": 4.2,
+    "buildableArea": 1300,
+    "rentableRatio": 70,
+    "polygon": [
+      [
+        35.65636,
+        139.7537
+      ],
+      [
+        35.65635,
+        139.75402
+      ],
+      [
+        35.65618,
+        139.754
+      ],
+      [
+        35.65619,
+        139.75369
+      ]
+    ],
+    "risks": {
+      "flood": "低",
+      "soil": "なし",
+      "cultural": "なし",
+      "liquefaction": "低",
+      "road": "適合",
+      "adjacentUse": "問題なし"
+    }
   },
   {
-    "id": "P011", "name": "芝大門1-21", "lat": 35.65890, "lng": 139.75530,
-    "polygon": [[35.65905,139.75518],[35.65905,139.75545],[35.65878,139.75545],[35.65878,139.75518]],
-    "zone": "準工業地域", "far": 300, "score": 35, "rent": 5400, "area": 430, "vacancy": 9.5,
-    "floors": 4, "units": 11, "cost": 586, "landPrice": 520,
-    "noiYield": 3.5, "irr": 7.0, "grossMargin": 15, "dscr": 1.2, "capRate": 4.5,
-    "landUnitPrice": 57.2, "buildableArea": 1200, "rentableRatio": 70,
-    "risks": {"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}
+    "id": "P11",
+    "name": "芝大門1-22",
+    "zone": "商業地域",
+    "far": 600,
+    "score": 68,
+    "area": 500,
+    "rent": 6400,
+    "vacancy": 4.0,
+    "floors": 9,
+    "units": 36,
+    "cost": 1440,
+    "landPrice": 660,
+    "noiYield": 3.7,
+    "irr": 9.5,
+    "grossMargin": 18,
+    "dscr": 1.4,
+    "capRate": 3.9,
+    "buildableArea": 2790,
+    "rentableRatio": 73,
+    "polygon": [
+      [
+        35.65614,
+        139.75302
+      ],
+      [
+        35.65613,
+        139.75332
+      ],
+      [
+        35.65596,
+        139.7533
+      ],
+      [
+        35.65597,
+        139.75304
+      ]
+    ],
+    "risks": {
+      "flood": "低",
+      "soil": "なし",
+      "cultural": "なし",
+      "liquefaction": "低",
+      "road": "適合",
+      "adjacentUse": "問題なし"
+    }
   },
   {
-    "id": "P012", "name": "芝大門1-23", "lat": 35.66040, "lng": 139.75400,
-    "polygon": [[35.66050,139.75388],[35.66050,139.75415],[35.66028,139.75415],[35.66028,139.75388]],
-    "zone": "準工業地域", "far": 300, "score": 28, "rent": 5400, "area": 280, "vacancy": 11.0,
-    "floors": 3, "units": 7, "cost": 382, "landPrice": 500,
-    "noiYield": 3.5, "irr": 7.0, "grossMargin": 15, "dscr": 1.2, "capRate": 4.5,
-    "landUnitPrice": 55.0, "buildableArea": 781, "rentableRatio": 70,
-    "risks": {"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}
+    "id": "P12",
+    "name": "芝大門1-24",
+    "zone": "商業地域",
+    "far": 600,
+    "score": 65,
+    "area": 430,
+    "rent": 6200,
+    "vacancy": 4.5,
+    "floors": 8,
+    "units": 30,
+    "cost": 1220,
+    "landPrice": 640,
+    "noiYield": 3.6,
+    "irr": 9.0,
+    "grossMargin": 17,
+    "dscr": 1.36,
+    "capRate": 4.0,
+    "buildableArea": 2400,
+    "rentableRatio": 72,
+    "polygon": [
+      [
+        35.65613,
+        139.75336
+      ],
+      [
+        35.65612,
+        139.75363
+      ],
+      [
+        35.65595,
+        139.75361
+      ],
+      [
+        35.65596,
+        139.75334
+      ]
+    ],
+    "risks": {
+      "flood": "低",
+      "soil": "なし",
+      "cultural": "なし",
+      "liquefaction": "低",
+      "road": "適合",
+      "adjacentUse": "問題なし"
+    }
+  },
+  {
+    "id": "P13",
+    "name": "芝大門1-26",
+    "zone": "近隣商業地域",
+    "far": 400,
+    "score": 55,
+    "area": 380,
+    "rent": 5900,
+    "vacancy": 5.0,
+    "floors": 6,
+    "units": 22,
+    "cost": 870,
+    "landPrice": 580,
+    "noiYield": 3.4,
+    "irr": 8.3,
+    "grossMargin": 16,
+    "dscr": 1.3,
+    "capRate": 4.2,
+    "buildableArea": 1410,
+    "rentableRatio": 71,
+    "polygon": [
+      [
+        35.65592,
+        139.75305
+      ],
+      [
+        35.65591,
+        139.75332
+      ],
+      [
+        35.65577,
+        139.7533
+      ],
+      [
+        35.65578,
+        139.75307
+      ]
+    ],
+    "risks": {
+      "flood": "低",
+      "soil": "なし",
+      "cultural": "なし",
+      "liquefaction": "中",
+      "road": "適合",
+      "adjacentUse": "問題なし"
+    }
+  },
+  {
+    "id": "P14",
+    "name": "芝大門1-28",
+    "zone": "近隣商業地域",
+    "far": 400,
+    "score": 48,
+    "area": 350,
+    "rent": 5700,
+    "vacancy": 5.5,
+    "floors": 6,
+    "units": 20,
+    "cost": 780,
+    "landPrice": 560,
+    "noiYield": 3.3,
+    "irr": 8.0,
+    "grossMargin": 15,
+    "dscr": 1.25,
+    "capRate": 4.3,
+    "buildableArea": 1300,
+    "rentableRatio": 70,
+    "polygon": [
+      [
+        35.65591,
+        139.75336
+      ],
+      [
+        35.6559,
+        139.75362
+      ],
+      [
+        35.65576,
+        139.7536
+      ],
+      [
+        35.65577,
+        139.75334
+      ]
+    ],
+    "risks": {
+      "flood": "中",
+      "soil": "なし",
+      "cultural": "なし",
+      "liquefaction": "低",
+      "road": "適合",
+      "adjacentUse": "問題なし"
+    }
+  },
+  {
+    "id": "P15",
+    "name": "芝大門1-30",
+    "zone": "近隣商業地域",
+    "far": 300,
+    "score": 42,
+    "area": 300,
+    "rent": 5400,
+    "vacancy": 6.0,
+    "floors": 5,
+    "units": 15,
+    "cost": 580,
+    "landPrice": 520,
+    "noiYield": 3.2,
+    "irr": 7.5,
+    "grossMargin": 15,
+    "dscr": 1.22,
+    "capRate": 4.5,
+    "buildableArea": 837,
+    "rentableRatio": 70,
+    "polygon": [
+      [
+        35.65573,
+        139.75308
+      ],
+      [
+        35.65572,
+        139.75338
+      ],
+      [
+        35.65562,
+        139.75336
+      ],
+      [
+        35.65563,
+        139.7531
+      ]
+    ],
+    "risks": {
+      "flood": "低",
+      "soil": "なし",
+      "cultural": "なし",
+      "liquefaction": "低",
+      "road": "適合",
+      "adjacentUse": "問題なし"
+    }
+  },
+  {
+    "id": "P16",
+    "name": "芝大門1-32",
+    "zone": "商業地域",
+    "far": 600,
+    "score": 60,
+    "area": 520,
+    "rent": 6300,
+    "vacancy": 4.5,
+    "floors": 9,
+    "units": 38,
+    "cost": 1500,
+    "landPrice": 650,
+    "noiYield": 3.6,
+    "irr": 9.0,
+    "grossMargin": 17,
+    "dscr": 1.36,
+    "capRate": 4.0,
+    "buildableArea": 2900,
+    "rentableRatio": 72,
+    "polygon": [
+      [
+        35.65614,
+        139.7537
+      ],
+      [
+        35.65613,
+        139.75402
+      ],
+      [
+        35.65596,
+        139.754
+      ],
+      [
+        35.65597,
+        139.75368
+      ]
+    ],
+    "risks": {
+      "flood": "低",
+      "soil": "なし",
+      "cultural": "なし",
+      "liquefaction": "低",
+      "road": "適合",
+      "adjacentUse": "問題なし"
+    }
+  },
+  {
+    "id": "P17",
+    "name": "芝大門1-34",
+    "zone": "商業地域",
+    "far": 500,
+    "score": 52,
+    "area": 440,
+    "rent": 6000,
+    "vacancy": 5.0,
+    "floors": 8,
+    "units": 30,
+    "cost": 1180,
+    "landPrice": 620,
+    "noiYield": 3.5,
+    "irr": 8.6,
+    "grossMargin": 16,
+    "dscr": 1.32,
+    "capRate": 4.1,
+    "buildableArea": 2050,
+    "rentableRatio": 71,
+    "polygon": [
+      [
+        35.65613,
+        139.75406
+      ],
+      [
+        35.65611,
+        139.75438
+      ],
+      [
+        35.65596,
+        139.75436
+      ],
+      [
+        35.65597,
+        139.75404
+      ]
+    ],
+    "risks": {
+      "flood": "低",
+      "soil": "なし",
+      "cultural": "なし",
+      "liquefaction": "低",
+      "road": "適合",
+      "adjacentUse": "問題なし"
+    }
+  },
+  {
+    "id": "P18",
+    "name": "芝大門1-36",
+    "zone": "近隣商業地域",
+    "far": 400,
+    "score": 46,
+    "area": 400,
+    "rent": 5800,
+    "vacancy": 5.5,
+    "floors": 7,
+    "units": 25,
+    "cost": 950,
+    "landPrice": 590,
+    "noiYield": 3.4,
+    "irr": 8.2,
+    "grossMargin": 16,
+    "dscr": 1.28,
+    "capRate": 4.3,
+    "buildableArea": 1490,
+    "rentableRatio": 70,
+    "polygon": [
+      [
+        35.65592,
+        139.75369
+      ],
+      [
+        35.65591,
+        139.75401
+      ],
+      [
+        35.65577,
+        139.75399
+      ],
+      [
+        35.65578,
+        139.75367
+      ]
+    ],
+    "risks": {
+      "flood": "低",
+      "soil": "なし",
+      "cultural": "包蔵地隣接",
+      "liquefaction": "低",
+      "road": "適合",
+      "adjacentUse": "問題なし"
+    }
+  },
+  {
+    "id": "P19",
+    "name": "芝大門1-38",
+    "zone": "近隣商業地域",
+    "far": 400,
+    "score": 40,
+    "area": 360,
+    "rent": 5600,
+    "vacancy": 6.0,
+    "floors": 6,
+    "units": 20,
+    "cost": 810,
+    "landPrice": 570,
+    "noiYield": 3.3,
+    "irr": 7.8,
+    "grossMargin": 15,
+    "dscr": 1.24,
+    "capRate": 4.4,
+    "buildableArea": 1340,
+    "rentableRatio": 70,
+    "polygon": [
+      [
+        35.65591,
+        139.75405
+      ],
+      [
+        35.6559,
+        139.75436
+      ],
+      [
+        35.65576,
+        139.75434
+      ],
+      [
+        35.65577,
+        139.75403
+      ]
+    ],
+    "risks": {
+      "flood": "低",
+      "soil": "なし",
+      "cultural": "なし",
+      "liquefaction": "低",
+      "road": "適合",
+      "adjacentUse": "問題なし"
+    }
+  },
+  {
+    "id": "P20",
+    "name": "芝大門1-40",
+    "zone": "近隣商業地域",
+    "far": 300,
+    "score": 35,
+    "area": 280,
+    "rent": 5400,
+    "vacancy": 6.5,
+    "floors": 5,
+    "units": 14,
+    "cost": 520,
+    "landPrice": 500,
+    "noiYield": 3.1,
+    "irr": 7.2,
+    "grossMargin": 14,
+    "dscr": 1.2,
+    "capRate": 4.5,
+    "buildableArea": 782,
+    "rentableRatio": 70,
+    "polygon": [
+      [
+        35.65573,
+        139.7537
+      ],
+      [
+        35.65572,
+        139.75404
+      ],
+      [
+        35.65562,
+        139.75402
+      ],
+      [
+        35.65563,
+        139.75368
+      ]
+    ],
+    "risks": {
+      "flood": "低",
+      "soil": "なし",
+      "cultural": "なし",
+      "liquefaction": "中",
+      "road": "適合",
+      "adjacentUse": "問題なし"
+    }
   }
 ]
