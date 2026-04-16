@@ -795,6 +795,16 @@ function updateParcelStyles() {
 
 // ===== Select parcel =====
 function selectParcel(id) {
+  if (!window._isAlternativeArea) {
+    var isInPlan = false;
+    developmentPlans.forEach(function(plan) {
+      if (plan.parcels.indexOf(id) >= 0) isInPlan = true;
+    });
+    if (!isInPlan) {
+      showToast('この筆は開発シナリオの対象外です。スコア上位の筆（P01〜P07）をクリックしてください');
+      return;
+    }
+  }
   selectedParcelId = id;
   updateParcelStyles();
   highlightRankingItem(id);
@@ -807,7 +817,17 @@ const modeDescriptions = {
 };
 
 function goToImpactFromRanking() {
-  const targetId = selectedParcelId || [...parcelsData].sort((a, b) => b.score - a.score)[0]?.id;
+  var targetId = selectedParcelId;
+  if (!targetId) {
+    var sorted = [...parcelsData].sort(function(a, b) { return b.score - a.score; });
+    for (var i = 0; i < sorted.length; i++) {
+      var inPlan = false;
+      developmentPlans.forEach(function(plan) {
+        if (plan.parcels.indexOf(sorted[i].id) >= 0) inPlan = true;
+      });
+      if (inPlan) { targetId = sorted[i].id; break; }
+    }
+  }
   if (targetId) showScenarioPanel(targetId);
 }
 
