@@ -1198,6 +1198,43 @@ function clearPlanHighlight() {
   }
 }
 
+function highlightAltArea(areaId) {
+  var area = alternativeAreas.find(function(a) { return a.areaId === areaId; });
+  if (!area) return;
+  map.flyTo(area.center, 17, { duration: 0.5 });
+  if (window._altAreaLayers) {
+    window._altAreaLayers.forEach(function(l) {
+      l.setStyle({ fillOpacity: 0.1, weight: 1, color: '#0067B3' });
+    });
+  }
+  var areaParcelCoords = area.parcels.map(function(p) {
+    return p.polygon[0][0].toFixed(4) + ',' + p.polygon[0][1].toFixed(4);
+  });
+  if (window._altAreaLayers) {
+    window._altAreaLayers.forEach(function(l) {
+      var latlngs = l.getLatLngs()[0];
+      var key = latlngs[0].lat.toFixed(4) + ',' + latlngs[0].lng.toFixed(4);
+      if (areaParcelCoords.indexOf(key) >= 0) {
+        l.setStyle({ fillColor: '#0067B3', fillOpacity: 0.4, weight: 2.5, color: '#0067B3', dashArray: null });
+      }
+    });
+  }
+}
+
+function unhighlightAltAreas() {
+  if (window._altAreaLayers) {
+    window._altAreaLayers.forEach(function(l) {
+      l.setStyle({ fillColor: '#0067B3', fillOpacity: 0.15, weight: 1.5, color: '#0067B3', dashArray: '4,4' });
+    });
+  }
+  if (window._planCenter) {
+    var allPoints = [window._planCenter];
+    alternativeAreas.forEach(function(area) { allPoints.push(area.center); });
+    var bounds = L.latLngBounds(allPoints);
+    map.fitBounds(bounds, { padding: [60, 60], maxZoom: 15 });
+  }
+}
+
 // ===== Three.js 3D Building Renderer =====
 function create3DBuilding(container, p, containerWidth, containerHeight, facilityType) {
   if (typeof THREE === 'undefined') {
@@ -1388,24 +1425,28 @@ function showAnalysisResults(id, facilityType, floorArea) {
 
   // Expand panel to 500px
   setPanelWidth(500);
-  var planCenter;
-  if (window.selectedPlan) {
-    var planLats = [];
-    var planLngs = [];
+  var panTarget;
+  if (window.selectedPlan && window.selectedPlan.parcels) {
+    var pLats = [];
+    var pLngs = [];
     window.selectedPlan.parcels.forEach(function(pid) {
       var pp = parcelsData.find(function(d) { return d.id === pid; });
       if (pp) {
         var c = getParcelCenter(pp);
-        planLats.push(c[0]);
-        planLngs.push(c[1]);
+        pLats.push(c[0]);
+        pLngs.push(c[1]);
       }
     });
-    planCenter = [planLats.reduce(function(a,b){return a+b},0)/planLats.length, planLngs.reduce(function(a,b){return a+b},0)/planLngs.length];
+    if (pLats.length > 0) {
+      panTarget = [pLats.reduce(function(a,b){return a+b},0)/pLats.length, pLngs.reduce(function(a,b){return a+b},0)/pLngs.length];
+    } else {
+      panTarget = getParcelCenter(p);
+    }
   } else {
-    planCenter = getParcelCenter(p);
+    panTarget = getParcelCenter(p);
   }
-  window._planCenter = planCenter;
-  map.panTo(planCenter);
+  window._planCenter = panTarget;
+  map.setView(panTarget, 17);
 
   // Render impact circles on map
   renderImpactCirclesOnMap(p, facilityType, floorArea);
@@ -1789,7 +1830,8 @@ function renderImpactCirclesOnMap(p, facilityType, floorArea) {
   clearImpactOverlay();
 
   const parcelLayer = parcelLayers[p.id];
-  const centerLatLng = parcelLayer ? parcelLayer.getBounds().getCenter() : L.latLng(getParcelCenter(p)[0], getParcelCenter(p)[1]);
+  var ctr = window._planCenter || getParcelCenter(p);
+  const centerLatLng = L.latLng(ctr[0], ctr[1]);
 
   // Highlight selected parcel polygon
   if (parcelLayer) {
@@ -1911,6 +1953,37 @@ function showAcquisitionPanel(id) {
       '</div>';
   }
 
+  // Draw alternative area parcels on map
+  if (!window._isAlternativeArea) {
+    window._altAreaLayers = window._altAreaLayers || [];
+    window._altAreaLayers.forEach(function(l) { map.removeLayer(l); });
+    window._altAreaLayers = [];
+
+    alternativeAreas.forEach(function(area) {
+      area.parcels.forEach(function(ap) {
+        if (ap.polygon) {
+          var latlngs = ap.polygon.map(function(c) { return [c[0], c[1]]; });
+          var layer = L.polygon(latlngs, {
+            color: '#0067B3',
+            fillColor: '#0067B3',
+            fillOpacity: 0.15,
+            weight: 1.5,
+            dashArray: '4,4'
+          }).addTo(map);
+          window._altAreaLayers.push(layer);
+        }
+      });
+    });
+
+    var allPoints = [];
+    if (window._planCenter) allPoints.push(window._planCenter);
+    alternativeAreas.forEach(function(area) { allPoints.push(area.center); });
+    if (allPoints.length > 1) {
+      var bounds = L.latLngBounds(allPoints);
+      map.fitBounds(bounds, { padding: [60, 60], maxZoom: 15 });
+    }
+  }
+
   var altCardsHTML = '';
   if (!window._isAlternativeArea) {
     altCardsHTML = `
@@ -1923,7 +1996,7 @@ function showAcquisitionPanel(id) {
           </div>
         </div>
         <div style="display:flex;gap:10px;padding:12px;background:#f7f8fa;border-radius:0 0 8px 8px;margin-bottom:4px">
-          <div class="alt-card" style="flex:1;border:2px solid #e0e0e0;margin-bottom:0;opacity:0.85;border-radius:8px;overflow:visible;position:relative" onmouseover="map.flyTo([35.6605, 139.7558], 16, {duration: 0.5})" onmouseout="map.flyTo(window._planCenter || [35.6565, 139.7533], 16, {duration: 0.5})">
+          <div class="alt-card" style="flex:1;border:2px solid #e0e0e0;margin-bottom:0;opacity:0.85;border-radius:8px;overflow:visible;position:relative" onmouseover="highlightAltArea('alt1')" onmouseout="unhighlightAltAreas()">
             <div style="background:#f4f6f9;padding:10px 12px;border-radius:6px 6px 0 0;margin:-12px -12px 10px;display:flex;align-items:center;justify-content:space-between">
               <strong style="font-size:13px;display:block">新橋四丁目</strong>
               <span style="font-size:10px;color:#888;background:#e0e0e0;padding:1px 6px;border-radius:3px">候補</span>
@@ -1935,7 +2008,7 @@ function showAcquisitionPanel(id) {
             <div style="background:#E6F1FB;border-radius:4px;padding:6px 8px;font-size:11px;color:#333;margin-bottom:10px;line-height:1.5">商業地域で高容積率の開発が可能</div>
             <div style="border:1px solid #ccc;color:#999;text-align:center;padding:8px;border-radius:6px;font-size:12px;cursor:default">デモ版では調査不可</div>
           </div>
-          <div class="alt-card" style="flex:1;border:2px solid #0067B3;margin-bottom:0;animation:card-nudge 2s ease-in-out infinite, pulse-border 2s ease-in-out infinite;position:relative;border-radius:8px;overflow:visible" onmouseover="map.flyTo([35.6617, 139.7522], 16, {duration: 0.5})" onmouseout="map.flyTo(window._planCenter || [35.6565, 139.7533], 16, {duration: 0.5})">
+          <div class="alt-card" style="flex:1;border:2px solid #0067B3;margin-bottom:0;animation:card-nudge 2s ease-in-out infinite, pulse-border 2s ease-in-out infinite;position:relative;border-radius:8px;overflow:visible" onmouseover="highlightAltArea('alt2')" onmouseout="unhighlightAltAreas()">
             <span style="position:absolute;top:-8px;right:8px;background:#c0392b;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px">推奨</span>
             <div style="background:#E8F2FB;padding:10px 12px;border-radius:6px 6px 0 0;margin:-12px -12px 10px">
               <strong style="font-size:13px;display:block">芝公園三丁目</strong>
@@ -2163,7 +2236,8 @@ function downloadTargetCSV() {
 
 // ===== Task 40: Explore alternative area =====
 function exploreAlternativeArea(areaId) {
-  const area = alternativeAreas.find(a => a.areaId === areaId);
+  window._isAlternativeArea = true;
+  var area = alternativeAreas.find(function(a) { return a.areaId === areaId; });
   if (!area) return;
 
   // Save original data
@@ -2171,39 +2245,48 @@ function exploreAlternativeArea(areaId) {
     originalParcelsData = [...parcelsData];
   }
 
-  // Grey out old parcel layers instead of removing
-  Object.values(parcelLayers).forEach(l => {
-    l.setStyle({ fillColor: '#999', fillOpacity: 0.2, color: '#999', weight: 1 });
-  });
-  Object.values(parcelTooltips).forEach(t => {
-    if (t.getElement) {
-      var el = t.getElement();
-      if (el) el.style.color = '#999';
-    }
-  });
-
-  // Store old layers reference
-  window.oldParcelLayers = {...parcelLayers};
-  window.oldParcelTooltips = {...parcelTooltips};
-
-  // Switch to new parcels
-  parcelsData = area.parcels;
-  currentAreaLabel = area.areaName;
-
-  // Reset for new parcels
+  // Clear existing layers
+  Object.values(parcelLayers).forEach(function(l) { map.removeLayer(l); });
+  Object.values(parcelTooltips).forEach(function(t) { map.removeLayer(t); });
+  if (window._altAreaLayers) {
+    window._altAreaLayers.forEach(function(l) { map.removeLayer(l); });
+    window._altAreaLayers = [];
+  }
   parcelLayers = {};
   parcelTooltips = {};
 
-  window._isAlternativeArea = true;
-  map.flyTo(area.center, 17, { duration: 1.5 });
+  parcelsData = area.parcels;
+  currentAreaLabel = area.areaName;
+
+  map.flyTo(area.center, 17, { duration: 1 });
 
   clearGuideUI();
-  setTimeout(() => {
+  setTimeout(function() {
     drawParcels();
-    showRankingPanel();
-    currentScreen = 2;
+
+    var totalArea = 0;
+    var parcelIds = [];
+    parcelsData.forEach(function(p) {
+      totalArea += p.area;
+      parcelIds.push(p.id);
+    });
+
+    window.selectedPlan = {
+      id: 'altPlan',
+      name: 'Plan D: 中規模（' + area.areaName + '）',
+      parcels: parcelIds,
+      siteArea: totalArea,
+      floorArea: Math.round(totalArea * 7 * 0.93),
+      floors: 22,
+      badge: parcelIds.length + '筆',
+      description: area.areaName + 'エリアの開発プラン',
+      recommended: true
+    };
+
+    var firstParcel = parcelsData[0];
+    showAnalysisResults(firstParcel.id, 'complex', window.selectedPlan.floorArea);
     if (guideStep === 13) advanceGuide(14);
-  }, 1600);
+  }, 1200);
 }
 
 function returnToOriginalArea() {
@@ -2352,6 +2435,7 @@ function switchAppTab(tab) {
     document.getElementById('tab-hearing').style.color = '#0067B3';
     document.getElementById('tab-map').style.borderBottomColor = 'transparent';
     document.getElementById('tab-map').style.color = '#888';
+    autoStartHearing();
   }
 }
 
@@ -2396,10 +2480,26 @@ async function startHearingSession() {
   loadHearingQuestions();
 }
 
+async function autoStartHearing() {
+  if (hearingSessionId) return;
+  var res = await sbFetch('/sessions', {
+    method: 'POST',
+    headers: { 'Prefer': 'return=representation' },
+    body: JSON.stringify({ interviewer_name: 'デモ', interviewee_name: '', company_name: '', status: 'in_progress' })
+  });
+  var data = await res.json();
+  if (data && data.length > 0) {
+    hearingSessionId = data[0].id;
+  }
+  document.getElementById('hearing-export-bar').classList.remove('hidden');
+  loadHearingQuestions();
+}
+
 async function loadHearingQuestions() {
   var res = await sbFetch('/questions?is_active=eq.true&order=sort_order');
   hearingQuestions = await res.json();
-  document.getElementById('hearing-loading-msg').classList.add('hidden');
+  var lm = document.getElementById('hearing-loading-msg');
+  if (lm) lm.classList.add('hidden');
   var list = document.getElementById('hearing-questions-list');
   var currentCat = '';
   var html = '';
@@ -2407,10 +2507,19 @@ async function loadHearingQuestions() {
     if (q.category !== currentCat) {
       if (currentCat) html += '</div>';
       currentCat = q.category;
-      html += '<div style="margin:0 0 20px"><div class="hearing-category-title">' + q.category + '</div>';
+      html += '<div style="margin:0 0 20px">';
+      html += '<div class="hearing-category-title" style="display:flex;justify-content:space-between;align-items:center">';
+      html += '<span>' + q.category + '</span>';
+      html += '<div style="display:flex;gap:4px">';
+      html += '<button onclick="addHearingQuestion(\'' + q.category.replace(/'/g, "\\'") + '\')" style="background:none;border:1px solid rgba(255,255,255,0.5);border-radius:4px;padding:2px 8px;font-size:10px;color:#fff;cursor:pointer">+ 追加</button>';
+      html += '<button onclick="deleteHearingCategory(\'' + q.category.replace(/'/g, "\\'") + '\')" style="background:none;border:1px solid rgba(255,255,255,0.3);border-radius:4px;padding:2px 8px;font-size:10px;color:rgba(255,255,255,0.7);cursor:pointer">削除</button>';
+      html += '</div></div>';
     }
     html += '<div class="hearing-question-card" data-qid="' + q.id + '">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:flex-start">';
     html += '<div class="hearing-question-text">' + q.sort_order + '. ' + q.question_text + '</div>';
+    html += '<button class="edit-q-btn" data-qid="' + q.id + '" style="background:none;border:1px solid #ddd;border-radius:4px;padding:4px 8px;font-size:11px;color:#888;cursor:pointer;white-space:nowrap;margin-left:8px;font-family:inherit" onclick="editHearingQuestion(' + q.id + ', this)">編集</button>';
+    html += '</div>';
     if (q.question_type === 'free_text') {
       html += '<textarea class="hearing-memo-area" placeholder="回答を入力..." onchange="saveHearingMemo(' + q.id + ', this.value)"></textarea>';
     } else if (q.question_type === 'single_select' && q.options) {
@@ -2439,6 +2548,58 @@ async function loadHearingQuestions() {
   });
   if (currentCat) html += '</div>';
   list.innerHTML = html;
+}
+
+async function editHearingQuestion(qid, btn) {
+  var card = btn.closest('.hearing-question-card');
+  var textDiv = card.querySelector('.hearing-question-text');
+  var currentText = textDiv.textContent.replace(/^\d+\.\s*/, '');
+  if (btn.textContent === '編集') {
+    var textarea = document.createElement('textarea');
+    textarea.className = 'hearing-memo-area';
+    textarea.value = currentText;
+    textarea.style.minHeight = '60px';
+    textarea.id = 'edit-q-' + qid;
+    textDiv.style.display = 'none';
+    textDiv.parentElement.insertBefore(textarea, textDiv);
+    btn.textContent = '保存';
+    btn.style.color = '#0067B3';
+    btn.style.borderColor = '#0067B3';
+  } else {
+    var textarea = document.getElementById('edit-q-' + qid);
+    var newText = textarea.value.trim();
+    if (newText) {
+      await sbFetch('/questions?id=eq.' + qid, {
+        method: 'PATCH',
+        body: JSON.stringify({ question_text: newText })
+      });
+      loadHearingQuestions();
+      showToast('質問を更新しました');
+    }
+  }
+}
+
+async function addHearingQuestion(category) {
+  var text = prompt('新しい質問文を入力してください:');
+  if (!text) return;
+  var maxOrder = 0;
+  hearingQuestions.forEach(function(q) { if (q.sort_order > maxOrder) maxOrder = q.sort_order; });
+  await sbFetch('/questions', {
+    method: 'POST',
+    body: JSON.stringify({ category: category, sort_order: maxOrder + 1, question_text: text, question_type: 'free_text', is_active: true })
+  });
+  loadHearingQuestions();
+  showToast('質問を追加しました');
+}
+
+async function deleteHearingCategory(category) {
+  if (!confirm('カテゴリ「' + category + '」の質問を全て削除しますか？')) return;
+  await sbFetch('/questions?category=eq.' + encodeURIComponent(category), {
+    method: 'PATCH',
+    body: JSON.stringify({ is_active: false })
+  });
+  loadHearingQuestions();
+  showToast('カテゴリを削除しました');
 }
 
 function selectHearingOption(btn, qid, value, isMulti) {

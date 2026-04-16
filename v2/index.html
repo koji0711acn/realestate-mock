@@ -14,7 +14,7 @@
   <!-- Leaflet Draw CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
 
-  <link rel="stylesheet" href="style.css?v=20260416c">
+  <link rel="stylesheet" href="style.css?v=20260416d">
 </head>
 <body>
 
@@ -219,7 +219,7 @@
       <div style="font-size:11px;opacity:0.7" id="hearing-session-info"></div>
     </div>
     <div class="hearing-container">
-      <div id="hearing-session-setup" class="hearing-session-form">
+      <div id="hearing-session-setup" class="hearing-session-form" style="display:none">
         <h2 style="font-size:14px;font-weight:500;margin:0 0 12px;color:#333">セッション情報</h2>
         <div class="hearing-form-row">
           <input type="text" id="hearing-interviewer" placeholder="実施者名">
@@ -230,7 +230,7 @@
         </div>
         <button class="hearing-btn-start" onclick="startHearingSession()">ヒアリングを開始する</button>
       </div>
-      <div id="hearing-questions-area" class="hidden">
+      <div id="hearing-questions-area">
         <div class="hearing-loading" id="hearing-loading-msg">質問を読み込み中...</div>
         <div id="hearing-questions-list"></div>
       </div>
@@ -256,6 +256,6 @@
   <!-- Leaflet Draw JS -->
   <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
 
-  <script src="app.js?v=20260416c"></script>
+  <script src="app.js?v=20260416d"></script>
 </body>
 </html>
