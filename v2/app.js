@@ -2654,15 +2654,25 @@ async function loadHearingQuestions() {
       var opts = typeof q.options === 'string' ? JSON.parse(q.options) : q.options;
       html += '<div class="hearing-options-group">';
       opts.forEach(function(opt) {
-        html += '<button class="hearing-option-btn" onclick="selectHearingOption(this, ' + q.id + ', \'' + opt.replace(/'/g, "\\'") + '\', false)">' + opt + '</button>';
+        var escOpt = opt.replace(/'/g, "\\'");
+        html += '<div class="hearing-option-wrap" style="position:relative;display:inline-block">';
+        html += '<button class="hearing-option-btn" onclick="selectHearingOption(this, ' + q.id + ', \'' + escOpt + '\', false)">' + opt + '</button>';
+        html += '<button class="hearing-option-delete" onclick="deleteHearingOption(' + q.id + ', \'' + escOpt + '\')" style="position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:#fff;border:1px solid #ccc;color:#888;font-size:11px;line-height:1;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center">×</button>';
+        html += '</div>';
       });
+      html += '<button onclick="addHearingOption(' + q.id + ')" style="padding:8px 16px;border:1px dashed #0067B3;border-radius:20px;font-size:12px;cursor:pointer;background:#fff;color:#0067B3;font-family:inherit">+ 選択肢を追加</button>';
       html += '</div>';
     } else if (q.question_type === 'multi_select' && q.options) {
       var mopts = typeof q.options === 'string' ? JSON.parse(q.options) : q.options;
       html += '<div class="hearing-options-group">';
       mopts.forEach(function(opt) {
-        html += '<button class="hearing-option-btn" onclick="selectHearingOption(this, ' + q.id + ', \'' + opt.replace(/'/g, "\\'") + '\', true)">' + opt + '</button>';
+        var escMOpt = opt.replace(/'/g, "\\'");
+        html += '<div class="hearing-option-wrap" style="position:relative;display:inline-block">';
+        html += '<button class="hearing-option-btn" onclick="selectHearingOption(this, ' + q.id + ', \'' + escMOpt + '\', true)">' + opt + '</button>';
+        html += '<button class="hearing-option-delete" onclick="deleteHearingOption(' + q.id + ', \'' + escMOpt + '\')" style="position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:#fff;border:1px solid #ccc;color:#888;font-size:11px;line-height:1;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center">×</button>';
+        html += '</div>';
       });
+      html += '<button onclick="addHearingOption(' + q.id + ')" style="padding:8px 16px;border:1px dashed #0067B3;border-radius:20px;font-size:12px;cursor:pointer;background:#fff;color:#0067B3;font-family:inherit">+ 選択肢を追加</button>';
       html += '</div>';
     } else if (q.question_type === 'rating_5') {
       html += '<div class="hearing-rating-group">';
@@ -2689,21 +2699,20 @@ async function loadHearingQuestions() {
 var DEFAULT_QUESTIONS = [
   { category: '全体印象', sort_order: 1, question_text: '全体的に、実務で使えそうなイメージは沸きますか。その理由も教えてください。', question_type: 'free_text', options: null },
   { category: '全体印象', sort_order: 2, question_text: '一連のフローや分析項目等で違和感があるポイントはありますか。（例：スコアの算出根拠、UIの操作性、データの粒度、画面遷移など）', question_type: 'free_text', options: null },
-  { category: '全体印象', sort_order: 3, question_text: 'ご自身のネットワーク内の顧客企業で、このツールを使えそうな企業像は思い浮かびますか。', question_type: 'free_text', options: null },
-  { category: '業界・業務実態', sort_order: 4, question_text: '土地取得に関して、現在どのようなツールやサービスを使っていますか。プロセスや業務ごとに教えてください。', question_type: 'free_text', options: null },
-  { category: '業界・業務実態', sort_order: 5, question_text: '用地評価のプロセスで最も時間がかかっている作業は何ですか。', question_type: 'free_text', options: null },
-  { category: '業界・業務実態', sort_order: 6, question_text: '競合他社の開発動向の把握はどのように行っていますか。', question_type: 'free_text', options: null },
-  { category: '業界・業務実態', sort_order: 7, question_text: '地権者情報の調査にどの程度の工数をかけていますか。', question_type: 'single_select', options: ['1人日以内', '2〜5人日', '5〜10人日', '10人日以上'] },
-  { category: '業界・業務実態', sort_order: 8, question_text: '現在の業務で「見送っている土地」や「機会損失」が発生していると感じる領域はありますか。', question_type: 'free_text', options: null },
-  { category: '業界・業務実態', sort_order: 9, question_text: '用地探索から地権者データ取得まで一気通貫でできることに価値を感じますか。', question_type: 'free_text', options: null },
-  { category: 'デモに対するフィードバック', sort_order: 10, question_text: '本日のデモで最も印象に残った機能はどれですか。', question_type: 'single_select', options: ['筆スコアリング', '開発シナリオ自動生成', '事業収支シミュレーション', '開発インパクト推計', '地権者分析', '代替候補探索'] },
-  { category: 'デモに対するフィードバック', sort_order: 11, question_text: '「この機能があれば業務が大きく改善される」と思うものを挙げてください。', question_type: 'free_text', options: null },
-  { category: 'デモに対するフィードバック', sort_order: 12, question_text: '現在の業務フローのどこにこのツールを組み込めると思いますか。', question_type: 'free_text', options: null },
-  { category: 'デモに対するフィードバック', sort_order: 13, question_text: 'デモに含まれていないが、あるべきだと思う機能はありますか。', question_type: 'free_text', options: null },
-  { category: 'デモに対するフィードバック', sort_order: 14, question_text: '導入にあたって懸念されることはどれですか。', question_type: 'multi_select', options: ['データソースの信頼性', 'セキュリティ・コンプライアンス', 'UIの学習コスト', '既存システムとの統合', '価格', '導入後のサポート体制', 'その他'] },
-  { category: '市場性・商業化', sort_order: 15, question_text: 'このようなツールに対して、どの程度の価格が適切だと感じますか。', question_type: 'single_select', options: ['月額10万円以下', '月額10〜30万円', '月額30〜100万円', '月額100万円以上', '初期費用＋月額のモデルが適切'] },
-  { category: '市場性・商業化', sort_order: 16, question_text: 'どのような業界・業種・企業規模が初期のお客様候補になりそうですか。', question_type: 'multi_select', options: ['大手デベロッパー', '中堅デベロッパー', '地域デベロッパー', 'アセットマネジメント会社', '不動産仲介', '金融機関', '自治体', 'その他'] },
-  { category: '市場性・商業化', sort_order: 17, question_text: 'まず試してみたい機能があるとすればどれですか。', question_type: 'single_select', options: ['筆スコアリング', '開発シナリオ自動生成', '事業収支シミュレーション', '開発インパクト推計', '地権者分析', '代替候補探索'] }
+  { category: '業界・業務実態', sort_order: 3, question_text: '土地取得に関して、現在どのようなツールやサービスを使っていますか。プロセスや業務ごとに教えてください。', question_type: 'free_text', options: null },
+  { category: '業界・業務実態', sort_order: 4, question_text: '用地評価のプロセスで最も時間がかかっている作業は何ですか。', question_type: 'free_text', options: null },
+  { category: '業界・業務実態', sort_order: 5, question_text: '競合他社の開発動向の把握はどのように行っていますか。', question_type: 'free_text', options: null },
+  { category: '業界・業務実態', sort_order: 6, question_text: '地権者情報の調査にどの程度の工数をかけていますか。', question_type: 'single_select', options: ['1人日以内', '2〜5人日', '5〜10人日', '10人日以上'] },
+  { category: '業界・業務実態', sort_order: 7, question_text: '現在の業務で「見送っている土地」や「機会損失」が発生していると感じる領域はありますか。', question_type: 'free_text', options: null },
+  { category: '業界・業務実態', sort_order: 8, question_text: '用地探索から地権者データ取得まで一気通貫でできることに価値を感じますか。', question_type: 'free_text', options: null },
+  { category: 'デモに対するフィードバック', sort_order: 9, question_text: '本日のデモで最も印象に残った機能はどれですか。', question_type: 'single_select', options: ['筆スコアリング', '開発シナリオ自動生成', '事業収支シミュレーション', '開発インパクト推計', '地権者分析', '代替候補探索'] },
+  { category: 'デモに対するフィードバック', sort_order: 10, question_text: '「この機能があれば業務が大きく改善される」と思うものを挙げてください。', question_type: 'free_text', options: null },
+  { category: 'デモに対するフィードバック', sort_order: 11, question_text: '現在の業務フローのどこにこのツールを組み込めると思いますか。', question_type: 'free_text', options: null },
+  { category: 'デモに対するフィードバック', sort_order: 12, question_text: 'デモに含まれていないが、あるべきだと思う機能はありますか。', question_type: 'free_text', options: null },
+  { category: 'デモに対するフィードバック', sort_order: 13, question_text: '導入にあたって懸念されることはどれですか。', question_type: 'multi_select', options: ['データソースの信頼性', 'セキュリティ・コンプライアンス', 'UIの学習コスト', '既存システムとの統合', '価格', '導入後のサポート体制', 'その他'] },
+  { category: '市場性・商業化', sort_order: 14, question_text: 'このようなツールに対して、どの程度の価格が適切だと感じますか。', question_type: 'single_select', options: ['月額10万円以下', '月額10〜30万円', '月額30〜100万円', '月額100万円以上', '初期費用＋月額のモデルが適切'] },
+  { category: '市場性・商業化', sort_order: 15, question_text: 'どのような業界・業種・企業規模が初期のお客様候補になりそうですか。', question_type: 'multi_select', options: ['大手デベロッパー', '中堅デベロッパー', '地域デベロッパー', 'アセットマネジメント会社', '不動産仲介', '金融機関', '自治体', 'その他'] },
+  { category: '市場性・商業化', sort_order: 16, question_text: 'まず試してみたい機能があるとすればどれですか。', question_type: 'single_select', options: ['筆スコアリング', '開発シナリオ自動生成', '事業収支シミュレーション', '開発インパクト推計', '地権者分析', '代替候補探索'] }
 ];
 
 async function resetToDefaultQuestions() {
@@ -2941,23 +2950,66 @@ async function addNewCategory() {
   showToast('新しいセクションを追加しました');
 }
 
+async function deleteHearingOption(qid, optValue) {
+  if (!confirm('この選択肢「' + optValue + '」を削除しますか？')) return;
+  var q = hearingQuestions.find(function(x) { return x.id === qid; });
+  if (!q || !q.options) return;
+  var opts = typeof q.options === 'string' ? JSON.parse(q.options) : q.options;
+  var newOpts = opts.filter(function(o) { return o !== optValue; });
+  await sbFetch('/questions?id=eq.' + qid, {
+    method: 'PATCH',
+    body: JSON.stringify({ options: newOpts })
+  });
+  loadHearingQuestions();
+  showToast('選択肢を削除しました');
+}
+
+async function addHearingOption(qid) {
+  var newOpt = prompt('新しい選択肢を入力してください:');
+  if (!newOpt) return;
+  var q = hearingQuestions.find(function(x) { return x.id === qid; });
+  if (!q) return;
+  var opts = q.options ? (typeof q.options === 'string' ? JSON.parse(q.options) : q.options) : [];
+  opts.push(newOpt);
+  await sbFetch('/questions?id=eq.' + qid, {
+    method: 'PATCH',
+    body: JSON.stringify({ options: opts })
+  });
+  loadHearingQuestions();
+  showToast('選択肢を追加しました');
+}
+
 function selectHearingOption(btn, qid, value, isMulti) {
   if (isMulti) {
     btn.classList.toggle('multi-selected');
+    var scope = btn.closest('.hearing-options-group') || btn.parentElement;
     var selected = [];
-    btn.parentElement.querySelectorAll('.multi-selected').forEach(function(b) { selected.push(b.textContent); });
+    scope.querySelectorAll('.hearing-option-btn.multi-selected').forEach(function(b) {
+      selected.push(b.textContent.trim());
+    });
     saveHearingMemo(qid, selected.join(', '));
   } else {
-    btn.parentElement.querySelectorAll('.hearing-option-btn').forEach(function(b) { b.classList.remove('selected'); });
-    btn.classList.add('selected');
-    saveHearingMemo(qid, value);
+    var wasSelected = btn.classList.contains('selected');
+    var scopeS = btn.closest('.hearing-options-group') || btn.parentElement;
+    scopeS.querySelectorAll('.hearing-option-btn').forEach(function(b) { b.classList.remove('selected'); });
+    if (!wasSelected) {
+      btn.classList.add('selected');
+      saveHearingMemo(qid, value);
+    } else {
+      saveHearingMemo(qid, '');
+    }
   }
 }
 
 function selectHearingRating(btn, qid, value) {
+  var wasSelected = btn.classList.contains('selected');
   btn.parentElement.querySelectorAll('.hearing-rating-btn').forEach(function(b) { b.classList.remove('selected'); });
-  btn.classList.add('selected');
-  saveHearingMemo(qid, String(value));
+  if (!wasSelected) {
+    btn.classList.add('selected');
+    saveHearingMemo(qid, String(value));
+  } else {
+    saveHearingMemo(qid, '');
+  }
 }
 
 async function saveHearingMemo(qid, text, isMemoField) {
