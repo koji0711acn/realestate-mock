@@ -15,6 +15,13 @@ let pulseCircle = null;
 let gifInterval = null;
 let originalParcelsData = null;
 let currentAreaLabel = null;
+var _guideUpdating = false;
+
+function getParcelCenter(p) {
+  var lats = p.polygon.map(function(c){ return c[0]; });
+  var lngs = p.polygon.map(function(c){ return c[1]; });
+  return [lats.reduce(function(a,b){return a+b},0)/lats.length, lngs.reduce(function(a,b){return a+b},0)/lngs.length];
+}
 
 // Task 40: Alternative area data
 const alternativeAreas = [
@@ -438,6 +445,9 @@ function applyGuideShake(targetEl) {
 
 function advanceGuide(step) {
   if (guideSkipped) return;
+  if (_guideUpdating) return;
+  _guideUpdating = true;
+  setTimeout(function() { _guideUpdating = false; }, 300);
   guideStep = step;
 
   switch (step) {
@@ -912,7 +922,7 @@ function showDetailPanel(id) {
 
   // Keep panel at 400px for detail
   setPanelWidth(400);
-  map.panTo([p.lat, p.lng]);
+  map.panTo(getParcelCenter(p));
   updateParcelStyles();
 
   const riskColors = { '低': '#2d8a4e', '中': '#c4840a', 'なし': '#2d8a4e', '適合': '#2d8a4e', '問題なし': '#2d8a4e', '要調査': '#c0392b', '包蔵地隣接': '#c4840a' };
@@ -988,62 +998,156 @@ function closeDetailPanel() {
 function showScenarioPanel(id) {
   currentScreen = 4;
   clearGuideUI();
-  const p = parcelsData.find(d => d.id === id);
+  var p = parcelsData.find(function(d) { return d.id === id; });
   if (!p) return;
 
-  setPanelWidth(420);
+  setPanelWidth(400);
 
-  // Grey out all parcels
+  // Grey out all parcels, hide tooltips
   Object.keys(parcelLayers).forEach(function(pid) {
     parcelLayers[pid].setStyle({ fillColor: '#cccccc', fillOpacity: 0.2, weight: 1, color: '#aaaaaa' });
   });
-  // Hide score tooltips
   Object.values(parcelTooltips).forEach(function(t) { t.setOpacity(0); });
 
-  var cardsHTML = '';
-  developmentPlans.forEach(function(plan) {
-    var isRec = plan.recommended;
-    var borderStyle = isRec ? 'border:2px solid #0067B3' : 'border:1px solid #e0e0e0';
-    var recBadge = isRec ? '<div style="position:absolute;top:-1px;right:-1px;background:#0067B3;color:#fff;font-size:10px;padding:3px 10px;border-radius:0 10px 0 10px">AI推奨</div>' : '';
-    var badgeBg = isRec ? 'background:#E6F1FB;color:#0C447C' : 'background:#f4f6f9;color:#888';
-    var descColor = isRec ? 'color:#0C447C' : 'color:#999';
+  // Default expanded plan
+  var expandedPlanId = 'planD';
 
-    cardsHTML += '<div class="plan-card" data-plan="' + plan.id + '" style="' + borderStyle + ';border-radius:10px;padding:14px 16px;cursor:pointer;position:relative;transition:all 0.2s" onmouseover="highlightPlanParcels(\'' + plan.id + '\')" onmouseout="clearPlanHighlight()">' +
-      recBadge +
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin:0 0 8px">' +
-        '<span style="font-size:13px;font-weight:500;color:#333">' + plan.name + '</span>' +
-        '<span style="font-size:11px;padding:2px 8px;border-radius:4px;' + badgeBg + '">' + plan.badge + '</span>' +
-      '</div>' +
-      '<div style="display:flex;gap:16px;font-size:12px;color:#666;margin:0 0 6px">' +
-        '<span>敷地 ' + plan.siteArea.toLocaleString() + 'm\u00B2</span>' +
-        '<span>延床 ' + plan.floorArea.toLocaleString() + 'm\u00B2</span>' +
-        '<span>' + plan.floors + '階</span>' +
-      '</div>' +
-      '<div style="font-size:11px;' + descColor + '">' + plan.description + '</div>' +
-    '</div>';
-  });
+  function renderScenarioPanel() {
+    var panel = document.getElementById('side-panel');
+    var html = '<div style="padding:14px 16px">';
+    html += '<p style="font-size:11px;color:#999;margin:0 0 4px">' + p.name + '（スコア: ' + p.score + ' / ' + p.zone + ' / 容積率' + p.far + '%）</p>';
+    html += '<p style="font-size:15px;font-weight:500;color:#333;margin:0 0 6px">開発シナリオの選択</p>';
+    html += '<p style="font-size:12px;color:#666;line-height:1.6;margin:0 0 14px">隣接筆の形状・法規制・接道条件から算出した開発パターンです。</p>';
 
-  const panel = document.getElementById('side-panel');
-  panel.innerHTML =
-    '<div style="padding:16px">' +
-      '<div style="margin:0 0 16px">' +
-        '<p style="font-size:11px;color:#999;margin:0 0 4px">' + p.name + '（スコア: ' + p.score + ' / ' + p.zone + ' / 容積率' + p.far + '%）</p>' +
-        '<p style="font-size:16px;font-weight:500;color:#333;margin:0 0 6px">開発シナリオの選択</p>' +
-        '<p style="font-size:12px;color:#666;line-height:1.6;margin:0 0 16px">選択した筆と隣接筆の形状・面積・法規制（用途地域・容積率・接道条件）に基づき、開発可能なパターンをAIが算出しました。筆数が多いほど大規模な施設が建設可能ですが、取得すべき地権者数が増加します。</p>' +
-      '</div>' +
-      '<div style="display:flex;flex-direction:column;gap:8px">' + cardsHTML + '</div>' +
-      '<div style="background:#f7f8fa;border-radius:8px;padding:10px 14px;margin:16px 0 0">' +
-        '<p style="font-size:11px;color:#888;line-height:1.6;margin:0">各プランは、隣接筆の形状・用途地域・容積率・接道条件から算出した開発可能規模です。地権者の特定と売却意向の分析は、プラン選択後に実行されます。</p>' +
-      '</div>' +
-    '</div>';
+    html += '<div style="display:flex;flex-direction:column;gap:6px">';
 
-  panel.querySelectorAll('.plan-card').forEach(function(card) {
-    card.addEventListener('click', function() {
-      var planId = this.dataset.plan;
-      var plan = developmentPlans.find(function(dp) { return dp.id === planId; });
-      if (plan) confirmScenario(id, plan);
+    developmentPlans.forEach(function(plan) {
+      var isExpanded = plan.id === expandedPlanId;
+      var isRec = plan.recommended;
+
+      if (isExpanded) {
+        // Expanded card
+        var shakeClass = isRec ? ' style="animation:shake 0.6s ease-in-out 1s 3"' : '';
+        html += '<div class="plan-card-expanded" data-plan="' + plan.id + '"' + (isRec ? ' style="border:2px solid #0067B3;border-radius:10px;overflow:hidden;animation:shake 0.6s ease-in-out 1s 3"' : ' style="border:2px solid #0067B3;border-radius:10px;overflow:hidden"') + '>';
+
+        // Header
+        html += '<div style="padding:14px 14px 10px;position:relative">';
+        if (isRec) {
+          html += '<div style="position:absolute;top:-1px;right:-1px;background:#0067B3;color:#fff;font-size:9px;padding:3px 10px;border-radius:0 8px 0 8px">AI推奨</div>';
+        }
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;margin:0 0 4px">';
+        html += '<span style="font-size:14px;font-weight:500;color:#333">' + plan.name + '</span>';
+        html += '<span style="font-size:11px;color:#0C447C;background:#E6F1FB;padding:2px 8px;border-radius:4px">' + plan.badge + '</span>';
+        html += '</div>';
+        html += '<div style="display:flex;gap:16px;font-size:12px;color:#666;margin:0 0 4px">';
+        html += '<span>敷地 ' + plan.siteArea.toLocaleString() + 'm\u00B2</span>';
+        html += '<span>延床 ' + plan.floorArea.toLocaleString() + 'm\u00B2</span>';
+        html += '<span>' + plan.floors + '階</span>';
+        html += '</div>';
+        html += '<p style="font-size:11px;color:#0C447C;margin:0">' + plan.description + '</p>';
+        html += '</div>';
+
+        // Facility type tabs + 3D + button
+        html += '<div style="border-top:1px solid #E6F1FB;padding:12px 14px;background:#FAFCFF">';
+        html += '<p style="font-size:11px;color:#888;margin:0 0 8px">施設タイプ</p>';
+        html += '<div style="display:flex;gap:4px;margin:0 0 12px">';
+        html += '<div class="facility-tab" data-type="office" style="flex:1;text-align:center;padding:8px 4px;border:1px solid #e0e0e0;border-radius:6px;cursor:pointer;font-size:11px;color:#888">オフィス<br><span style="font-size:10px">' + plan.floors + 'F</span></div>';
+        html += '<div class="facility-tab" data-type="complex" style="flex:1;text-align:center;padding:8px 4px;border:2px solid #0067B3;border-radius:6px;cursor:pointer;font-size:11px;color:#0C447C;background:#F0F6FD">複合施設<br><span style="font-size:10px;color:#0067B3">' + plan.floors + 'F</span></div>';
+        html += '<div class="facility-tab" data-type="tower-mansion" style="flex:1;text-align:center;padding:8px 4px;border:1px solid #e0e0e0;border-radius:6px;cursor:pointer;font-size:11px;color:#888">タワマン<br><span style="font-size:10px">' + Math.round(plan.floors * 1.3) + 'F</span></div>';
+        html += '</div>';
+        html += '<div id="facility-3d-preview" style="width:100%;height:160px;background:#f0f4f8;border-radius:8px;margin:0 0 12px;overflow:hidden"></div>';
+        html += '<div id="scenario-start-btn" data-plan="' + plan.id + '" style="background:#0067B3;color:#fff;text-align:center;padding:12px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer">このプランで分析を開始</div>';
+        html += '</div>';
+        html += '</div>';
+      } else {
+        // Collapsed card
+        html += '<div class="plan-card-collapsed" data-plan="' + plan.id + '" style="border:1px solid #e0e0e0;border-radius:8px;padding:12px 14px;cursor:pointer;opacity:0.7;transition:opacity 0.2s" onmouseover="this.style.opacity=1;highlightPlanParcels(\'' + plan.id + '\')" onmouseout="this.style.opacity=0.7;clearPlanHighlight()">';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center">';
+        html += '<span style="font-size:13px;color:#333">' + plan.name + '</span>';
+        html += '<div style="display:flex;align-items:center;gap:8px">';
+        html += '<span style="font-size:11px;color:#999">' + plan.siteArea.toLocaleString() + 'm\u00B2 / ' + plan.floors + 'F</span>';
+        html += '<span style="font-size:11px;color:#999;background:#f4f6f9;padding:2px 6px;border-radius:4px">' + plan.badge + '</span>';
+        html += '</div></div></div>';
+      }
     });
-  });
+
+    html += '</div>';
+    html += '<div style="background:#f7f8fa;border-radius:6px;padding:8px 12px;margin:10px 0 0">';
+    html += '<p style="font-size:10px;color:#999;line-height:1.5;margin:0">各プランは隣接筆の形状・容積率・接道条件から算出。地権者の特定と売却意向の分析はプラン選択後に実行されます。</p>';
+    html += '</div></div>';
+
+    panel.innerHTML = html;
+
+    // Highlight expanded plan parcels
+    var currentPlan = developmentPlans.find(function(dp) { return dp.id === expandedPlanId; });
+    if (currentPlan) {
+      Object.keys(parcelLayers).forEach(function(pid) {
+        parcelLayers[pid].setStyle({ fillColor: '#cccccc', fillOpacity: 0.2, weight: 1, color: '#aaaaaa' });
+      });
+      currentPlan.parcels.forEach(function(pid) {
+        if (parcelLayers[pid]) {
+          parcelLayers[pid].setStyle({ fillColor: '#d94f43', fillOpacity: 0.6, weight: 3, color: '#d94f43' });
+        }
+      });
+    }
+
+    // Collapsed card click → expand
+    panel.querySelectorAll('.plan-card-collapsed').forEach(function(card) {
+      card.addEventListener('click', function() {
+        expandedPlanId = this.dataset.plan;
+        renderScenarioPanel();
+      });
+    });
+
+    // Facility tab click
+    var selectedFacility = 'complex';
+    panel.querySelectorAll('.facility-tab').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        selectedFacility = this.dataset.type;
+        panel.querySelectorAll('.facility-tab').forEach(function(t) {
+          t.style.borderColor = '#e0e0e0';
+          t.style.borderWidth = '1px';
+          t.style.color = '#888';
+          t.style.background = 'transparent';
+        });
+        this.style.borderColor = '#0067B3';
+        this.style.borderWidth = '2px';
+        this.style.color = '#0C447C';
+        this.style.background = '#F0F6FD';
+        // Update 3D
+        var preview = document.getElementById('facility-3d-preview');
+        if (preview && typeof create3DBuilding === 'function') {
+          var fl = selectedFacility === 'tower-mansion' ? Math.round(currentPlan.floors * 1.3) : currentPlan.floors;
+          preview.innerHTML = '';
+          create3DBuilding(preview, null, preview.clientWidth || 350, 160);
+        }
+      });
+    });
+
+    // Start analysis button
+    var startBtn = document.getElementById('scenario-start-btn');
+    if (startBtn) {
+      startBtn.addEventListener('click', function() {
+        var planId = this.dataset.plan;
+        var plan = developmentPlans.find(function(dp) { return dp.id === planId; });
+        if (plan) {
+          window.selectedPlan = plan;
+          window._selectedFacility = selectedFacility;
+          showAnalysisResults(id, selectedFacility, plan.floorArea);
+        }
+      });
+    }
+
+    // Render initial 3D preview
+    setTimeout(function() {
+      var preview = document.getElementById('facility-3d-preview');
+      if (preview && typeof create3DBuilding === 'function') {
+        create3DBuilding(preview, null, preview.clientWidth || 350, 160);
+      }
+    }, 100);
+  }
+
+  renderScenarioPanel();
 
   if (guideStep === 4) setTimeout(function() { advanceGuide(5); }, 500);
 }
@@ -1070,99 +1174,10 @@ function clearPlanHighlight() {
   });
 }
 
-function confirmScenario(parcelId, plan) {
-  window.selectedPlan = plan;
-  currentScreen = 4;
-
-  // Lock plan parcels to red, others grey
-  Object.keys(parcelLayers).forEach(function(pid) {
-    parcelLayers[pid].setStyle({ fillColor: '#cccccc', fillOpacity: 0.2, weight: 1, color: '#aaaaaa' });
-  });
-  plan.parcels.forEach(function(pid) {
-    if (parcelLayers[pid]) {
-      parcelLayers[pid].setStyle({ fillColor: '#d94f43', fillOpacity: 0.6, weight: 3, color: '#d94f43' });
-    }
-  });
-
-  var panel = document.getElementById('side-panel');
-  panel.innerHTML =
-    '<div style="padding:16px">' +
-      '<button onclick="showScenarioPanel(\'' + parcelId + '\')" style="background:none;border:none;color:#0067B3;cursor:pointer;font-size:12px;padding:0;margin:0 0 12px;font-family:inherit">\u2190 プラン選択に戻る</button>' +
-      '<p style="font-size:11px;color:#999;margin:0 0 4px">' + plan.name + '（' + plan.parcels.join(', ') + '）</p>' +
-      '<p style="font-size:15px;font-weight:500;color:#333;margin:0 0 6px">施設タイプの選択</p>' +
-      '<p style="font-size:12px;color:#666;line-height:1.6;margin:0 0 14px">合筆後の敷地面積 ' + plan.siteArea.toLocaleString() + 'm\u00B2 に対して、建設する施設の用途を選択してください。用途に応じてボリュームチェックと事業収支が自動計算されます。</p>' +
-      '<div style="display:flex;flex-direction:column;gap:6px;margin:0 0 16px">' +
-        '<div class="facility-card" data-type="office" style="border:1px solid #e0e0e0;border-radius:8px;padding:12px;cursor:pointer">' +
-          '<div style="display:flex;justify-content:space-between;align-items:center">' +
-            '<span style="font-size:13px;font-weight:500;color:#333">オフィスビル</span>' +
-            '<span style="font-size:11px;color:#999">延床 ' + plan.floorArea.toLocaleString() + 'm\u00B2 / ' + plan.floors + '階</span>' +
-          '</div>' +
-        '</div>' +
-        '<div class="facility-card" data-type="complex" style="border:2px solid #0067B3;border-radius:8px;padding:12px;cursor:pointer;position:relative">' +
-          '<div style="position:absolute;top:-1px;right:-1px;background:#0067B3;color:#fff;font-size:9px;padding:2px 8px;border-radius:0 8px 0 8px">推奨</div>' +
-          '<div style="display:flex;justify-content:space-between;align-items:center">' +
-            '<span style="font-size:13px;font-weight:500;color:#333">複合施設（商業＋オフィス）</span>' +
-            '<span style="font-size:11px;color:#0C447C">延床 ' + plan.floorArea.toLocaleString() + 'm\u00B2 / ' + plan.floors + '階</span>' +
-          '</div>' +
-        '</div>' +
-        '<div class="facility-card" data-type="tower-mansion" style="border:1px solid #e0e0e0;border-radius:8px;padding:12px;cursor:pointer">' +
-          '<div style="display:flex;justify-content:space-between;align-items:center">' +
-            '<span style="font-size:13px;font-weight:500;color:#333">タワーマンション</span>' +
-            '<span style="font-size:11px;color:#999">延床 ' + plan.floorArea.toLocaleString() + 'm\u00B2 / ' + Math.round(plan.floors * 1.3) + '階</span>' +
-          '</div>' +
-        '</div>' +
-      '</div>' +
-      '<div id="facility-3d-preview" style="width:100%;height:200px;background:#f7f8fa;border-radius:8px;margin:0 0 12px;overflow:hidden"></div>' +
-      '<div id="facility-confirm-btn" style="background:#0067B3;color:#fff;text-align:center;padding:12px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;opacity:0.4;pointer-events:none">施設タイプを選択してください</div>' +
-    '</div>';
-
-  window._currentParcelId = parcelId;
-  window._currentPlan = plan;
-  window._selectedFacility = null;
-
-  panel.querySelectorAll('.facility-card').forEach(function(card) {
-    card.addEventListener('click', function() {
-      window._selectedFacility = this.dataset.type;
-      panel.querySelectorAll('.facility-card').forEach(function(c) {
-        c.style.borderColor = '#e0e0e0';
-        c.style.borderWidth = '1px';
-      });
-      this.style.borderColor = '#0067B3';
-      this.style.borderWidth = '2px';
-      var btn = document.getElementById('facility-confirm-btn');
-      if (btn) {
-        btn.style.opacity = '1';
-        btn.style.pointerEvents = 'auto';
-        btn.textContent = '分析を開始する';
-      }
-      var previewContainer = document.getElementById('facility-3d-preview');
-      if (previewContainer && typeof create3DBuilding === 'function') {
-        var ft = window._selectedFacility;
-        var fl = ft === 'tower-mansion' ? Math.round(plan.floors * 1.3) : plan.floors;
-        var fakeP = { area: plan.siteArea, floors: fl };
-        previewContainer.innerHTML = '';
-        var pw = previewContainer.clientWidth || 350;
-        create3DBuilding(previewContainer, fakeP, pw, 200);
-      }
-    });
-  });
-
-  var confirmBtn = document.getElementById('facility-confirm-btn');
-  if (confirmBtn) {
-    confirmBtn.addEventListener('click', function() {
-      if (window._selectedFacility) {
-        showAnalysisResults(window._currentParcelId, window._selectedFacility, window._currentPlan.floorArea);
-        if (guideStep === 6) setTimeout(function() { advanceGuide(7); }, 500);
-      }
-    });
-  }
-
-  if (guideStep === 5) setTimeout(function() { advanceGuide(6); }, 500);
-}
-
 // ===== Three.js 3D Building Renderer =====
 function create3DBuilding(container, p, w, h) {
   if (typeof THREE === 'undefined') { container.innerHTML = '<p style="color:#888;font-size:12px;text-align:center;padding:20px">3D表示を読み込み中...</p>'; return; }
+  if (!p) { p = { area: 4000, floors: 12 }; }
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0xf0f4f8);
   const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
@@ -1315,7 +1330,7 @@ function showAnalysisResults(id, facilityType, floorArea) {
 
   // Expand panel to 500px
   setPanelWidth(500);
-  map.panTo([p.lat, p.lng]);
+  map.panTo(getParcelCenter(p));
 
   // Render impact circles on map
   renderImpactCirclesOnMap(p, facilityType, floorArea);
@@ -1698,7 +1713,7 @@ function renderImpactCirclesOnMap(p, facilityType, floorArea) {
   clearImpactOverlay();
 
   const parcelLayer = parcelLayers[p.id];
-  const centerLatLng = parcelLayer ? parcelLayer.getBounds().getCenter() : L.latLng(p.lat, p.lng);
+  const centerLatLng = parcelLayer ? parcelLayer.getBounds().getCenter() : L.latLng(getParcelCenter(p)[0], getParcelCenter(p)[1]);
 
   // Highlight selected parcel polygon
   if (parcelLayer) {
