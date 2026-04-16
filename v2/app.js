@@ -17,6 +17,7 @@ let originalParcelsData = null;
 let currentAreaLabel = null;
 var _guideUpdating = false;
 var _panelUpdating = false;
+var _lastGuideBubbleTime = 0;
 
 function getParcelCenter(p) {
   var lats = p.polygon.map(function(c){ return c[0]; });
@@ -385,6 +386,9 @@ function skipGuide() {
 
 function showGuideBubble(targetEl, message) {
     if (_panelUpdating) return;
+    var now = Date.now();
+    if (now - _lastGuideBubbleTime < 2000) return;
+    _lastGuideBubbleTime = now;
     var existing = document.querySelector('.guide-bubble');
     if (existing) existing.remove();
     if (guideSkipped) return;
@@ -926,12 +930,25 @@ function setPanelWidth(w) {
 
 // ===== Screen 3: Simplified Detail Panel (Task 49) =====
 function showDetailPanel(id) {
+  const p = parcelsData.find(d => d.id === id);
+  if (!p) return;
+
+  // Check if parcel is in any development plan
+  var isInPlan = false;
+  if (typeof developmentPlans !== 'undefined' && developmentPlans) {
+    developmentPlans.forEach(function(plan) {
+      if (plan.parcels.indexOf(id) >= 0) isInPlan = true;
+    });
+  }
+  if (!isInPlan && !window._isAlternativeArea) {
+    showToast('この筆は開発シナリオの対象外です。スコア上位の筆（P01〜P07）をクリックしてください');
+    return;
+  }
+
   _panelUpdating = true;
   currentScreen = 3;
   selectedParcelId = id;
   clearImpactOverlay();
-  const p = parcelsData.find(d => d.id === id);
-  if (!p) return;
   const grade = getGrade(p.score);
 
   // Keep panel at 400px for detail
@@ -2495,30 +2512,26 @@ function switchAppTab(tab) {
   if (tab === 'map') {
     document.getElementById('map-view').style.display = '';
     document.getElementById('hearing-view').style.display = 'none';
-    document.getElementById('tab-map').style.borderBottomColor = '#333';
-    document.getElementById('tab-map').style.color = '#333';
+    document.getElementById('tab-map').style.borderBottomColor = '#5a8a3c';
+    document.getElementById('tab-map').style.color = '#3d6b24';
     document.getElementById('tab-map').style.fontWeight = '500';
     document.getElementById('tab-hearing').style.borderBottomColor = 'transparent';
-    document.getElementById('tab-hearing').style.color = '#aaa';
+    document.getElementById('tab-hearing').style.color = '#999';
     document.getElementById('tab-hearing').style.fontWeight = '400';
-    var hfb = document.getElementById('hearing-float-btn');
-    if (hfb) hfb.style.display = 'flex';
-    var rfb = document.getElementById('reset-float-btn');
-    if (rfb) rfb.style.display = 'flex';
+    if (document.getElementById('hearing-float-btn')) document.getElementById('hearing-float-btn').style.display = 'flex';
+    if (document.getElementById('reset-float-btn')) document.getElementById('reset-float-btn').style.display = 'flex';
     if (typeof map !== 'undefined') map.invalidateSize();
   } else {
     document.getElementById('map-view').style.display = 'none';
     document.getElementById('hearing-view').style.display = '';
-    document.getElementById('tab-hearing').style.borderBottomColor = '#333';
-    document.getElementById('tab-hearing').style.color = '#333';
+    document.getElementById('tab-hearing').style.borderBottomColor = '#5a8a3c';
+    document.getElementById('tab-hearing').style.color = '#3d6b24';
     document.getElementById('tab-hearing').style.fontWeight = '500';
     document.getElementById('tab-map').style.borderBottomColor = 'transparent';
-    document.getElementById('tab-map').style.color = '#aaa';
+    document.getElementById('tab-map').style.color = '#999';
     document.getElementById('tab-map').style.fontWeight = '400';
-    var hfb2 = document.getElementById('hearing-float-btn');
-    if (hfb2) hfb2.style.display = 'none';
-    var rfb2 = document.getElementById('reset-float-btn');
-    if (rfb2) rfb2.style.display = 'none';
+    if (document.getElementById('hearing-float-btn')) document.getElementById('hearing-float-btn').style.display = 'none';
+    if (document.getElementById('reset-float-btn')) document.getElementById('reset-float-btn').style.display = 'none';
     if (typeof autoStartHearing === 'function') autoStartHearing();
   }
 }
