@@ -1616,6 +1616,16 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
 /* ===== Task 65: Risk item expand ===== */
 .risk-item.expanded .risk-detail { max-height: 100px !important; }
 
+/* ===== Hearing view hides map overlays (Task 153) ===== */
+#hearing-view {
+  position: relative;
+  padding-top: 40px;
+  min-height: calc(100vh - 40px);
+}
+#hearing-view .leaflet-container {
+  display: none !important;
+}
+
 /* ===== Hearing Styles (Task 131) ===== */
 .hearing-header { background: #0067B3; color: #fff; padding: 56px 24px 16px; display: flex; justify-content: space-between; align-items: center; }
 .hearing-container { max-width: 800px; margin: 0 auto; padding: 24px 16px 80px; }

@@ -2540,6 +2540,10 @@ function switchAppTab(tab) {
     document.getElementById('tab-hearing').style.fontWeight = '400';
     if (document.getElementById('hearing-float-btn')) document.getElementById('hearing-float-btn').style.display = 'flex';
     if (document.getElementById('reset-float-btn')) document.getElementById('reset-float-btn').style.display = 'flex';
+    var gb = document.querySelector('.guide-bubble');
+    if (gb && guideStep > 0) gb.style.display = '';
+    var gpf = document.querySelectorAll('.guide-pulse-fixed');
+    gpf.forEach(function(el) { el.style.display = ''; });
     if (typeof map !== 'undefined') map.invalidateSize();
   } else {
     document.getElementById('map-view').style.display = 'none';
@@ -2552,6 +2556,10 @@ function switchAppTab(tab) {
     document.getElementById('tab-map').style.fontWeight = '400';
     if (document.getElementById('hearing-float-btn')) document.getElementById('hearing-float-btn').style.display = 'none';
     if (document.getElementById('reset-float-btn')) document.getElementById('reset-float-btn').style.display = 'none';
+    var gb2 = document.querySelector('.guide-bubble');
+    if (gb2) gb2.style.display = 'none';
+    var gpf2 = document.querySelectorAll('.guide-pulse-fixed');
+    gpf2.forEach(function(el) { el.style.display = 'none'; });
     if (typeof autoStartHearing === 'function') autoStartHearing();
   }
 }
@@ -2635,7 +2643,10 @@ async function loadHearingQuestions() {
     html += '<div class="hearing-question-card" data-qid="' + q.id + '">';
     html += '<div style="display:flex;justify-content:space-between;align-items:flex-start">';
     html += '<div class="hearing-question-text">' + q.sort_order + '. ' + q.question_text + '</div>';
-    html += '<button class="edit-q-btn" data-qid="' + q.id + '" style="background:none;border:1px solid #ddd;border-radius:4px;padding:4px 8px;font-size:11px;color:#888;cursor:pointer;white-space:nowrap;margin-left:8px;font-family:inherit" onclick="editHearingQuestion(' + q.id + ', this)">編集</button>';
+    html += '<div style="display:flex;gap:4px;margin-left:8px">';
+    html += '<button class="edit-q-btn" data-qid="' + q.id + '" style="background:none;border:1px solid #ddd;border-radius:4px;padding:4px 8px;font-size:11px;color:#888;cursor:pointer;white-space:nowrap;font-family:inherit" onclick="editHearingQuestion(' + q.id + ', this)">編集</button>';
+    html += '<button style="background:none;border:1px solid #e0b0b0;border-radius:4px;padding:4px 8px;font-size:11px;color:#c0392b;cursor:pointer;white-space:nowrap;font-family:inherit" onclick="deleteHearingQuestion(' + q.id + ')">削除</button>';
+    html += '</div>';
     html += '</div>';
     if (q.question_type === 'free_text') {
       html += '<textarea class="hearing-memo-area" placeholder="回答を入力..." onchange="saveHearingMemo(' + q.id + ', this.value)"></textarea>';
@@ -2662,11 +2673,14 @@ async function loadHearingQuestions() {
     }
     html += '<textarea class="hearing-memo-area" placeholder="メモ（任意）" style="margin-top:8px;min-height:40px" onchange="saveHearingMemo(' + q.id + ', this.value, true)"></textarea>';
     html += '</div>';
+    html += '<div style="text-align:center;margin:4px 0"><button onclick="addHearingQuestion(\'' + q.category.replace(/'/g, "\\'") + '\', ' + q.sort_order + ')" style="background:none;border:1px dashed #ccc;border-radius:4px;padding:3px 10px;font-size:10px;color:#888;cursor:pointer;font-family:inherit">+ この下に質問を追加</button></div>';
   });
   if (currentCat) html += '</div>';
+  html += '<div style="text-align:center;margin:20px 0"><button onclick="addNewCategory()" style="background:#fff;border:1.5px dashed #0067B3;border-radius:8px;padding:12px 24px;font-size:13px;color:#0067B3;cursor:pointer;font-family:inherit">+ 新しいセクションを追加</button></div>';
   var mgmtBar = '<div style="display:flex;gap:8px;margin:0 0 16px;padding:12px 14px;background:#f7f8fa;border-radius:8px;flex-wrap:wrap">';
   mgmtBar += '<button onclick="saveSnapshot()" style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:inherit">現在のシートを保存</button>';
   mgmtBar += '<button onclick="showSnapshotList()" style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:inherit">保存済みから復元</button>';
+  mgmtBar += '<button onclick="addNewCategory()" style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:inherit">+ 新しいセクションを追加</button>';
   mgmtBar += '<button onclick="resetToDefaultQuestions()" style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;color:#888;font-family:inherit;margin-left:auto">初期設定に戻す</button>';
   mgmtBar += '</div>';
   list.innerHTML = mgmtBar + html;
@@ -2831,27 +2845,77 @@ async function editHearingQuestion(qid, btn) {
   }
 }
 
-async function addHearingQuestion(category) {
+async function addHearingQuestion(category, afterSortOrder) {
   var text = prompt('新しい質問文を入力してください:');
   if (!text) return;
-  var maxOrder = 0;
-  hearingQuestions.forEach(function(q) { if (q.sort_order > maxOrder) maxOrder = q.sort_order; });
+  var insertOrder;
+  if (typeof afterSortOrder === 'undefined') {
+    var categoryQuestions = hearingQuestions.filter(function(q) { return q.category === category; });
+    if (categoryQuestions.length > 0) {
+      insertOrder = Math.max.apply(null, categoryQuestions.map(function(q) { return q.sort_order; })) + 1;
+    } else {
+      insertOrder = hearingQuestions.length > 0 ? Math.max.apply(null, hearingQuestions.map(function(q) { return q.sort_order; })) + 1 : 1;
+    }
+  } else {
+    insertOrder = afterSortOrder + 0.5;
+  }
   await sbFetch('/questions', {
     method: 'POST',
-    body: JSON.stringify({ category: category, sort_order: maxOrder + 1, question_text: text, question_type: 'free_text', is_active: true })
+    body: JSON.stringify({ category: category, sort_order: insertOrder, question_text: text, question_type: 'free_text', is_active: true })
   });
+  await renormalizeSortOrders();
   loadHearingQuestions();
   showToast('質問を追加しました');
 }
 
+async function renormalizeSortOrders() {
+  var res = await sbFetch('/questions?is_active=eq.true&order=sort_order');
+  var qs = await res.json();
+  for (var i = 0; i < qs.length; i++) {
+    await sbFetch('/questions?id=eq.' + qs[i].id, {
+      method: 'PATCH',
+      body: JSON.stringify({ sort_order: i + 1 })
+    });
+  }
+}
+
+async function deleteHearingQuestion(qid) {
+  if (!confirm('この質問を削除しますか？')) return;
+  await sbFetch('/questions?id=eq.' + qid, {
+    method: 'PATCH',
+    body: JSON.stringify({ is_active: false })
+  });
+  loadHearingQuestions();
+  showToast('質問を削除しました');
+}
+
 async function deleteHearingCategory(category) {
-  if (!confirm('カテゴリ「' + category + '」の質問を全て削除しますか？')) return;
+  if (!confirm('カテゴリ「' + category + '」と、そこに含まれる全ての質問を削除します。よろしいですか？\n\n※この操作は取り消せません。個別の質問のみを削除したい場合は、各質問の「削除」ボタンを使ってください。')) return;
   await sbFetch('/questions?category=eq.' + encodeURIComponent(category), {
     method: 'PATCH',
     body: JSON.stringify({ is_active: false })
   });
   loadHearingQuestions();
   showToast('カテゴリを削除しました');
+}
+
+async function addNewCategory() {
+  var categoryName = prompt('新しいセクション名を入力してください:');
+  if (!categoryName) return;
+  var existing = hearingQuestions.find(function(q) { return q.category === categoryName; });
+  if (existing) {
+    alert('このセクション名は既に存在します');
+    return;
+  }
+  var questionText = prompt('最初の質問文を入力してください（任意）:');
+  if (!questionText) questionText = '（ここに質問を入力してください）';
+  var maxOrder = hearingQuestions.length > 0 ? Math.max.apply(null, hearingQuestions.map(function(q) { return q.sort_order; })) : 0;
+  await sbFetch('/questions', {
+    method: 'POST',
+    body: JSON.stringify({ category: categoryName, sort_order: maxOrder + 1, question_text: questionText, question_type: 'free_text', is_active: true })
+  });
+  loadHearingQuestions();
+  showToast('新しいセクションを追加しました');
 }
 
 function selectHearingOption(btn, qid, value, isMulti) {
