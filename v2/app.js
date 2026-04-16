@@ -2664,7 +2664,142 @@ async function loadHearingQuestions() {
     html += '</div>';
   });
   if (currentCat) html += '</div>';
-  list.innerHTML = html;
+  var mgmtBar = '<div style="display:flex;gap:8px;margin:0 0 16px;padding:12px 14px;background:#f7f8fa;border-radius:8px;flex-wrap:wrap">';
+  mgmtBar += '<button onclick="saveSnapshot()" style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:inherit">現在のシートを保存</button>';
+  mgmtBar += '<button onclick="showSnapshotList()" style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:inherit">保存済みから復元</button>';
+  mgmtBar += '<button onclick="resetToDefaultQuestions()" style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;color:#888;font-family:inherit;margin-left:auto">初期設定に戻す</button>';
+  mgmtBar += '</div>';
+  list.innerHTML = mgmtBar + html;
+}
+
+var DEFAULT_QUESTIONS = [
+  { category: '全体印象', sort_order: 1, question_text: '全体的に、実務で使えそうなイメージは沸きますか。その理由も教えてください。', question_type: 'free_text', options: null },
+  { category: '全体印象', sort_order: 2, question_text: '一連のフローや分析項目等で違和感があるポイントはありますか。（例：スコアの算出根拠、UIの操作性、データの粒度、画面遷移など）', question_type: 'free_text', options: null },
+  { category: '全体印象', sort_order: 3, question_text: 'ご自身のネットワーク内の顧客企業で、このツールを使えそうな企業像は思い浮かびますか。', question_type: 'free_text', options: null },
+  { category: '業界・業務実態', sort_order: 4, question_text: '土地取得に関して、現在どのようなツールやサービスを使っていますか。プロセスや業務ごとに教えてください。', question_type: 'free_text', options: null },
+  { category: '業界・業務実態', sort_order: 5, question_text: '用地評価のプロセスで最も時間がかかっている作業は何ですか。', question_type: 'free_text', options: null },
+  { category: '業界・業務実態', sort_order: 6, question_text: '競合他社の開発動向の把握はどのように行っていますか。', question_type: 'free_text', options: null },
+  { category: '業界・業務実態', sort_order: 7, question_text: '地権者情報の調査にどの程度の工数をかけていますか。', question_type: 'single_select', options: ['1人日以内', '2〜5人日', '5〜10人日', '10人日以上'] },
+  { category: '業界・業務実態', sort_order: 8, question_text: '現在の業務で「見送っている土地」や「機会損失」が発生していると感じる領域はありますか。', question_type: 'free_text', options: null },
+  { category: '業界・業務実態', sort_order: 9, question_text: '用地探索から地権者データ取得まで一気通貫でできることに価値を感じますか。', question_type: 'free_text', options: null },
+  { category: 'デモに対するフィードバック', sort_order: 10, question_text: '本日のデモで最も印象に残った機能はどれですか。', question_type: 'single_select', options: ['筆スコアリング', '開発シナリオ自動生成', '事業収支シミュレーション', '開発インパクト推計', '地権者分析', '代替候補探索'] },
+  { category: 'デモに対するフィードバック', sort_order: 11, question_text: '「この機能があれば業務が大きく改善される」と思うものを挙げてください。', question_type: 'free_text', options: null },
+  { category: 'デモに対するフィードバック', sort_order: 12, question_text: '現在の業務フローのどこにこのツールを組み込めると思いますか。', question_type: 'free_text', options: null },
+  { category: 'デモに対するフィードバック', sort_order: 13, question_text: 'デモに含まれていないが、あるべきだと思う機能はありますか。', question_type: 'free_text', options: null },
+  { category: 'デモに対するフィードバック', sort_order: 14, question_text: '導入にあたって懸念されることはどれですか。', question_type: 'multi_select', options: ['データソースの信頼性', 'セキュリティ・コンプライアンス', 'UIの学習コスト', '既存システムとの統合', '価格', '導入後のサポート体制', 'その他'] },
+  { category: '市場性・商業化', sort_order: 15, question_text: 'このようなツールに対して、どの程度の価格が適切だと感じますか。', question_type: 'single_select', options: ['月額10万円以下', '月額10〜30万円', '月額30〜100万円', '月額100万円以上', '初期費用＋月額のモデルが適切'] },
+  { category: '市場性・商業化', sort_order: 16, question_text: 'どのような業界・業種・企業規模が初期のお客様候補になりそうですか。', question_type: 'multi_select', options: ['大手デベロッパー', '中堅デベロッパー', '地域デベロッパー', 'アセットマネジメント会社', '不動産仲介', '金融機関', '自治体', 'その他'] },
+  { category: '市場性・商業化', sort_order: 17, question_text: 'まず試してみたい機能があるとすればどれですか。', question_type: 'single_select', options: ['筆スコアリング', '開発シナリオ自動生成', '事業収支シミュレーション', '開発インパクト推計', '地権者分析', '代替候補探索'] }
+];
+
+async function resetToDefaultQuestions() {
+  if (!confirm('ヒアリング項目を初期設定に戻しますか？現在の設定は、先に「現在のシートを保存」でスナップショットとして保存することを推奨します。')) return;
+  await sbFetch('/questions?is_active=eq.true', {
+    method: 'PATCH',
+    body: JSON.stringify({ is_active: false })
+  });
+  var defaults = DEFAULT_QUESTIONS.map(function(q) {
+    return {
+      category: q.category,
+      sort_order: q.sort_order,
+      question_text: q.question_text,
+      question_type: q.question_type,
+      options: q.options,
+      is_active: true
+    };
+  });
+  await sbFetch('/questions', {
+    method: 'POST',
+    body: JSON.stringify(defaults)
+  });
+  loadHearingQuestions();
+  showToast('ヒアリング項目を初期設定に戻しました');
+}
+
+async function saveSnapshot() {
+  var name = prompt('スナップショット名を入力してください:', new Date().toLocaleDateString('ja-JP') + ' ' + new Date().toLocaleTimeString('ja-JP'));
+  if (!name) return;
+  var res = await sbFetch('/questions?is_active=eq.true&order=sort_order');
+  var currentQuestions = await res.json();
+  await sbFetch('/question_snapshots', {
+    method: 'POST',
+    body: JSON.stringify({
+      snapshot_name: name,
+      snapshot_data: currentQuestions
+    })
+  });
+  showToast('スナップショットを保存しました');
+}
+
+async function showSnapshotList() {
+  var res = await sbFetch('/question_snapshots?order=created_at.desc');
+  var snapshots = await res.json();
+  if (snapshots.length === 0) {
+    alert('保存されたスナップショットはありません');
+    return;
+  }
+  var existing = document.getElementById('snapshot-modal');
+  if (existing) existing.remove();
+  var modal = document.createElement('div');
+  modal.id = 'snapshot-modal';
+  modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:100000;display:flex;align-items:center;justify-content:center';
+  var html = '<div style="background:#fff;border-radius:12px;padding:24px;max-width:500px;width:90%;max-height:70vh;overflow-y:auto">';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin:0 0 16px">';
+  html += '<h3 style="font-size:16px;font-weight:500;margin:0">保存済みスナップショット</h3>';
+  html += '<button onclick="document.getElementById(\'snapshot-modal\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888">×</button>';
+  html += '</div>';
+  html += '<div style="display:flex;flex-direction:column;gap:8px">';
+  snapshots.forEach(function(snap) {
+    var date = new Date(snap.created_at).toLocaleString('ja-JP');
+    var count = Array.isArray(snap.snapshot_data) ? snap.snapshot_data.length : 0;
+    html += '<div style="border:1px solid #e0e0e0;border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center">';
+    html += '<div><div style="font-size:13px;font-weight:500">' + snap.snapshot_name + '</div><div style="font-size:11px;color:#888;margin-top:2px">' + date + ' / ' + count + '問</div></div>';
+    html += '<div style="display:flex;gap:6px">';
+    html += '<button onclick="restoreSnapshot(' + snap.id + ')" style="background:#0067B3;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer">復元</button>';
+    html += '<button onclick="deleteSnapshot(' + snap.id + ')" style="background:none;color:#c0392b;border:1px solid #c0392b;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer">削除</button>';
+    html += '</div></div>';
+  });
+  html += '</div></div>';
+  modal.innerHTML = html;
+  document.body.appendChild(modal);
+}
+
+async function restoreSnapshot(snapId) {
+  if (!confirm('このスナップショットを復元しますか？現在の設定は上書きされます。')) return;
+  var res = await sbFetch('/question_snapshots?id=eq.' + snapId);
+  var data = await res.json();
+  if (data.length === 0) return;
+  var snapshot = data[0].snapshot_data;
+  await sbFetch('/questions?is_active=eq.true', {
+    method: 'PATCH',
+    body: JSON.stringify({ is_active: false })
+  });
+  var toInsert = snapshot.map(function(q) {
+    return {
+      category: q.category,
+      sort_order: q.sort_order,
+      question_text: q.question_text,
+      question_type: q.question_type,
+      options: q.options,
+      is_active: true
+    };
+  });
+  await sbFetch('/questions', {
+    method: 'POST',
+    body: JSON.stringify(toInsert)
+  });
+  var modal = document.getElementById('snapshot-modal');
+  if (modal) modal.remove();
+  loadHearingQuestions();
+  showToast('スナップショットを復元しました');
+}
+
+async function deleteSnapshot(snapId) {
+  if (!confirm('このスナップショットを削除しますか？')) return;
+  await sbFetch('/question_snapshots?id=eq.' + snapId, {
+    method: 'DELETE'
+  });
+  showSnapshotList();
 }
 
 async function editHearingQuestion(qid, btn) {
