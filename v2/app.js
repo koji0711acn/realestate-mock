@@ -196,6 +196,9 @@ function startDemo() {
   if (gifInterval) { clearInterval(gifInterval); gifInterval = null; }
   document.getElementById('screen0').style.display = 'none';
   document.getElementById('screen-map').style.display = 'block';
+  document.getElementById('app-tabs').style.display = 'flex';
+  var floatBtn = document.getElementById('hearing-float-btn');
+  if (floatBtn) floatBtn.style.display = 'flex';
   initMap();
 }
 
@@ -1064,12 +1067,16 @@ function showScenarioPanel(id) {
         html += '<div class="facility-tab" data-type="tower-mansion" style="flex:1;text-align:center;padding:8px 4px;border:1px solid #e0e0e0;border-radius:6px;cursor:pointer;font-size:11px;color:#888">タワマン<br><span style="font-size:10px">' + Math.round(plan.floors * 1.3) + 'F</span></div>';
         html += '</div>';
         html += '<div id="facility-3d-preview" style="width:100%;height:160px;background:#f0f4f8;border-radius:8px;margin:0 0 12px;overflow:hidden"></div>';
-        html += '<div id="scenario-start-btn" data-plan="' + plan.id + '" style="background:#0067B3;color:#fff;text-align:center;padding:12px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer">このプランで分析を開始</div>';
+        if (plan.recommended) {
+          html += '<div id="scenario-start-btn" data-plan="' + plan.id + '" style="background:#0067B3;color:#fff;text-align:center;padding:12px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer">このプランで分析を開始</div>';
+        } else {
+          html += '<div id="scenario-start-btn" data-plan="' + plan.id + '" style="background:#ccc;color:#fff;text-align:center;padding:12px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer">このプランで分析を開始</div>';
+        }
         html += '</div>';
         html += '</div>';
       } else {
         // Collapsed card
-        html += '<div class="plan-card-collapsed" data-plan="' + plan.id + '" style="border:1px solid #e0e0e0;border-radius:8px;padding:12px 14px;cursor:default;opacity:0.5;transition:opacity 0.2s" onmouseover="this.style.opacity=0.7;highlightPlanParcels(\'' + plan.id + '\')" onmouseout="this.style.opacity=0.5;clearPlanHighlight()">';
+        html += '<div class="plan-card-collapsed" data-plan="' + plan.id + '" style="border:1px solid #e0e0e0;border-radius:8px;padding:12px 14px;cursor:pointer;opacity:0.7;transition:opacity 0.2s" onmouseover="this.style.opacity=1;highlightPlanParcels(\'' + plan.id + '\')" onmouseout="this.style.opacity=0.7;clearPlanHighlight()">';
         html += '<div style="display:flex;justify-content:space-between;align-items:center">';
         html += '<span style="font-size:13px;color:#333">' + plan.name + '</span>';
         html += '<div style="display:flex;align-items:center;gap:8px">';
@@ -1089,6 +1096,7 @@ function showScenarioPanel(id) {
     // Highlight expanded plan parcels
     var currentPlan = developmentPlans.find(function(dp) { return dp.id === expandedPlanId; });
     if (currentPlan) {
+      window._expandedPlanParcels = currentPlan.parcels;
       Object.keys(parcelLayers).forEach(function(pid) {
         parcelLayers[pid].setStyle({ fillColor: '#cccccc', fillOpacity: 0.2, weight: 1, color: '#aaaaaa' });
       });
@@ -1099,10 +1107,11 @@ function showScenarioPanel(id) {
       });
     }
 
-    // Collapsed card click → toast (demo restriction)
+    // Collapsed card click → expand
     panel.querySelectorAll('.plan-card-collapsed').forEach(function(card) {
       card.addEventListener('click', function() {
-        showToast('デモ版ではAI推奨プラン（Plan D）のみ分析可能です');
+        expandedPlanId = this.dataset.plan;
+        renderScenarioPanel();
       });
     });
 
@@ -1136,10 +1145,12 @@ function showScenarioPanel(id) {
       startBtn.addEventListener('click', function() {
         var planId = this.dataset.plan;
         var plan = developmentPlans.find(function(dp) { return dp.id === planId; });
-        if (plan) {
+        if (plan && plan.recommended) {
           window.selectedPlan = plan;
           window._selectedFacility = selectedFacility;
           showAnalysisResults(id, selectedFacility, plan.floorArea);
+        } else {
+          showToast('デモ版ではPlan Dの分析のみ可能です');
         }
       });
     }
@@ -1175,10 +1186,16 @@ function highlightPlanParcels(planId) {
 }
 
 function clearPlanHighlight() {
-  // Return to grey state (not original colors)
   Object.keys(parcelLayers).forEach(function(pid) {
     parcelLayers[pid].setStyle({ fillColor: '#cccccc', fillOpacity: 0.2, weight: 1, color: '#aaaaaa' });
   });
+  if (typeof window._expandedPlanParcels !== 'undefined' && window._expandedPlanParcels) {
+    window._expandedPlanParcels.forEach(function(pid) {
+      if (parcelLayers[pid]) {
+        parcelLayers[pid].setStyle({ fillColor: '#d94f43', fillOpacity: 0.6, weight: 3, color: '#d94f43' });
+      }
+    });
+  }
 }
 
 // ===== Three.js 3D Building Renderer =====
@@ -1371,7 +1388,24 @@ function showAnalysisResults(id, facilityType, floorArea) {
 
   // Expand panel to 500px
   setPanelWidth(500);
-  map.panTo(getParcelCenter(p));
+  var planCenter;
+  if (window.selectedPlan) {
+    var planLats = [];
+    var planLngs = [];
+    window.selectedPlan.parcels.forEach(function(pid) {
+      var pp = parcelsData.find(function(d) { return d.id === pid; });
+      if (pp) {
+        var c = getParcelCenter(pp);
+        planLats.push(c[0]);
+        planLngs.push(c[1]);
+      }
+    });
+    planCenter = [planLats.reduce(function(a,b){return a+b},0)/planLats.length, planLngs.reduce(function(a,b){return a+b},0)/planLngs.length];
+  } else {
+    planCenter = getParcelCenter(p);
+  }
+  window._planCenter = planCenter;
+  map.panTo(planCenter);
 
   // Render impact circles on map
   renderImpactCirclesOnMap(p, facilityType, floorArea);
@@ -1889,7 +1923,7 @@ function showAcquisitionPanel(id) {
           </div>
         </div>
         <div style="display:flex;gap:10px;padding:12px;background:#f7f8fa;border-radius:0 0 8px 8px;margin-bottom:4px">
-          <div class="alt-card" style="flex:1;border:2px solid #e0e0e0;margin-bottom:0;opacity:0.85;border-radius:8px;overflow:visible;position:relative">
+          <div class="alt-card" style="flex:1;border:2px solid #e0e0e0;margin-bottom:0;opacity:0.85;border-radius:8px;overflow:visible;position:relative" onmouseover="map.flyTo([35.6605, 139.7558], 16, {duration: 0.5})" onmouseout="map.flyTo(window._planCenter || [35.6565, 139.7533], 16, {duration: 0.5})">
             <div style="background:#f4f6f9;padding:10px 12px;border-radius:6px 6px 0 0;margin:-12px -12px 10px;display:flex;align-items:center;justify-content:space-between">
               <strong style="font-size:13px;display:block">新橋四丁目</strong>
               <span style="font-size:10px;color:#888;background:#e0e0e0;padding:1px 6px;border-radius:3px">候補</span>
@@ -1899,9 +1933,9 @@ function showAcquisitionPanel(id) {
               <div style="font-size:11px;color:#888">NOI 4.0%</div>
             </div>
             <div style="background:#E6F1FB;border-radius:4px;padding:6px 8px;font-size:11px;color:#333;margin-bottom:10px;line-height:1.5">商業地域で高容積率の開発が可能</div>
-            <button class="alt-explore-btn" onclick="exploreAlternativeArea('alt1')" style="height:32px;font-size:12px;background:transparent;color:#0067B3;border:1px solid #0067B3;border-radius:6px;width:100%;cursor:pointer;font-family:inherit">このエリアを調査</button>
+            <div style="border:1px solid #ccc;color:#999;text-align:center;padding:8px;border-radius:6px;font-size:12px;cursor:default">デモ版では調査不可</div>
           </div>
-          <div class="alt-card" style="flex:1;border:2px solid #0067B3;margin-bottom:0;animation:card-nudge 2s ease-in-out infinite, pulse-border 2s ease-in-out infinite;position:relative;border-radius:8px;overflow:visible">
+          <div class="alt-card" style="flex:1;border:2px solid #0067B3;margin-bottom:0;animation:card-nudge 2s ease-in-out infinite, pulse-border 2s ease-in-out infinite;position:relative;border-radius:8px;overflow:visible" onmouseover="map.flyTo([35.6617, 139.7522], 16, {duration: 0.5})" onmouseout="map.flyTo(window._planCenter || [35.6565, 139.7533], 16, {duration: 0.5})">
             <span style="position:absolute;top:-8px;right:8px;background:#c0392b;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px">推奨</span>
             <div style="background:#E8F2FB;padding:10px 12px;border-radius:6px 6px 0 0;margin:-12px -12px 10px">
               <strong style="font-size:13px;display:block">芝公園三丁目</strong>
@@ -2300,3 +2334,176 @@ document.addEventListener('DOMContentLoaded', () => {
   // Demo start
   document.getElementById('btn-start').addEventListener('click', startDemo);
 });
+
+// ===== Tab Switching (Task 131) =====
+function switchAppTab(tab) {
+  if (tab === 'map') {
+    document.getElementById('map-view').style.display = '';
+    document.getElementById('hearing-view').style.display = 'none';
+    document.getElementById('tab-map').style.borderBottomColor = '#0067B3';
+    document.getElementById('tab-map').style.color = '#0067B3';
+    document.getElementById('tab-hearing').style.borderBottomColor = 'transparent';
+    document.getElementById('tab-hearing').style.color = '#888';
+    if (typeof map !== 'undefined') map.invalidateSize();
+  } else {
+    document.getElementById('map-view').style.display = 'none';
+    document.getElementById('hearing-view').style.display = '';
+    document.getElementById('tab-hearing').style.borderBottomColor = '#0067B3';
+    document.getElementById('tab-hearing').style.color = '#0067B3';
+    document.getElementById('tab-map').style.borderBottomColor = 'transparent';
+    document.getElementById('tab-map').style.color = '#888';
+  }
+}
+
+// ===== Hearing (Task 131) =====
+var SUPABASE_URL = 'https://fivptpmctkfumdzeqvjr.supabase.co';
+var SUPABASE_KEY = 'sb_publishable_zexOhIWAu2akWRPQ5h8_Uw_6O4b3NGW';
+var hearingSessionId = null;
+var hearingQuestions = [];
+var hearingMemoData = {};
+
+function sbFetch(path, options) {
+  var opts = options || {};
+  opts.headers = opts.headers || {};
+  opts.headers['apikey'] = SUPABASE_KEY;
+  opts.headers['Authorization'] = 'Bearer ' + SUPABASE_KEY;
+  opts.headers['Content-Type'] = 'application/json';
+  if (opts.upsert) {
+    opts.headers['Prefer'] = 'resolution=merge-duplicates';
+  }
+  return fetch(SUPABASE_URL + '/rest/v1' + path, opts);
+}
+
+async function startHearingSession() {
+  var interviewer = document.getElementById('hearing-interviewer').value.trim();
+  var interviewee = document.getElementById('hearing-interviewee').value.trim();
+  var company = document.getElementById('hearing-company').value.trim();
+  if (!interviewer || !interviewee) {
+    alert('実施者名と回答者名を入力してください');
+    return;
+  }
+  var res = await sbFetch('/sessions', {
+    method: 'POST',
+    headers: { 'Prefer': 'return=representation' },
+    body: JSON.stringify({ interviewer_name: interviewer, interviewee_name: interviewee, company_name: company, status: 'in_progress' })
+  });
+  var data = await res.json();
+  hearingSessionId = data[0].id;
+  document.getElementById('hearing-session-setup').classList.add('hidden');
+  document.getElementById('hearing-questions-area').classList.remove('hidden');
+  document.getElementById('hearing-export-bar').classList.remove('hidden');
+  document.getElementById('hearing-session-info').textContent = interviewee + ' (' + company + ')';
+  loadHearingQuestions();
+}
+
+async function loadHearingQuestions() {
+  var res = await sbFetch('/questions?is_active=eq.true&order=sort_order');
+  hearingQuestions = await res.json();
+  document.getElementById('hearing-loading-msg').classList.add('hidden');
+  var list = document.getElementById('hearing-questions-list');
+  var currentCat = '';
+  var html = '';
+  hearingQuestions.forEach(function(q) {
+    if (q.category !== currentCat) {
+      if (currentCat) html += '</div>';
+      currentCat = q.category;
+      html += '<div style="margin:0 0 20px"><div class="hearing-category-title">' + q.category + '</div>';
+    }
+    html += '<div class="hearing-question-card" data-qid="' + q.id + '">';
+    html += '<div class="hearing-question-text">' + q.sort_order + '. ' + q.question_text + '</div>';
+    if (q.question_type === 'free_text') {
+      html += '<textarea class="hearing-memo-area" placeholder="回答を入力..." onchange="saveHearingMemo(' + q.id + ', this.value)"></textarea>';
+    } else if (q.question_type === 'single_select' && q.options) {
+      var opts = typeof q.options === 'string' ? JSON.parse(q.options) : q.options;
+      html += '<div class="hearing-options-group">';
+      opts.forEach(function(opt) {
+        html += '<button class="hearing-option-btn" onclick="selectHearingOption(this, ' + q.id + ', \'' + opt.replace(/'/g, "\\'") + '\', false)">' + opt + '</button>';
+      });
+      html += '</div>';
+    } else if (q.question_type === 'multi_select' && q.options) {
+      var mopts = typeof q.options === 'string' ? JSON.parse(q.options) : q.options;
+      html += '<div class="hearing-options-group">';
+      mopts.forEach(function(opt) {
+        html += '<button class="hearing-option-btn" onclick="selectHearingOption(this, ' + q.id + ', \'' + opt.replace(/'/g, "\\'") + '\', true)">' + opt + '</button>';
+      });
+      html += '</div>';
+    } else if (q.question_type === 'rating_5') {
+      html += '<div class="hearing-rating-group">';
+      for (var r = 1; r <= 5; r++) {
+        html += '<button class="hearing-rating-btn" onclick="selectHearingRating(this, ' + q.id + ', ' + r + ')">' + r + '</button>';
+      }
+      html += '</div>';
+    }
+    html += '<textarea class="hearing-memo-area" placeholder="メモ（任意）" style="margin-top:8px;min-height:40px" onchange="saveHearingMemo(' + q.id + ', this.value, true)"></textarea>';
+    html += '</div>';
+  });
+  if (currentCat) html += '</div>';
+  list.innerHTML = html;
+}
+
+function selectHearingOption(btn, qid, value, isMulti) {
+  if (isMulti) {
+    btn.classList.toggle('multi-selected');
+    var selected = [];
+    btn.parentElement.querySelectorAll('.multi-selected').forEach(function(b) { selected.push(b.textContent); });
+    saveHearingMemo(qid, selected.join(', '));
+  } else {
+    btn.parentElement.querySelectorAll('.hearing-option-btn').forEach(function(b) { b.classList.remove('selected'); });
+    btn.classList.add('selected');
+    saveHearingMemo(qid, value);
+  }
+}
+
+function selectHearingRating(btn, qid, value) {
+  btn.parentElement.querySelectorAll('.hearing-rating-btn').forEach(function(b) { b.classList.remove('selected'); });
+  btn.classList.add('selected');
+  saveHearingMemo(qid, String(value));
+}
+
+async function saveHearingMemo(qid, text, isMemoField) {
+  if (!hearingSessionId) return;
+  hearingMemoData[qid] = hearingMemoData[qid] || {};
+  if (isMemoField) { hearingMemoData[qid].memo = text; } else { hearingMemoData[qid].answer = text; }
+  var memoText = '';
+  if (hearingMemoData[qid].answer) memoText += hearingMemoData[qid].answer;
+  if (hearingMemoData[qid].memo) memoText += (memoText ? ' | メモ: ' : '') + hearingMemoData[qid].memo;
+  await sbFetch('/memos', {
+    method: 'POST',
+    headers: { 'Prefer': 'resolution=merge-duplicates' },
+    body: JSON.stringify({ session_id: hearingSessionId, question_id: qid, memo_text: memoText })
+  });
+  var count = Object.keys(hearingMemoData).filter(function(k) { return hearingMemoData[k].answer || hearingMemoData[k].memo; }).length;
+  document.getElementById('hearing-memo-count').textContent = 'メモ: ' + count + '件';
+}
+
+async function exportHearingCSV() {
+  if (!hearingSessionId) return;
+  var res = await sbFetch('/memos?session_id=eq.' + hearingSessionId + '&order=question_id');
+  var memos = await res.json();
+  var csv = '\uFEFF質問ID,カテゴリ,質問文,回答・メモ\n';
+  hearingQuestions.forEach(function(q) {
+    var memo = memos.find(function(m) { return m.question_id === q.id; });
+    var text = memo ? memo.memo_text.replace(/"/g, '""') : '';
+    csv += q.id + ',"' + q.category + '","' + q.question_text + '","' + text + '"\n';
+  });
+  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  var link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'hearing_' + new Date().toISOString().slice(0,10) + '.csv';
+  link.click();
+}
+
+async function endHearingSession() {
+  if (!hearingSessionId) return;
+  if (!confirm('ヒアリングを終了しますか？')) return;
+  await sbFetch('/sessions?id=eq.' + hearingSessionId, {
+    method: 'PATCH',
+    body: JSON.stringify({ status: 'completed' })
+  });
+  alert('ヒアリングが完了しました。CSVは出力済みですか？');
+  document.getElementById('hearing-questions-area').classList.add('hidden');
+  document.getElementById('hearing-export-bar').classList.add('hidden');
+  document.getElementById('hearing-session-setup').classList.remove('hidden');
+  hearingSessionId = null;
+  hearingMemoData = {};
+}

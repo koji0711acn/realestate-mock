@@ -1604,3 +1604,32 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
 
 /* ===== Task 65: Risk item expand ===== */
 .risk-item.expanded .risk-detail { max-height: 100px !important; }
+
+/* ===== Hearing Styles (Task 131) ===== */
+.hearing-header { background: #0067B3; color: #fff; padding: 56px 24px 16px; display: flex; justify-content: space-between; align-items: center; }
+.hearing-container { max-width: 800px; margin: 0 auto; padding: 24px 16px 80px; }
+.hearing-session-form { background: #fff; border-radius: 10px; padding: 20px; margin: 0 0 20px; border: 1px solid #e8e8e8; }
+.hearing-form-row { display: flex; gap: 12px; margin: 0 0 12px; }
+.hearing-form-row input { flex: 1; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; font-family: inherit; }
+.hearing-form-row input:focus { outline: none; border-color: #0067B3; }
+.hearing-btn-start { background: #0067B3; color: #fff; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; width: 100%; font-family: inherit; }
+.hearing-btn-start:hover { background: #005a9e; }
+.hearing-category-title { font-size: 13px; font-weight: 500; color: #0067B3; background: #E6F1FB; padding: 8px 14px; border-radius: 8px 8px 0 0; }
+.hearing-question-card { background: #fff; border: 1px solid #e8e8e8; border-top: none; padding: 16px; }
+.hearing-question-card:last-child { border-radius: 0 0 8px 8px; }
+.hearing-question-text { font-size: 13px; font-weight: 500; margin: 0 0 10px; line-height: 1.6; }
+.hearing-options-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.hearing-option-btn { padding: 8px 16px; border: 1px solid #ddd; border-radius: 20px; font-size: 12px; cursor: pointer; background: #fff; transition: all 0.15s; font-family: inherit; }
+.hearing-option-btn:hover { border-color: #0067B3; color: #0067B3; }
+.hearing-option-btn.selected { background: #0067B3; color: #fff; border-color: #0067B3; }
+.hearing-option-btn.multi-selected { background: #E6F1FB; color: #0067B3; border-color: #0067B3; }
+.hearing-rating-group { display: flex; gap: 8px; }
+.hearing-rating-btn { width: 40px; height: 40px; border: 1px solid #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; background: #fff; transition: all 0.15s; }
+.hearing-rating-btn:hover { border-color: #0067B3; color: #0067B3; }
+.hearing-rating-btn.selected { background: #0067B3; color: #fff; border-color: #0067B3; }
+.hearing-memo-area { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; resize: vertical; min-height: 60px; font-family: inherit; margin: 8px 0 0; }
+.hearing-memo-area:focus { outline: none; border-color: #0067B3; }
+.hearing-export-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #e0e0e0; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; z-index: 100; }
+.hearing-btn-export { background: #fff; color: #0067B3; border: 1px solid #0067B3; padding: 10px 20px; border-radius: 6px; font-size: 13px; cursor: pointer; font-family: inherit; }
+.hearing-btn-export:hover { background: #E6F1FB; }
+.hearing-loading { text-align: center; padding: 40px; color: #888; font-size: 14px; }
