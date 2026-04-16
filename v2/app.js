@@ -199,6 +199,8 @@ function startDemo() {
   document.getElementById('app-tabs').style.display = 'flex';
   var floatBtn = document.getElementById('hearing-float-btn');
   if (floatBtn) floatBtn.style.display = 'flex';
+  var resetBtn = document.getElementById('reset-float-btn');
+  if (resetBtn) resetBtn.style.display = 'flex';
   initMap();
 }
 
@@ -382,6 +384,7 @@ function skipGuide() {
 }
 
 function showGuideBubble(targetEl, message) {
+    if (_panelUpdating) return;
     var existing = document.querySelector('.guide-bubble');
     if (existing) existing.remove();
     if (guideSkipped) return;
@@ -811,6 +814,8 @@ function showRankingPanel() {
   currentScreen = 2;
   selectedParcelId = null;
   clearImpactOverlay();
+  var rpEl = document.getElementById('side-panel');
+  if (rpEl) rpEl.style.display = '';
 
   // Reset panel width to default
   setPanelWidth(400);
@@ -996,7 +1001,7 @@ function showDetailPanel(id) {
 
   _panelUpdating = false;
   // Guide: after detail panel opens, show step 4
-  if (guideStep === 3) setTimeout(() => advanceGuide(4), 500);
+  if (guideStep === 3) setTimeout(() => advanceGuide(4), 1000);
 }
 
 function closeDetailPanel() {
@@ -1076,13 +1081,24 @@ function showScenarioPanel(id) {
         html += '</div>';
       } else {
         // Collapsed card
-        html += '<div class="plan-card-collapsed" data-plan="' + plan.id + '" style="border:1px solid #e0e0e0;border-radius:8px;padding:12px 14px;cursor:pointer;opacity:0.7;transition:opacity 0.2s" onmouseover="this.style.opacity=1;highlightPlanParcels(\'' + plan.id + '\')" onmouseout="this.style.opacity=0.7;clearPlanHighlight()">';
-        html += '<div style="display:flex;justify-content:space-between;align-items:center">';
-        html += '<span style="font-size:13px;color:#333">' + plan.name + '</span>';
-        html += '<div style="display:flex;align-items:center;gap:8px">';
-        html += '<span style="font-size:11px;color:#999">' + plan.siteArea.toLocaleString() + 'm\u00B2 / ' + plan.floors + 'F</span>';
-        html += '<span style="font-size:11px;color:#999;background:#f4f6f9;padding:2px 6px;border-radius:4px">' + plan.badge + '</span>';
-        html += '</div></div></div>';
+        if (plan.recommended) {
+          html += '<div class="plan-card-collapsed" data-plan="' + plan.id + '" style="border:2px solid #0067B3;border-radius:8px;padding:12px 14px;cursor:pointer;opacity:0.9;transition:opacity 0.2s;position:relative" onmouseover="this.style.opacity=1;highlightPlanParcels(\'' + plan.id + '\')" onmouseout="this.style.opacity=0.9;clearPlanHighlight()">';
+          html += '<div style="position:absolute;top:-1px;right:-1px;background:#0067B3;color:#fff;font-size:9px;padding:3px 10px;border-radius:0 8px 0 8px">AI推奨</div>';
+          html += '<div style="display:flex;justify-content:space-between;align-items:center">';
+          html += '<span style="font-size:13px;font-weight:500;color:#333">' + plan.name + '</span>';
+          html += '<div style="display:flex;align-items:center;gap:8px">';
+          html += '<span style="font-size:11px;color:#0C447C">' + plan.siteArea.toLocaleString() + 'm\u00B2 / ' + plan.floors + 'F</span>';
+          html += '<span style="font-size:11px;color:#0C447C;background:#E6F1FB;padding:2px 6px;border-radius:4px">' + plan.badge + '</span>';
+          html += '</div></div></div>';
+        } else {
+          html += '<div class="plan-card-collapsed" data-plan="' + plan.id + '" style="border:1px solid #e0e0e0;border-radius:8px;padding:12px 14px;cursor:pointer;opacity:0.7;transition:opacity 0.2s" onmouseover="this.style.opacity=1;highlightPlanParcels(\'' + plan.id + '\')" onmouseout="this.style.opacity=0.7;clearPlanHighlight()">';
+          html += '<div style="display:flex;justify-content:space-between;align-items:center">';
+          html += '<span style="font-size:13px;color:#333">' + plan.name + '</span>';
+          html += '<div style="display:flex;align-items:center;gap:8px">';
+          html += '<span style="font-size:11px;color:#999">' + plan.siteArea.toLocaleString() + 'm\u00B2 / ' + plan.floors + 'F</span>';
+          html += '<span style="font-size:11px;color:#999;background:#f4f6f9;padding:2px 6px;border-radius:4px">' + plan.badge + '</span>';
+          html += '</div></div></div>';
+        }
       }
     });
 
@@ -1167,7 +1183,7 @@ function showScenarioPanel(id) {
 
   renderScenarioPanel();
 
-  if (guideStep === 4) setTimeout(function() { advanceGuide(5); }, 500);
+  if (guideStep === 4) setTimeout(function() { advanceGuide(5); }, 1000);
 }
 
 function highlightPlanParcels(planId) {
@@ -1882,7 +1898,23 @@ const ownerData = {
     owners: [{ name: '株式会社芝大門プロパティ', type: '法人', years: 6, intent: '中', reason: 'ポートフォリオ入替検討' }] },
 };
 
+var altOwnerData = {
+  B01: { ownership: '所有権', ownerCount: 1, registry: '令和5年3月 所有権移転（売買）', mortgage: 'なし', planning: '特になし',
+    owners: [{ name: '芝公園開発株式会社', type: '法人', years: 3, intent: '高', reason: '事業用地として売却検討中' }] },
+  B02: { ownership: '所有権', ownerCount: 1, registry: '令和4年9月 所有権移転（売買）', mortgage: 'あり（三井住友銀行）', planning: '特になし',
+    owners: [{ name: '株式会社グリーンプロパティ', type: '法人', years: 4, intent: '中', reason: 'ポートフォリオ入替検討' }] },
+  B03: { ownership: '所有権', ownerCount: 1, registry: '令和3年6月 所有権移転（売買）', mortgage: 'なし', planning: '特になし',
+    owners: [{ name: '三和不動産株式会社', type: '法人', years: 5, intent: '中', reason: '周辺開発動向を注視' }] },
+  B04: { ownership: '所有権', ownerCount: 1, registry: '令和2年12月 所有権移転（売買）', mortgage: 'あり（みずほ銀行）', planning: '特になし',
+    owners: [{ name: '株式会社芝パークリアルティ', type: '法人', years: 6, intent: '高', reason: '含み益あり・売却タイミング検討' }] },
+  B05: { ownership: '所有権', ownerCount: 1, registry: '令和4年2月 所有権移転（売買）', mortgage: 'なし', planning: '特になし',
+    owners: [{ name: '東都建物管理株式会社', type: '法人', years: 4, intent: '中', reason: '管理物件の集約検討' }] },
+  B06: { ownership: '所有権', ownerCount: 1, registry: '令和5年7月 所有権移転（売買）', mortgage: 'なし', planning: '特になし',
+    owners: [{ name: '株式会社港区アセット', type: '法人', years: 2, intent: '高', reason: '短期保有・売却意向明確' }] }
+};
+
 function getOwnerInfo(parcelId) {
+  if (window._isAlternativeArea && altOwnerData[parcelId]) return altOwnerData[parcelId];
   if (ownerData[parcelId]) return ownerData[parcelId];
   return {
     ownership: '所有権', ownerCount: 1,
@@ -2225,8 +2257,9 @@ function downloadTargetCSV() {
   const a = document.createElement('a');
   const today = new Date();
   const dateStr = today.getFullYear() + String(today.getMonth() + 1).padStart(2, '0') + String(today.getDate()).padStart(2, '0');
+  var areaName = window._isAlternativeArea ? '芝公園三丁目' : '芝大門一丁目';
   a.href = url;
-  a.download = `target_list_${dateStr}.csv`;
+  a.download = 'target_list_' + areaName + '_' + dateStr + '.csv';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -2381,8 +2414,9 @@ function downloadEvalReport(parcelId) {
   const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
+  var evalAreaName = window._isAlternativeArea ? '芝公園三丁目エリア' : '芝大門一丁目エリア';
   a.href = url;
-  a.download = `evaluation_report_${p.name}_${getDateStr()}.html`;
+  a.download = 'evaluation_report_' + evalAreaName + '_' + p.name + '_' + getDateStr() + '.html';
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
   showToast('評価書をダウンロードしました');
@@ -2401,8 +2435,9 @@ ${pages.join('\n')}
   const blob = new Blob([combined], { type: 'text/html;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
+  var batchEvalAreaName = window._isAlternativeArea ? '芝公園三丁目エリア' : '芝大門一丁目エリア';
   a.href = url;
-  a.download = `evaluation_reports_batch_${getDateStr()}.html`;
+  a.download = 'evaluation_reports_batch_' + batchEvalAreaName + '_' + getDateStr() + '.html';
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
   showToast(`${targets.length}件の評価書を一括ダウンロードしました`);
@@ -2419,23 +2454,72 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ===== Tab Switching (Task 131) =====
+function resetDemo() {
+  if (!confirm('デモの最初に戻りますか？')) return;
+  window._isAlternativeArea = false;
+  window.selectedPlan = null;
+  window._selectedFacility = null;
+  window._planCenter = null;
+  window._expandedPlanParcels = null;
+  if (window._altAreaLayers) {
+    window._altAreaLayers.forEach(function(l) { map.removeLayer(l); });
+    window._altAreaLayers = [];
+  }
+  Object.values(parcelLayers).forEach(function(l) { map.removeLayer(l); });
+  Object.values(parcelTooltips).forEach(function(t) { map.removeLayer(t); });
+  parcelLayers = {};
+  parcelTooltips = {};
+  parcelsData = [];
+  selectedParcelId = null;
+  currentScreen = 1;
+  guideStep = 0;
+  clearImpactOverlay();
+  clearGuideUI();
+
+  var panel = document.getElementById('side-panel');
+  panel.style.display = 'none';
+  panel.innerHTML = '';
+
+  map.setView([35.6565, 139.7533], 17);
+
+  if (window.guideDashedRect) map.removeLayer(window.guideDashedRect);
+  window.guideDashedRect = L.rectangle(DATA_BOUNDS, {
+    color: '#0067B3', weight: 2, dashArray: '8,6',
+    fill: true, fillColor: '#0067B3', fillOpacity: 0.05
+  }).addTo(map);
+
+  setTimeout(function() { advanceGuide(1); }, 500);
+}
+
 function switchAppTab(tab) {
   if (tab === 'map') {
     document.getElementById('map-view').style.display = '';
     document.getElementById('hearing-view').style.display = 'none';
-    document.getElementById('tab-map').style.borderBottomColor = '#0067B3';
-    document.getElementById('tab-map').style.color = '#0067B3';
+    document.getElementById('tab-map').style.borderBottomColor = '#333';
+    document.getElementById('tab-map').style.color = '#333';
+    document.getElementById('tab-map').style.fontWeight = '500';
     document.getElementById('tab-hearing').style.borderBottomColor = 'transparent';
-    document.getElementById('tab-hearing').style.color = '#888';
+    document.getElementById('tab-hearing').style.color = '#aaa';
+    document.getElementById('tab-hearing').style.fontWeight = '400';
+    var hfb = document.getElementById('hearing-float-btn');
+    if (hfb) hfb.style.display = 'flex';
+    var rfb = document.getElementById('reset-float-btn');
+    if (rfb) rfb.style.display = 'flex';
     if (typeof map !== 'undefined') map.invalidateSize();
   } else {
     document.getElementById('map-view').style.display = 'none';
     document.getElementById('hearing-view').style.display = '';
-    document.getElementById('tab-hearing').style.borderBottomColor = '#0067B3';
-    document.getElementById('tab-hearing').style.color = '#0067B3';
+    document.getElementById('tab-hearing').style.borderBottomColor = '#333';
+    document.getElementById('tab-hearing').style.color = '#333';
+    document.getElementById('tab-hearing').style.fontWeight = '500';
     document.getElementById('tab-map').style.borderBottomColor = 'transparent';
-    document.getElementById('tab-map').style.color = '#888';
-    autoStartHearing();
+    document.getElementById('tab-map').style.color = '#aaa';
+    document.getElementById('tab-map').style.fontWeight = '400';
+    var hfb2 = document.getElementById('hearing-float-btn');
+    if (hfb2) hfb2.style.display = 'none';
+    var rfb2 = document.getElementById('reset-float-btn');
+    if (rfb2) rfb2.style.display = 'none';
+    if (typeof autoStartHearing === 'function') autoStartHearing();
   }
 }
 
