@@ -2848,7 +2848,9 @@ async function editHearingQuestion(qid, btn) {
 async function addHearingQuestion(category, afterSortOrder) {
   var text = prompt('新しい質問文を入力してください:');
   if (!text) return;
+
   var insertOrder;
+
   if (typeof afterSortOrder === 'undefined') {
     var categoryQuestions = hearingQuestions.filter(function(q) { return q.category === category; });
     if (categoryQuestions.length > 0) {
@@ -2856,14 +2858,35 @@ async function addHearingQuestion(category, afterSortOrder) {
     } else {
       insertOrder = hearingQuestions.length > 0 ? Math.max.apply(null, hearingQuestions.map(function(q) { return q.sort_order; })) + 1 : 1;
     }
+    var toShift = hearingQuestions.filter(function(q) { return q.sort_order >= insertOrder; });
+    for (var i = 0; i < toShift.length; i++) {
+      await sbFetch('/questions?id=eq.' + toShift[i].id, {
+        method: 'PATCH',
+        body: JSON.stringify({ sort_order: toShift[i].sort_order + 1 })
+      });
+    }
   } else {
-    insertOrder = afterSortOrder + 0.5;
+    insertOrder = afterSortOrder + 1;
+    var toShift = hearingQuestions.filter(function(q) { return q.sort_order >= insertOrder; });
+    for (var i = 0; i < toShift.length; i++) {
+      await sbFetch('/questions?id=eq.' + toShift[i].id, {
+        method: 'PATCH',
+        body: JSON.stringify({ sort_order: toShift[i].sort_order + 1 })
+      });
+    }
   }
+
   await sbFetch('/questions', {
     method: 'POST',
-    body: JSON.stringify({ category: category, sort_order: insertOrder, question_text: text, question_type: 'free_text', is_active: true })
+    body: JSON.stringify({
+      category: category,
+      sort_order: insertOrder,
+      question_text: text,
+      question_type: 'free_text',
+      is_active: true
+    })
   });
-  await renormalizeSortOrders();
+
   loadHearingQuestions();
   showToast('質問を追加しました');
 }
