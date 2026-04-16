@@ -16,6 +16,7 @@ let gifInterval = null;
 let originalParcelsData = null;
 let currentAreaLabel = null;
 var _guideUpdating = false;
+var _panelUpdating = false;
 
 function getParcelCenter(p) {
   var lats = p.polygon.map(function(c){ return c[0]; });
@@ -445,6 +446,7 @@ function applyGuideShake(targetEl) {
 
 function advanceGuide(step) {
   if (guideSkipped) return;
+  if (_panelUpdating) return;
   if (_guideUpdating) return;
   _guideUpdating = true;
   setTimeout(function() { _guideUpdating = false; }, 300);
@@ -801,6 +803,8 @@ function goToImpactFromRanking() {
 
 // ===== Show Ranking Panel (Screen 2) =====
 function showRankingPanel() {
+  _panelUpdating = true;
+  window._isAlternativeArea = false;
   currentScreen = 2;
   selectedParcelId = null;
   clearImpactOverlay();
@@ -855,6 +859,7 @@ function showRankingPanel() {
   `;
 
   updateParcelStyles();
+  _panelUpdating = false;
 }
 
 function setDisplayMode(mode) {
@@ -913,6 +918,7 @@ function setPanelWidth(w) {
 
 // ===== Screen 3: Simplified Detail Panel (Task 49) =====
 function showDetailPanel(id) {
+  _panelUpdating = true;
   currentScreen = 3;
   selectedParcelId = id;
   clearImpactOverlay();
@@ -985,6 +991,7 @@ function showDetailPanel(id) {
     </div>
   `;
 
+  _panelUpdating = false;
   // Guide: after detail panel opens, show step 4
   if (guideStep === 3) setTimeout(() => advanceGuide(4), 500);
 }
@@ -1013,6 +1020,7 @@ function showScenarioPanel(id) {
   var expandedPlanId = 'planD';
 
   function renderScenarioPanel() {
+    _panelUpdating = true;
     var panel = document.getElementById('side-panel');
     var html = '<div style="padding:14px 16px">';
     html += '<p style="font-size:11px;color:#999;margin:0 0 4px">' + p.name + '（スコア: ' + p.score + ' / ' + p.zone + ' / 容積率' + p.far + '%）</p>';
@@ -1061,7 +1069,7 @@ function showScenarioPanel(id) {
         html += '</div>';
       } else {
         // Collapsed card
-        html += '<div class="plan-card-collapsed" data-plan="' + plan.id + '" style="border:1px solid #e0e0e0;border-radius:8px;padding:12px 14px;cursor:pointer;opacity:0.7;transition:opacity 0.2s" onmouseover="this.style.opacity=1;highlightPlanParcels(\'' + plan.id + '\')" onmouseout="this.style.opacity=0.7;clearPlanHighlight()">';
+        html += '<div class="plan-card-collapsed" data-plan="' + plan.id + '" style="border:1px solid #e0e0e0;border-radius:8px;padding:12px 14px;cursor:default;opacity:0.5;transition:opacity 0.2s" onmouseover="this.style.opacity=0.7;highlightPlanParcels(\'' + plan.id + '\')" onmouseout="this.style.opacity=0.5;clearPlanHighlight()">';
         html += '<div style="display:flex;justify-content:space-between;align-items:center">';
         html += '<span style="font-size:13px;color:#333">' + plan.name + '</span>';
         html += '<div style="display:flex;align-items:center;gap:8px">';
@@ -1091,11 +1099,10 @@ function showScenarioPanel(id) {
       });
     }
 
-    // Collapsed card click → expand
+    // Collapsed card click → toast (demo restriction)
     panel.querySelectorAll('.plan-card-collapsed').forEach(function(card) {
       card.addEventListener('click', function() {
-        expandedPlanId = this.dataset.plan;
-        renderScenarioPanel();
+        showToast('デモ版ではAI推奨プラン（Plan D）のみ分析可能です');
       });
     });
 
@@ -1117,9 +1124,8 @@ function showScenarioPanel(id) {
         // Update 3D
         var preview = document.getElementById('facility-3d-preview');
         if (preview && typeof create3DBuilding === 'function') {
-          var fl = selectedFacility === 'tower-mansion' ? Math.round(currentPlan.floors * 1.3) : currentPlan.floors;
           preview.innerHTML = '';
-          create3DBuilding(preview, null, preview.clientWidth || 350, 160);
+          create3DBuilding(preview, null, preview.clientWidth || 350, 160, selectedFacility);
         }
       });
     });
@@ -1142,9 +1148,10 @@ function showScenarioPanel(id) {
     setTimeout(function() {
       var preview = document.getElementById('facility-3d-preview');
       if (preview && typeof create3DBuilding === 'function') {
-        create3DBuilding(preview, null, preview.clientWidth || 350, 160);
+        create3DBuilding(preview, null, preview.clientWidth || 350, 160, 'complex');
       }
     }, 100);
+    _panelUpdating = false;
   }
 
   renderScenarioPanel();
@@ -1175,102 +1182,135 @@ function clearPlanHighlight() {
 }
 
 // ===== Three.js 3D Building Renderer =====
-function create3DBuilding(container, p, w, h) {
-  if (typeof THREE === 'undefined') { container.innerHTML = '<p style="color:#888;font-size:12px;text-align:center;padding:20px">3D表示を読み込み中...</p>'; return; }
-  if (!p) { p = { area: 4000, floors: 12 }; }
-  const scene = new THREE.Scene();
+function create3DBuilding(container, p, containerWidth, containerHeight, facilityType) {
+  if (typeof THREE === 'undefined') {
+    container.innerHTML = '<p style="color:#888;font-size:12px;text-align:center;padding:20px">3D表示を読み込み中...</p>';
+    return;
+  }
+  container.innerHTML = '';
+
+  var w = containerWidth || container.clientWidth || 350;
+  var h = containerHeight || container.clientHeight || 200;
+
+  var scene = new THREE.Scene();
   scene.background = new THREE.Color(0xf0f4f8);
-  const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
-  const renderer = new THREE.WebGLRenderer({ antialias: true });
+
+  var camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
+  camera.position.set(25, 20, 25);
+  camera.lookAt(0, 6, 0);
+
+  var renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(w, h);
   container.appendChild(renderer.domElement);
 
-  // Lighting
   scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-  const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-  dirLight.position.set(5, 10, 7);
+  var dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+  dirLight.position.set(5, 10, 5);
   scene.add(dirLight);
 
-  // Ground plane
-  const groundSize = Math.sqrt(p.area) * 0.08;
-  const ground = new THREE.Mesh(
-    new THREE.PlaneGeometry(groundSize * 1.5, groundSize * 1.5),
-    new THREE.MeshLambertMaterial({ color: 0xcccccc })
+  // Ground
+  var ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(30, 30),
+    new THREE.MeshLambertMaterial({ color: 0xdde0e4 })
   );
   ground.rotation.x = -Math.PI / 2;
-  ground.position.y = -0.05;
   scene.add(ground);
 
-  // Building dimensions
-  const bldgArea = p.area * 0.6;
-  const bw = Math.sqrt(bldgArea) * 0.05;
-  const bd = bw * 0.8;
-  const commFloors = Math.min(2, p.floors);
-  const floorH = 0.3;
+  var ft = facilityType || 'complex';
 
-  // Commercial floors (green)
-  if (commFloors > 0) {
-    const commH = commFloors * floorH;
-    const comm = new THREE.Mesh(
-      new THREE.BoxGeometry(bw, commH, bd),
+  if (ft === 'office') {
+    // Office: rectangular box
+    var offBody = new THREE.Mesh(
+      new THREE.BoxGeometry(8, 16, 6),
+      new THREE.MeshLambertMaterial({ color: 0x4488cc, transparent: true, opacity: 0.7 })
+    );
+    offBody.position.y = 8;
+    scene.add(offBody);
+    for (var i = 1; i < 12; i++) {
+      var fy = i * 1.4;
+      var fg = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(-4, fy, -3), new THREE.Vector3(4, fy, -3),
+        new THREE.Vector3(4, fy, 3), new THREE.Vector3(-4, fy, 3),
+        new THREE.Vector3(-4, fy, -3)
+      ]);
+      scene.add(new THREE.Line(fg, new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3 })));
+    }
+  } else if (ft === 'tower-mansion') {
+    // Tower mansion: tall narrow
+    var base = new THREE.Mesh(
+      new THREE.BoxGeometry(7, 3, 7),
+      new THREE.MeshLambertMaterial({ color: 0x888888, transparent: true, opacity: 0.6 })
+    );
+    base.position.y = 1.5;
+    scene.add(base);
+    var tower = new THREE.Mesh(
+      new THREE.BoxGeometry(5, 22, 5),
+      new THREE.MeshLambertMaterial({ color: 0x6699bb, transparent: true, opacity: 0.7 })
+    );
+    tower.position.y = 14;
+    scene.add(tower);
+    for (var j = 1; j < 18; j++) {
+      var by = 3 + j * 1.2;
+      var bg2 = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(-2.7, by, -2.7), new THREE.Vector3(2.7, by, -2.7),
+        new THREE.Vector3(2.7, by, 2.7), new THREE.Vector3(-2.7, by, 2.7),
+        new THREE.Vector3(-2.7, by, -2.7)
+      ]);
+      scene.add(new THREE.Line(bg2, new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.25 })));
+    }
+  } else {
+    // Complex: commercial base + office tower
+    var comm = new THREE.Mesh(
+      new THREE.BoxGeometry(9, 4, 8),
       new THREE.MeshLambertMaterial({ color: 0x44aa66, transparent: true, opacity: 0.7 })
     );
-    comm.position.y = commH / 2;
+    comm.position.y = 2;
     scene.add(comm);
-  }
-
-  // Residential floors (blue)
-  const resFloors = p.floors - commFloors;
-  if (resFloors > 0) {
-    const resH = resFloors * floorH;
-    const res = new THREE.Mesh(
-      new THREE.BoxGeometry(bw * 0.95, resH, bd * 0.95),
-      new THREE.MeshLambertMaterial({ color: 0x4488cc, transparent: true, opacity: 0.6 })
+    var offTower = new THREE.Mesh(
+      new THREE.BoxGeometry(7, 14, 6),
+      new THREE.MeshLambertMaterial({ color: 0x4488cc, transparent: true, opacity: 0.7 })
     );
-    res.position.y = commFloors * floorH + resH / 2;
-    scene.add(res);
+    offTower.position.y = 11;
+    scene.add(offTower);
+    for (var k = 1; k < 10; k++) {
+      var cy = 4 + k * 1.4;
+      var cg = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(-3.5, cy, -3), new THREE.Vector3(3.5, cy, -3),
+        new THREE.Vector3(3.5, cy, 3), new THREE.Vector3(-3.5, cy, 3),
+        new THREE.Vector3(-3.5, cy, -3)
+      ]);
+      scene.add(new THREE.Line(cg, new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3 })));
+    }
   }
 
-  // Floor lines
-  for (let i = 1; i <= p.floors; i++) {
-    const lineGeo = new THREE.BufferGeometry().setFromPoints([
-      new THREE.Vector3(-bw/2, i * floorH, bd/2),
-      new THREE.Vector3(bw/2, i * floorH, bd/2),
-      new THREE.Vector3(bw/2, i * floorH, -bd/2),
-      new THREE.Vector3(-bw/2, i * floorH, -bd/2),
-      new THREE.Vector3(-bw/2, i * floorH, bd/2)
-    ]);
-    scene.add(new THREE.Line(lineGeo, new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.5, transparent: true })));
-  }
-
-  // Setback line (diagonal)
-  const totalH = p.floors * floorH;
-  const setbackGeo = new THREE.BufferGeometry().setFromPoints([
-    new THREE.Vector3(-bw, 0, bd/2 + 0.3),
-    new THREE.Vector3(bw * 0.5, totalH * 1.2, bd/2 + 0.3)
+  // Setback line
+  var slGeo = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(-10, 0, -8), new THREE.Vector3(0, 20, 0)
   ]);
-  scene.add(new THREE.Line(setbackGeo, new THREE.LineDashedMaterial({ color: 0xff4444, dashSize: 0.2, gapSize: 0.1 })));
-
-  // Camera position
-  camera.position.set(bw * 2.5, totalH * 1.2, bd * 3);
-  camera.lookAt(0, totalH * 0.4, 0);
-
-  // Simple mouse drag rotation
-  let isDragging = false, prevX = 0;
-  let angle = 0;
-  renderer.domElement.addEventListener('mousedown', e => { isDragging = true; prevX = e.clientX; });
-  renderer.domElement.addEventListener('mousemove', e => {
-    if (!isDragging) return;
-    angle += (e.clientX - prevX) * 0.01;
-    prevX = e.clientX;
-    const r = Math.sqrt(camera.position.x ** 2 + camera.position.z ** 2);
-    camera.position.x = r * Math.sin(angle);
-    camera.position.z = r * Math.cos(angle);
-    camera.lookAt(0, totalH * 0.4, 0);
-  });
-  window.addEventListener('mouseup', () => { isDragging = false; });
+  scene.add(new THREE.Line(slGeo, new THREE.LineBasicMaterial({ color: 0xff4444 })));
 
   renderer.render(scene, camera);
+
+  // Mouse rotation
+  var isDragging = false;
+  var prevX = 0;
+  var angle = Math.PI / 4;
+
+  function onMouseDown(e) { isDragging = true; prevX = e.clientX; }
+  function onMouseUp() { isDragging = false; }
+  function onMouseMove(e) {
+    if (!isDragging) return;
+    angle += (e.clientX - prevX) * 0.01;
+    camera.position.x = 25 * Math.cos(angle);
+    camera.position.z = 25 * Math.sin(angle);
+    camera.lookAt(0, 6, 0);
+    renderer.render(scene, camera);
+    prevX = e.clientX;
+  }
+
+  renderer.domElement.addEventListener('mousedown', onMouseDown);
+  renderer.domElement.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
 }
 
 // ===== Task 8: BIM Model helpers =====
@@ -1323,6 +1363,7 @@ function toggleImpactCollapse(el) {
 // ===== Screen 5: Analysis Results (Task 49) =====
 // 3 tabs: volume / finance / impact — all in the side panel
 function showAnalysisResults(id, facilityType, floorArea) {
+  _panelUpdating = true;
   currentScreen = 5;
   clearImpactOverlay();
   const p = parcelsData.find(d => d.id === id);
@@ -1360,10 +1401,11 @@ function showAnalysisResults(id, facilityType, floorArea) {
   `;
 
   // Render 3D after DOM is ready
-  setTimeout(() => {
-    const container = document.getElementById('three-analysis-volume');
-    if (container) create3DBuilding(container, p, 350, 250);
+  setTimeout(function() {
+    var container = document.getElementById('three-analysis-volume');
+    if (container) create3DBuilding(container, p, 350, 250, facilityType);
   }, 100);
+  _panelUpdating = false;
 }
 
 function switchAnalysisTab(tab, parcelId, facilityType, floorArea) {
@@ -1376,9 +1418,9 @@ function switchAnalysisTab(tab, parcelId, facilityType, floorArea) {
 
   if (tab === 'volume') {
     content.innerHTML = getVolumeTabContent(p, facilityType, floorArea);
-    setTimeout(() => {
-      const container = document.getElementById('three-analysis-volume');
-      if (container) create3DBuilding(container, p, 350, 250);
+    setTimeout(function() {
+      var container = document.getElementById('three-analysis-volume');
+      if (container) create3DBuilding(container, p, 350, 250, facilityType);
     }, 100);
   } else if (tab === 'finance') {
     content.innerHTML = getFinanceTabContent(p, facilityType, floorArea);
@@ -1785,6 +1827,7 @@ function getApproach(ownerCount, intent) {
 }
 
 function showAcquisitionPanel(id) {
+  _panelUpdating = true;
   currentScreen = 6;
   const p = parcelsData.find(d => d.id === id);
   if (!p) return;
@@ -1799,6 +1842,95 @@ function showAcquisitionPanel(id) {
       const mainOwner = oi.owners[0];
       return { rank: i + 1, parcel: pp, owner: mainOwner, ownerCount: oi.ownerCount };
     });
+
+  var alertHTML = '';
+  if (window._isAlternativeArea) {
+    alertHTML =
+      '<div style="background:#EAF3DE;border:1px solid #97C459;border-radius:8px;padding:14px 16px;margin:16px 0">' +
+        '<div style="display:flex;align-items:center;gap:8px;margin:0 0 8px">' +
+          '<div style="width:20px;height:20px;border-radius:50%;background:#639922;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0">✓</div>' +
+          '<span style="font-size:13px;font-weight:500;color:#27500A">権利整理が容易な候補地です</span>' +
+        '</div>' +
+        '<p style="font-size:12px;color:#3B6D11;line-height:1.6;margin:0">対象エリアの全筆が単独所有であり、抵当権の設定もありません。地権者との個別交渉により、比較的短期間での用地取得が見込めます。</p>' +
+      '</div>';
+  } else {
+    alertHTML =
+      '<div style="background:#FCEBEB;border:1px solid #E24B4A;border-radius:8px;padding:14px 16px;margin:16px 0">' +
+        '<div style="display:flex;align-items:center;gap:8px;margin:0 0 8px">' +
+          '<div style="width:20px;height:20px;border-radius:50%;background:#E24B4A;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0">!</div>' +
+          '<span style="font-size:13px;font-weight:500;color:#791F1F">用地取得リスクが検出されました</span>' +
+        '</div>' +
+        '<p style="font-size:12px;color:#A32D2D;line-height:1.6;margin:0 0 10px">P03（芝大門1-3）の登記情報を分析した結果、以下のリスクが特定されました。</p>' +
+        '<div style="background:#fff;border-radius:6px;padding:10px 12px;margin:0 0 10px">' +
+          '<div style="display:flex;justify-content:space-between;font-size:12px;margin:0 0 6px"><span style="color:#791F1F">所有形態</span><span style="font-weight:500">共有（3名）</span></div>' +
+          '<div style="display:flex;justify-content:space-between;font-size:12px;margin:0 0 6px"><span style="color:#791F1F">抵当権</span><span style="font-weight:500">あり（2件、異なる債権者）</span></div>' +
+          '<div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:#791F1F">推定取得難易度</span><span style="color:#E24B4A;font-weight:500">高（全権利者の合意に12〜18ヶ月）</span></div>' +
+        '</div>' +
+        '<p style="font-size:11px;color:#A32D2D;line-height:1.5;margin:0">この筆を含むプランの実行には、権利整理に相当の期間を要する可能性があります。</p>' +
+      '</div>' +
+      '<div style="background:#E6F1FB;border:1px solid #0067B3;border-radius:8px;padding:14px 16px;margin:0 0 16px">' +
+        '<div style="display:flex;align-items:center;gap:8px;margin:0 0 8px">' +
+          '<div style="width:20px;height:20px;border-radius:50%;background:#0067B3;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0">AI</div>' +
+          '<span style="font-size:13px;font-weight:500;color:#0C447C">代替候補エリアが見つかりました</span>' +
+        '</div>' +
+        '<p style="font-size:12px;color:#0C447C;line-height:1.6;margin:0">分析対象エリアの周辺500m圏内で、同等の開発ポテンシャルを持ち、かつ権利整理が比較的容易な候補地を3件特定しました。</p>' +
+      '</div>';
+  }
+
+  var altCardsHTML = '';
+  if (!window._isAlternativeArea) {
+    altCardsHTML = `
+      <div id="alt-recommend" style="display:none">
+        <div style="background:#0067B3;color:#fff;padding:12px 16px;border-radius:8px 8px 0 0;display:flex;align-items:center;gap:8px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z" fill="#FFD600"/></svg>
+          <div>
+            <div style="font-size:15px;font-weight:600">AI分析結果</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.7)">より有望な近隣エリアが3件見つかりました</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;padding:12px;background:#f7f8fa;border-radius:0 0 8px 8px;margin-bottom:4px">
+          <div class="alt-card" style="flex:1;border:2px solid #e0e0e0;margin-bottom:0;opacity:0.85;border-radius:8px;overflow:visible;position:relative">
+            <div style="background:#f4f6f9;padding:10px 12px;border-radius:6px 6px 0 0;margin:-12px -12px 10px;display:flex;align-items:center;justify-content:space-between">
+              <strong style="font-size:13px;display:block">新橋四丁目</strong>
+              <span style="font-size:10px;color:#888;background:#e0e0e0;padding:1px 6px;border-radius:3px">候補</span>
+            </div>
+            <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px">
+              <div style="font-size:22px;font-weight:700;color:#0067B3">80</div>
+              <div style="font-size:11px;color:#888">NOI 4.0%</div>
+            </div>
+            <div style="background:#E6F1FB;border-radius:4px;padding:6px 8px;font-size:11px;color:#333;margin-bottom:10px;line-height:1.5">商業地域で高容積率の開発が可能</div>
+            <button class="alt-explore-btn" onclick="exploreAlternativeArea('alt1')" style="height:32px;font-size:12px;background:transparent;color:#0067B3;border:1px solid #0067B3;border-radius:6px;width:100%;cursor:pointer;font-family:inherit">このエリアを調査</button>
+          </div>
+          <div class="alt-card" style="flex:1;border:2px solid #0067B3;margin-bottom:0;animation:card-nudge 2s ease-in-out infinite, pulse-border 2s ease-in-out infinite;position:relative;border-radius:8px;overflow:visible">
+            <span style="position:absolute;top:-8px;right:8px;background:#c0392b;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px">推奨</span>
+            <div style="background:#E8F2FB;padding:10px 12px;border-radius:6px 6px 0 0;margin:-12px -12px 10px">
+              <strong style="font-size:13px;display:block">芝公園三丁目</strong>
+            </div>
+            <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px">
+              <div style="font-size:22px;font-weight:700;color:#0067B3">84</div>
+              <div style="font-size:11px;color:#888">NOI 4.2%</div>
+            </div>
+            <div style="background:#EAF3DE;border-radius:4px;padding:6px 8px;font-size:11px;color:#333;margin-bottom:10px;line-height:1.5">権利整理が容易で大規模開発の余地あり</div>
+            <button class="alt-explore-btn" onclick="exploreAlternativeArea('alt2')" style="height:32px;font-size:12px;background:#0067B3;color:#fff;border:none;border-radius:6px;width:100%;cursor:pointer;font-family:inherit">このエリアを調査</button>
+          </div>
+          <div class="alt-card" style="flex:1;border:2px solid #e0e0e0;margin-bottom:0;opacity:0.7;border-radius:8px;overflow:visible;position:relative">
+            <div style="background:#f4f6f9;padding:10px 12px;border-radius:6px 6px 0 0;margin:-12px -12px 10px;display:flex;align-items:center;justify-content:space-between">
+              <strong style="font-size:13px;display:block">浜松町二丁目</strong>
+              <span style="font-size:10px;color:#888;background:#e0e0e0;padding:1px 6px;border-radius:3px">候補</span>
+            </div>
+            <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px">
+              <div style="font-size:22px;font-weight:700;color:#0067B3">76</div>
+              <div style="font-size:11px;color:#888">NOI 3.8%</div>
+            </div>
+            <div style="background:#FAEEDA;border-radius:4px;padding:6px 8px;font-size:11px;color:#333;margin-bottom:10px;line-height:1.5">将来価値の上昇余地あり</div>
+            <button class="alt-explore-btn" onclick="showToast('詳細データを準備中です')" style="height:32px;font-size:12px;background:transparent;color:#0067B3;border:1px solid #0067B3;border-radius:6px;width:100%;cursor:pointer;font-family:inherit">このエリアを調査</button>
+          </div>
+        </div>
+        <div style="text-align:center;margin-bottom:12px">
+          <button style="background:none;border:none;color:#0067B3;font-size:12px;cursor:pointer;font-family:inherit;font-weight:500">...他の候補エリアを表示</button>
+        </div>
+      </div>`;
+  }
 
   const panel = document.getElementById('side-panel');
   panel.innerHTML = `
@@ -1827,80 +1959,9 @@ function showAcquisitionPanel(id) {
         `).join('')}
       </div>
 
-      <div id="alt-recommend" style="display:none">
-        <div style="background:#0067B3;color:#fff;padding:12px 16px;border-radius:8px 8px 0 0;display:flex;align-items:center;gap:8px">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z" fill="#FFD600"/></svg>
-          <div>
-            <div style="font-size:15px;font-weight:600">AI分析結果</div>
-            <div style="font-size:11px;color:rgba(255,255,255,0.7)">より有望な近隣エリアが3件見つかりました</div>
-          </div>
-        </div>
-        <div style="display:flex;gap:10px;padding:12px;background:#f7f8fa;border-radius:0 0 8px 8px;margin-bottom:4px">
-          <!-- Card 1: 新橋四丁目 (候補) -->
-          <div class="alt-card" style="flex:1;border:2px solid #e0e0e0;margin-bottom:0;opacity:0.85;border-radius:8px;overflow:visible;position:relative">
-            <div style="background:#f4f6f9;padding:10px 12px;border-radius:6px 6px 0 0;margin:-12px -12px 10px;display:flex;align-items:center;justify-content:space-between">
-              <strong style="font-size:13px;display:block">新橋四丁目</strong>
-              <span style="font-size:10px;color:#888;background:#e0e0e0;padding:1px 6px;border-radius:3px">候補</span>
-            </div>
-            <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px">
-              <div style="font-size:22px;font-weight:700;color:#0067B3">80</div>
-              <div style="font-size:11px;color:#888">NOI 4.0%</div>
-            </div>
-            <div style="background:#E6F1FB;border-radius:4px;padding:6px 8px;font-size:11px;color:#333;margin-bottom:10px;line-height:1.5">商業地域で高容積率の開発が可能</div>
-            <button class="alt-explore-btn" onclick="exploreAlternativeArea('alt1')" style="height:32px;font-size:12px;background:transparent;color:#0067B3;border:1px solid #0067B3;border-radius:6px;width:100%;cursor:pointer;font-family:inherit">このエリアを調査</button>
-          </div>
-          <!-- Card 2: 芝公園三丁目 (推奨) -->
-          <div class="alt-card" style="flex:1;border:2px solid #0067B3;margin-bottom:0;animation:card-nudge 2s ease-in-out infinite, pulse-border 2s ease-in-out infinite;position:relative;border-radius:8px;overflow:visible">
-            <span style="position:absolute;top:-8px;right:8px;background:#c0392b;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px">推奨</span>
-            <div style="background:#E8F2FB;padding:10px 12px;border-radius:6px 6px 0 0;margin:-12px -12px 10px">
-              <strong style="font-size:13px;display:block">芝公園三丁目</strong>
-            </div>
-            <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px">
-              <div style="font-size:22px;font-weight:700;color:#0067B3">84</div>
-              <div style="font-size:11px;color:#888">NOI 4.2%</div>
-            </div>
-            <div style="background:#EAF3DE;border-radius:4px;padding:6px 8px;font-size:11px;color:#333;margin-bottom:10px;line-height:1.5">権利整理が容易で大規模開発の余地あり</div>
-            <button class="alt-explore-btn" onclick="exploreAlternativeArea('alt2')" style="height:32px;font-size:12px;background:#0067B3;color:#fff;border:none;border-radius:6px;width:100%;cursor:pointer;font-family:inherit">このエリアを調査</button>
-          </div>
-          <!-- Card 3: 浜松町二丁目 (候補) -->
-          <div class="alt-card" style="flex:1;border:2px solid #e0e0e0;margin-bottom:0;opacity:0.7;border-radius:8px;overflow:visible;position:relative">
-            <div style="background:#f4f6f9;padding:10px 12px;border-radius:6px 6px 0 0;margin:-12px -12px 10px;display:flex;align-items:center;justify-content:space-between">
-              <strong style="font-size:13px;display:block">浜松町二丁目</strong>
-              <span style="font-size:10px;color:#888;background:#e0e0e0;padding:1px 6px;border-radius:3px">候補</span>
-            </div>
-            <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px">
-              <div style="font-size:22px;font-weight:700;color:#0067B3">76</div>
-              <div style="font-size:11px;color:#888">NOI 3.8%</div>
-            </div>
-            <div style="background:#FAEEDA;border-radius:4px;padding:6px 8px;font-size:11px;color:#333;margin-bottom:10px;line-height:1.5">将来価値の上昇余地あり</div>
-            <button class="alt-explore-btn" onclick="showToast('詳細データを準備中です')" style="height:32px;font-size:12px;background:transparent;color:#0067B3;border:1px solid #0067B3;border-radius:6px;width:100%;cursor:pointer;font-family:inherit">このエリアを調査</button>
-          </div>
-        </div>
-        <div style="text-align:center;margin-bottom:12px">
-          <button style="background:none;border:none;color:#0067B3;font-size:12px;cursor:pointer;font-family:inherit;font-weight:500">...他の候補エリアを表示</button>
-        </div>
-      </div>
+      ${altCardsHTML}
 
-      <div style="background:#FCEBEB;border:1px solid #E24B4A;border-radius:8px;padding:14px 16px;margin:16px 0">
-        <div style="display:flex;align-items:center;gap:8px;margin:0 0 8px">
-          <div style="width:20px;height:20px;border-radius:50%;background:#E24B4A;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0">!</div>
-          <span style="font-size:13px;font-weight:500;color:#791F1F">用地取得リスクが検出されました</span>
-        </div>
-        <p style="font-size:12px;color:#A32D2D;line-height:1.6;margin:0 0 10px">P03（芝大門1-3）の登記情報を分析した結果、以下のリスクが特定されました。</p>
-        <div style="background:#fff;border-radius:6px;padding:10px 12px;margin:0 0 10px">
-          <div style="display:flex;justify-content:space-between;font-size:12px;margin:0 0 6px"><span style="color:#791F1F">所有形態</span><span style="font-weight:500">共有（3名）</span></div>
-          <div style="display:flex;justify-content:space-between;font-size:12px;margin:0 0 6px"><span style="color:#791F1F">抵当権</span><span style="font-weight:500">あり（2件、異なる債権者）</span></div>
-          <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:#791F1F">推定取得難易度</span><span style="color:#E24B4A;font-weight:500">高（全権利者の合意に12〜18ヶ月）</span></div>
-        </div>
-        <p style="font-size:11px;color:#A32D2D;line-height:1.5;margin:0">この筆を含むプランの実行には、権利整理に相当の期間を要する可能性があります。</p>
-      </div>
-      <div style="background:#E6F1FB;border:1px solid #0067B3;border-radius:8px;padding:14px 16px;margin:0 0 16px">
-        <div style="display:flex;align-items:center;gap:8px;margin:0 0 8px">
-          <div style="width:20px;height:20px;border-radius:50%;background:#0067B3;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0">AI</div>
-          <span style="font-size:13px;font-weight:500;color:#0C447C">代替候補エリアが見つかりました</span>
-        </div>
-        <p style="font-size:12px;color:#0C447C;line-height:1.6;margin:0">分析対象エリアの周辺500m圏内で、同等の開発ポテンシャルを持ち、かつ権利整理が比較的容易な候補地を3件特定しました。</p>
-      </div>
+      ${alertHTML}
 
       <div class="acq-section">
         <h4>ターゲットリスト（A/Bランク筆）</h4>
@@ -1932,6 +1993,7 @@ function showAcquisitionPanel(id) {
     </div>
   `;
 
+  _panelUpdating = false;
   // Delayed AI recommendation + guide
   setTimeout(() => {
     const altEl = document.getElementById('alt-recommend');
@@ -2098,6 +2160,7 @@ function exploreAlternativeArea(areaId) {
   parcelLayers = {};
   parcelTooltips = {};
 
+  window._isAlternativeArea = true;
   map.flyTo(area.center, 17, { duration: 1.5 });
 
   clearGuideUI();
