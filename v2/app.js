@@ -1112,13 +1112,17 @@ function confirmScenario(parcelId, plan) {
           '</div>' +
         '</div>' +
       '</div>' +
+      '<div id="facility-3d-preview" style="width:100%;height:200px;background:#f7f8fa;border-radius:8px;margin:0 0 12px;overflow:hidden"></div>' +
       '<div id="facility-confirm-btn" style="background:#0067B3;color:#fff;text-align:center;padding:12px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;opacity:0.4;pointer-events:none">施設タイプを選択してください</div>' +
     '</div>';
 
-  var selectedFacility = null;
+  window._currentParcelId = parcelId;
+  window._currentPlan = plan;
+  window._selectedFacility = null;
+
   panel.querySelectorAll('.facility-card').forEach(function(card) {
     card.addEventListener('click', function() {
-      selectedFacility = this.dataset.type;
+      window._selectedFacility = this.dataset.type;
       panel.querySelectorAll('.facility-card').forEach(function(c) {
         c.style.borderColor = '#e0e0e0';
         c.style.borderWidth = '1px';
@@ -1126,15 +1130,32 @@ function confirmScenario(parcelId, plan) {
       this.style.borderColor = '#0067B3';
       this.style.borderWidth = '2px';
       var btn = document.getElementById('facility-confirm-btn');
-      btn.style.opacity = '1';
-      btn.style.pointerEvents = 'auto';
-      btn.textContent = '分析を開始する';
-      btn.onclick = function() {
-        showAnalysisResults(parcelId, selectedFacility, plan.floorArea);
-        if (guideStep === 6) setTimeout(function() { advanceGuide(7); }, 500);
-      };
+      if (btn) {
+        btn.style.opacity = '1';
+        btn.style.pointerEvents = 'auto';
+        btn.textContent = '分析を開始する';
+      }
+      var previewContainer = document.getElementById('facility-3d-preview');
+      if (previewContainer && typeof create3DBuilding === 'function') {
+        var ft = window._selectedFacility;
+        var fl = ft === 'tower-mansion' ? Math.round(plan.floors * 1.3) : plan.floors;
+        var fakeP = { area: plan.siteArea, floors: fl };
+        previewContainer.innerHTML = '';
+        var pw = previewContainer.clientWidth || 350;
+        create3DBuilding(previewContainer, fakeP, pw, 200);
+      }
     });
   });
+
+  var confirmBtn = document.getElementById('facility-confirm-btn');
+  if (confirmBtn) {
+    confirmBtn.addEventListener('click', function() {
+      if (window._selectedFacility) {
+        showAnalysisResults(window._currentParcelId, window._selectedFacility, window._currentPlan.floorArea);
+        if (guideStep === 6) setTimeout(function() { advanceGuide(7); }, 500);
+      }
+    });
+  }
 
   if (guideStep === 5) setTimeout(function() { advanceGuide(6); }, 500);
 }
@@ -1235,9 +1256,6 @@ function create3DBuilding(container, p, w, h) {
   window.addEventListener('mouseup', () => { isDragging = false; });
 
   renderer.render(scene, camera);
-  // Animate
-  function animate() { requestAnimationFrame(animate); renderer.render(scene, camera); }
-  animate();
 }
 
 // ===== Task 8: BIM Model helpers =====
