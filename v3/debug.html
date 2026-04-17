@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RWAI Debug - Coordinate Picker</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+body { margin: 0; font-family: 'Noto Sans JP', sans-serif; }
+#map { width: 100%; height: 100vh; }
+#panel {
+  position: fixed; bottom: 12px; left: 12px;
+  background: rgba(0,0,0,0.88); color: #0f0;
+  font-family: monospace; font-size: 12px;
+  padding: 14px; border-radius: 10px; z-index: 9999;
+  max-width: 420px; max-height: 50vh; overflow-y: auto;
+}
+#panel h3 { color: #fff; font-size: 13px; margin: 0 0 8px; font-weight: 500; }
+#panel .hint { color: #aaa; font-size: 11px; margin: 0 0 10px; }
+#output div { margin: 1px 0; }
+#btns { margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
+#btns button {
+  padding: 5px 12px; font-size: 11px; cursor: pointer;
+  border: 1px solid #555; background: #333; color: #fff; border-radius: 4px;
+}
+#btns button:hover { background: #555; }
+#cursor-info {
+  position: fixed; top: 12px; right: 12px;
+  background: rgba(0,0,0,0.75); color: #fff;
+  font-family: monospace; font-size: 13px;
+  padding: 10px 14px; border-radius: 8px; z-index: 9999;
+}
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="cursor-info">Move mouse over map</div>
+<div id="panel">
+  <h3>Coordinate Picker</h3>
+  <p class="hint">Click on map to record vertices. Click "Close Polygon" to save a parcel.</p>
+  <div id="output"></div>
+  <div id="btns">
+    <button id="btn-copy">Copy JSON</button>
+    <button id="btn-undo">Undo Last</button>
+    <button id="btn-clear">Clear All</button>
+    <button id="btn-polygon">Close Polygon</button>
+  </div>
+  <div id="parcel-list" style="margin-top:10px;color:#aaa;font-size:11px"></div>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+var map = L.map('map', { center: [35.6567, 139.7523], zoom: 17 });
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: 'OpenStreetMap CARTO', maxZoom: 20
+}).addTo(map);
+var coords = [];
+var markers = [];
+var polylines = [];
+var savedParcels = [];
+var outputDiv = document.getElementById('output');
+var cursorInfo = document.getElementById('cursor-info');
+var parcelList = document.getElementById('parcel-list');
+map.on('mousemove', function(e) {
+  cursorInfo.textContent = 'Lat: ' + e.latlng.lat.toFixed(6) + '  Lng: ' + e.latlng.lng.toFixed(6);
+});
+map.on('click', function(e) {
+  var lat = parseFloat(e.latlng.lat.toFixed(6));
+  var lng = parseFloat(e.latlng.lng.toFixed(6));
+  coords.push([lat, lng]);
+  var marker = L.circleMarker(e.latlng, {
+    radius: 5, color: '#ff3333', fillColor: '#ff3333', fillOpacity: 1
+  }).addTo(map);
+  markers.push(marker);
+  if (coords.length > 1) {
+    var line = L.polyline([coords[coords.length-2], coords[coords.length-1]], {
+      color: '#ff3333', weight: 2
+    }).addTo(map);
+    polylines.push(line);
+  }
+  renderOutput();
+});
+function renderOutput() {
+  outputDiv.innerHTML = '';
+  coords.forEach(function(c, i) {
+    var div = document.createElement('div');
+    div.textContent = (i+1) + ': [' + c[0] + ', ' + c[1] + ']';
+    outputDiv.appendChild(div);
+  });
+}
+document.getElementById('btn-copy').addEventListener('click', function() {
+  var json = JSON.stringify(savedParcels.length > 0 ? savedParcels : coords);
+  navigator.clipboard.writeText(json).then(function() { alert('Copied!'); });
+});
+document.getElementById('btn-undo').addEventListener('click', function() {
+  if (coords.length === 0) return;
+  coords.pop();
+  var m = markers.pop(); if (m) map.removeLayer(m);
+  var l = polylines.pop(); if (l) map.removeLayer(l);
+  renderOutput();
+});
+document.getElementById('btn-clear').addEventListener('click', function() {
+  coords = [];
+  markers.forEach(function(m) { map.removeLayer(m); }); markers = [];
+  polylines.forEach(function(l) { map.removeLayer(l); }); polylines = [];
+  renderOutput();
+});
+document.getElementById('btn-polygon').addEventListener('click', function() {
+  if (coords.length < 3) { alert('3 points minimum'); return; }
+  L.polygon(coords, {
+    color: '#0067B3', weight: 2, fillColor: '#0067B3', fillOpacity: 0.15
+  }).addTo(map);
+  var parcelId = 'P' + String(savedParcels.length + 1).padStart(2, '0');
+  savedParcels.push({ id: parcelId, polygon: coords.slice() });
+  var div = document.createElement('div');
+  div.style.color = '#0f0';
+  div.textContent = parcelId + ': ' + JSON.stringify(coords);
+  parcelList.appendChild(div);
+  coords = [];
+  markers.forEach(function(m) { map.removeLayer(m); }); markers = [];
+  polylines.forEach(function(l) { map.removeLayer(l); }); polylines = [];
+  renderOutput();
+});
+L.rectangle([[35.6553, 139.7503], [35.6580, 139.7542]], {
+  color: '#0067B3', weight: 2, dashArray: '8,6',
+  fill: true, fillColor: '#0067B3', fillOpacity: 0.05
+}).addTo(map);
+</script>
+</body>
+</html>
