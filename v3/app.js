@@ -42,11 +42,11 @@ const alternativeAreas = [
     areaName: '芝公園三丁目エリア',
     center: [35.6617, 139.7522],
     parcels: [
-      {"id":"B01","name":"芝公園3-2","lat":35.6619,"lng":139.7522,"polygon":[[35.661991,139.75215],[35.661888,139.752094],[35.661823,139.752295],[35.661847,139.752308],[35.661777,139.752496],[35.661875,139.752539],[35.661995,139.752153]],"zone":"商業地域","far":700,"score":84,"noiYield":4.2,"irr":11.0,"rent":6800,"area":450,"vacancy":3.5,"floors":11,"units":38,"cost":1460,"landPrice":720,"grossMargin":20,"dscr":1.5,"capRate":3.6,"buildableArea":2930,"rentableRatio":74,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
-      {"id":"B02","name":"芝公園3-4","lat":35.6618,"lng":139.7521,"polygon":[[35.661879,139.752075],[35.661683,139.751979],[35.661613,139.752201],[35.661807,139.752308],[35.661875,139.752078]],"zone":"商業地域","far":700,"score":78,"noiYield":3.9,"irr":10.2,"rent":6500,"area":380,"vacancy":4.0,"floors":10,"units":30,"cost":1240,"landPrice":680,"grossMargin":19,"dscr":1.45,"capRate":3.8,"buildableArea":2480,"rentableRatio":73,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
+      {"id":"B01","name":"芝公園3-2","lat":35.6619,"lng":139.7522,"polygon":[[35.661991,139.75215],[35.661888,139.752094],[35.661823,139.752295],[35.661847,139.752308],[35.661777,139.752496],[35.661875,139.752539],[35.661995,139.752153]],"zone":"商業地域","far":700,"score":84,"noiYield":4.5,"irr":11.0,"rent":7200,"area":450,"vacancy":3.5,"floors":11,"units":38,"cost":1460,"landPrice":720,"grossMargin":20,"dscr":1.5,"capRate":3.6,"buildableArea":2930,"rentableRatio":74,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
+      {"id":"B02","name":"芝公園3-4","lat":35.6618,"lng":139.7521,"polygon":[[35.661879,139.752075],[35.661683,139.751979],[35.661613,139.752201],[35.661807,139.752308],[35.661875,139.752078]],"zone":"商業地域","far":700,"score":78,"noiYield":4.3,"irr":10.2,"rent":6900,"area":380,"vacancy":4.0,"floors":10,"units":30,"cost":1240,"landPrice":680,"grossMargin":19,"dscr":1.45,"capRate":3.8,"buildableArea":2480,"rentableRatio":73,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
       {"id":"B03","name":"芝公園3-6","lat":35.6617,"lng":139.7524,"polygon":[[35.661803,139.752359],[35.661725,139.752325],[35.661694,139.752443],[35.661768,139.752477],[35.661807,139.752365]],"zone":"商業地域","far":600,"score":72,"noiYield":3.7,"irr":9.5,"rent":6300,"area":280,"vacancy":4.5,"floors":9,"units":22,"cost":780,"landPrice":650,"grossMargin":18,"dscr":1.4,"capRate":3.9,"buildableArea":1560,"rentableRatio":72,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
-      {"id":"B04","name":"芝公園3-8","lat":35.6616,"lng":139.7523,"polygon":[[35.661705,139.752284],[35.661585,139.752228],[35.661537,139.752389],[35.661672,139.752445],[35.661729,139.752292]],"zone":"商業地域","far":600,"score":70,"noiYield":3.6,"irr":9.2,"rent":6200,"area":320,"vacancy":4.5,"floors":8,"units":24,"cost":890,"landPrice":640,"grossMargin":17,"dscr":1.38,"capRate":4.0,"buildableArea":1790,"rentableRatio":72,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
-      {"id":"B05","name":"芝公園3-10","lat":35.6614,"lng":139.7520,"polygon":[[35.66165,139.751981],[35.661546,139.75193],[35.661485,139.752054],[35.661241,139.751941],[35.661162,139.75219],[35.661522,139.752351],[35.661659,139.751979]],"zone":"商業地域","far":700,"score":76,"noiYield":3.8,"irr":10.0,"rent":6400,"area":580,"vacancy":4.0,"floors":10,"units":42,"cost":1890,"landPrice":660,"grossMargin":18,"dscr":1.42,"capRate":3.9,"buildableArea":3780,"rentableRatio":73,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
+      {"id":"B04","name":"芝公園3-8","lat":35.6616,"lng":139.7523,"polygon":[[35.661705,139.752284],[35.661585,139.752228],[35.661537,139.752389],[35.661672,139.752445],[35.661729,139.752292]],"zone":"商業地域","far":600,"score":70,"noiYield":4.0,"irr":9.2,"rent":6600,"area":320,"vacancy":4.5,"floors":8,"units":24,"cost":890,"landPrice":640,"grossMargin":17,"dscr":1.38,"capRate":4.0,"buildableArea":1790,"rentableRatio":72,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
+      {"id":"B05","name":"芝公園3-10","lat":35.6614,"lng":139.7520,"polygon":[[35.66165,139.751981],[35.661546,139.75193],[35.661485,139.752054],[35.661241,139.751941],[35.661162,139.75219],[35.661522,139.752351],[35.661659,139.751979]],"zone":"商業地域","far":700,"score":76,"noiYield":4.2,"irr":10.0,"rent":6800,"area":580,"vacancy":4.0,"floors":10,"units":42,"cost":1890,"landPrice":660,"grossMargin":18,"dscr":1.42,"capRate":3.9,"buildableArea":3780,"rentableRatio":73,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}},
       {"id":"B06","name":"芝公園3-12","lat":35.6614,"lng":139.7519,"polygon":[[35.661522,139.751901],[35.661302,139.751804],[35.661252,139.751922],[35.661485,139.752038],[35.661515,139.751917]],"zone":"商業地域","far":600,"score":65,"noiYield":3.5,"irr":8.8,"rent":6100,"area":300,"vacancy":5.0,"floors":8,"units":20,"cost":840,"landPrice":620,"grossMargin":17,"dscr":1.35,"capRate":4.1,"buildableArea":1670,"rentableRatio":71,"risks":{"flood":"低","soil":"なし","cultural":"なし","liquefaction":"低","road":"適合","adjacentUse":"問題なし"}}
     ]
   }
@@ -1001,7 +1001,7 @@ function showDetailPanel(id) {
         <!-- Overview metrics -->
         <div class="detail-grid-6">
           <div class="metric-card"><div class="metric-label">スコア</div><div class="metric-value">${p.score}</div></div>
-          <div class="metric-card"><div class="metric-label">NOI利回り</div><div class="metric-value">${p.noiYield}<span class="metric-unit">%</span></div></div>
+          <div class="metric-card"><div class="metric-label">NOI利回り（現状）</div><div class="metric-value">${p.noiYield}<span class="metric-unit">%</span></div></div>
           <div class="metric-card"><div class="metric-label">Cap Rate</div><div class="metric-value">${p.capRate}<span class="metric-unit">%</span></div></div>
         </div>
         <!-- Basic info table -->
@@ -1110,9 +1110,9 @@ function showScenarioPanel(id) {
         html += '</div>';
         html += '<div id="facility-3d-preview" style="width:100%;height:160px;background:#f0f4f8;border-radius:8px;margin:0 0 12px;overflow:hidden"></div>';
         if (plan.recommended) {
-          html += '<div id="scenario-start-btn" data-plan="' + plan.id + '" style="background:#0067B3;color:#fff;text-align:center;padding:12px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer">このプランで分析を開始</div>';
+          html += '<div id="scenario-start-btn" data-plan="' + plan.id + '" data-recommended="true" style="background:#0067B3;color:#fff;text-align:center;padding:12px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer">このプランで分析を開始</div>';
         } else {
-          html += '<div id="scenario-start-btn" data-plan="' + plan.id + '" style="background:#ccc;color:#fff;text-align:center;padding:12px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer">このプランで分析を開始</div>';
+          html += '<div id="scenario-start-btn" data-plan="' + plan.id + '" data-recommended="false" style="background:#ccc;color:#fff;text-align:center;padding:12px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer">このプランで分析を開始</div>';
         }
         html += '</div>';
         html += '</div>';
@@ -1196,14 +1196,17 @@ function showScenarioPanel(id) {
     var startBtn = document.getElementById('scenario-start-btn');
     if (startBtn) {
       startBtn.addEventListener('click', function() {
+        var isRec = this.dataset.recommended === 'true';
+        if (!isRec) {
+          showToast('デモ版ではPlan Dの分析のみ可能です');
+          return;
+        }
         var planId = this.dataset.plan;
         var plan = developmentPlans.find(function(dp) { return dp.id === planId; });
-        if (plan && plan.recommended) {
+        if (plan) {
           window.selectedPlan = plan;
           window._selectedFacility = selectedFacility;
           showAnalysisResults(id, selectedFacility, plan.floorArea);
-        } else {
-          showToast('デモ版ではPlan Dの分析のみ可能です');
         }
       });
     }
@@ -1476,6 +1479,19 @@ function showAnalysisResults(id, facilityType, floorArea) {
   const p = parcelsData.find(d => d.id === id);
   if (!p) return;
 
+  // Use plan aggregate values if available
+  var displayP = Object.assign({}, p);
+  if (window.selectedPlan) {
+    displayP.area = window.selectedPlan.siteArea;
+    displayP.buildableArea = window.selectedPlan.floorArea;
+    displayP.floors = window.selectedPlan.floors;
+    displayP.name = p.name;
+    displayP.cost = Math.round(window.selectedPlan.floorArea * 0.49);
+    displayP.rentableRatio = p.rentableRatio || 74;
+    displayP.units = Math.max(8, Math.round(window.selectedPlan.floorArea * (displayP.rentableRatio / 100) / 50));
+  }
+  window._displayP = displayP;
+
   // Expand panel to 500px
   setPanelWidth(500);
   var panTarget;
@@ -1509,8 +1525,8 @@ function showAnalysisResults(id, facilityType, floorArea) {
     <div style="display:flex;flex-direction:column;height:100%">
       <div style="padding:12px 16px;border-bottom:1px solid #e0e0e0;background:#fafafa">
         <button class="impact-back-btn" onclick="showScenarioPanel('${p.id}')" style="margin:0 0 8px;width:auto;display:inline-block">← シナリオに戻る</button>
-        <h3 style="font-size:15px;font-weight:700;margin:0">${p.name} — 分析結果</h3>
-        <div style="font-size:12px;color:#888;margin-top:4px">${facilityConfig[facilityType]?.label || facilityType} / ${floorArea.toLocaleString()}m²</div>
+        <h3 style="font-size:15px;font-weight:700;margin:0">${displayP.name} — 分析結果</h3>
+        <div style="font-size:12px;color:#888;margin-top:4px">${facilityConfig[facilityType]?.label || facilityType} / ${displayP.buildableArea ? displayP.buildableArea.toLocaleString() : floorArea.toLocaleString()}m²</div>
       </div>
       <div class="analysis-tab-bar">
         <button class="analysis-tab active" data-tab="volume" onclick="switchAnalysisTab('volume','${p.id}','${facilityType}',${floorArea})">ボリューム</button>
@@ -1565,37 +1581,40 @@ function switchAnalysisTab(tab, parcelId, facilityType, floorArea) {
 }
 
 function getVolumeTabContent(p, facilityType, floorArea) {
-  const ba = p.buildableArea || Math.round(p.area * p.far / 100 * 0.93);
-  const bldgArea = Math.round(p.area * 0.6);
-  const bldgH = p.floors * 3.5;
-  const volRate = Math.round(ba / p.area * 100);
+  var dp = window._displayP || p;
+  const ba = dp.buildableArea || Math.round(dp.area * p.far / 100 * 0.93);
+  const bldgArea = Math.round(dp.area * 0.6);
+  const bldgH = dp.floors * 3.5;
+  const volRate = Math.round(ba / dp.area * 100);
 
   return `
     <div id="three-analysis-volume" style="width:100%;height:250px;border-radius:8px;overflow:hidden;margin-bottom:16px;position:relative">
-      <div style="position:absolute;top:8px;left:8px;background:rgba(255,255,255,0.85);padding:4px 10px;border-radius:4px;font-size:11px;color:#555;z-index:1">${p.floors}階 / 延床${ba.toLocaleString()}m²</div>
+      <div style="position:absolute;top:8px;left:8px;background:rgba(255,255,255,0.85);padding:4px 10px;border-radius:4px;font-size:11px;color:#555;z-index:1">${dp.floors}階 / 延床${ba.toLocaleString()}m²</div>
     </div>
     <table class="detail-table">
-      <tr><td>敷地面積</td><td>${p.area.toLocaleString()} m²</td></tr>
+      <tr><td>敷地面積</td><td>${dp.area.toLocaleString()} m²</td></tr>
       <tr><td>建築面積</td><td>${bldgArea.toLocaleString()} m²</td></tr>
       <tr><td>延床面積</td><td>${ba.toLocaleString()} m²</td></tr>
       <tr><td>容積消化率</td><td><div style="background:#eee;border-radius:4px;height:14px;width:100%"><div style="background:#185FA5;height:14px;border-radius:4px;width:${Math.min(100,volRate)}%;font-size:10px;color:#fff;text-align:center;line-height:14px">${volRate}%</div></div></td></tr>
-      <tr><td>階数</td><td>${p.floors}階</td></tr>
+      <tr><td>階数</td><td>${dp.floors}階</td></tr>
       <tr><td>建物高さ</td><td>約${bldgH.toFixed(0)}m</td></tr>
-      <tr><td>レンタブル比</td><td><div style="background:#eee;border-radius:4px;height:14px;width:100%"><div style="background:#2d8a4e;height:14px;border-radius:4px;width:${p.rentableRatio||73}%;font-size:10px;color:#fff;text-align:center;line-height:14px">${p.rentableRatio||73}%</div></div></td></tr>
-      <tr><td>想定住戸数</td><td>${p.units}戸</td></tr>
+      <tr><td>レンタブル比</td><td><div style="background:#eee;border-radius:4px;height:14px;width:100%"><div style="background:#2d8a4e;height:14px;border-radius:4px;width:${dp.rentableRatio||73}%;font-size:10px;color:#fff;text-align:center;line-height:14px">${dp.rentableRatio||73}%</div></div></td></tr>
+      <tr><td>想定住戸数</td><td>${dp.units || Math.round(ba * 0.74 / 50)}戸</td></tr>
     </table>
     <p style="font-size:10px;color:#999;margin-top:12px">※斜線制限・天空率は概算反映。詳細は設計事務所による検証が必要です</p>
   `;
 }
 
 function getFinanceTabContent(p, facilityType, floorArea) {
-  var ba = p.buildableArea || Math.round(p.area * p.far / 100 * 0.93);
-  var rr = (p.rentableRatio || 73) / 100;
-  var landCost = Math.round(p.landPrice * p.area / 100);
-  var designFee = Math.round(p.cost * 0.08);
-  var expenses = Math.round(p.cost * 0.05);
-  var contingency = Math.round(p.cost * 0.10);
-  var totalInvest = landCost + p.cost + designFee + expenses + contingency;
+  var dp = window._displayP || p;
+  var ba = dp.buildableArea || Math.round(dp.area * p.far / 100 * 0.93);
+  var rr = (dp.rentableRatio || 73) / 100;
+  var landCost = Math.round(p.landPrice * dp.area / 100);
+  var buildCost = dp.cost || p.cost;
+  var designFee = Math.round(buildCost * 0.08);
+  var expenses = Math.round(buildCost * 0.05);
+  var contingency = Math.round(buildCost * 0.10);
+  var totalInvest = landCost + buildCost + designFee + expenses + contingency;
   var grossRent = Math.round(p.rent * ba * rr * 12 / 1000000);
   var annualRent = Math.round(grossRent * (1 - p.vacancy / 100));
   var commonFee = Math.round(annualRent * 0.1);
@@ -1609,7 +1628,7 @@ function getFinanceTabContent(p, facilityType, floorArea) {
   var dscrColor = parseFloat(dscrVal) >= 1.3 ? '#2d8a4e' : '#c0392b';
 
   return '<div class="detail-grid-4" style="margin-bottom:16px">' +
-    '<div class="metric-card"><div class="metric-label">NOI利回り</div><div class="metric-value" style="font-size:16px">' + p.noiYield + '%</div></div>' +
+    '<div class="metric-card"><div class="metric-label">NOI利回り（開発後推計）</div><div class="metric-value" style="font-size:16px">' + p.noiYield + '%</div></div>' +
     '<div class="metric-card"><div class="metric-label">想定IRR</div><div class="metric-value" style="font-size:16px">' + p.irr + '%</div></div>' +
     '<div class="metric-card"><div class="metric-label">粗利率</div><div class="metric-value" style="font-size:16px">' + p.grossMargin + '%</div></div>' +
     '<div class="metric-card"><div class="metric-label">DSCR</div><div class="metric-value" style="font-size:16px;color:' + dscrColor + '">' + dscrVal + '</div></div>' +
@@ -1617,7 +1636,7 @@ function getFinanceTabContent(p, facilityType, floorArea) {
     '<h4 style="font-size:13px;color:#888;margin-bottom:8px">初期投資</h4>' +
     '<table class="detail-table" style="margin-bottom:12px">' +
     '<tr><td>土地取得費</td><td>' + landCost.toLocaleString() + '百万円</td></tr>' +
-    '<tr><td>建築工事費</td><td>' + p.cost.toLocaleString() + '百万円</td></tr>' +
+    '<tr><td>建築工事費</td><td>' + buildCost.toLocaleString() + '百万円</td></tr>' +
     '<tr><td>設計・監理費</td><td>' + designFee + '百万円</td></tr>' +
     '<tr><td>諸経費</td><td>' + expenses + '百万円</td></tr>' +
     '<tr><td>予備費</td><td>' + contingency + '百万円</td></tr>' +
@@ -2624,10 +2643,11 @@ async function loadHearingQuestions() {
   var res = await sbFetch('/questions?is_active=eq.true&order=sort_order');
   hearingQuestions = await res.json();
   var lm = document.getElementById('hearing-loading-msg');
-  if (lm) lm.classList.add('hidden');
+  if (lm) lm.style.display = 'none';
   var list = document.getElementById('hearing-questions-list');
   var currentCat = '';
   var html = '';
+  var qIdx = 0;
   hearingQuestions.forEach(function(q) {
     if (q.category !== currentCat) {
       if (currentCat) html += '</div>';
@@ -2642,7 +2662,8 @@ async function loadHearingQuestions() {
     }
     html += '<div class="hearing-question-card" data-qid="' + q.id + '">';
     html += '<div style="display:flex;justify-content:space-between;align-items:flex-start">';
-    html += '<div class="hearing-question-text">' + q.sort_order + '. ' + q.question_text + '</div>';
+    qIdx++;
+    html += '<div class="hearing-question-text">' + qIdx + '. ' + q.question_text + '</div>';
     html += '<div style="display:flex;gap:4px;margin-left:8px">';
     html += '<button class="edit-q-btn" data-qid="' + q.id + '" style="background:none;border:1px solid #ddd;border-radius:4px;padding:4px 8px;font-size:11px;color:#888;cursor:pointer;white-space:nowrap;font-family:inherit" onclick="editHearingQuestion(' + q.id + ', this)">編集</button>';
     html += '<button style="background:none;border:1px solid #e0b0b0;border-radius:4px;padding:4px 8px;font-size:11px;color:#c0392b;cursor:pointer;white-space:nowrap;font-family:inherit" onclick="deleteHearingQuestion(' + q.id + ')">削除</button>';
