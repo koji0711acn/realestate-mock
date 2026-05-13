@@ -2110,6 +2110,29 @@ var layerMunicipalityData = {
     '大崎市':        { status: 'balanced', balance: -4, supply: 22, demand: 23 },
     '北上市':        { status: 'surplus', balance: 8, supply: 25, demand: 23, canSupply: true },
     '気仙沼市':      { status: 'tight-medium', balance: -11, supply: 9, demand: 10 }
+  },
+  equipment: {
+    '仙台市青葉区':  { status: 'tight-high', balance: -28, supply: 8, demand: 11 },
+    '仙台市泉区':    { status: 'tight-high', balance: -20, supply: 6, demand: 8, isProject: true },
+    '仙台市太白区':  { status: 'tight-medium', balance: -10, supply: 10, demand: 11 },
+    '仙台市若林区':  { status: 'tight-medium', balance: -8, supply: 11, demand: 12 },
+    '仙台市宮城野区':{ status: 'tight-high', balance: -18, supply: 7, demand: 9 },
+    '多賀城市':      { status: 'surplus', balance: 8, supply: 14, demand: 13, canSupply: true },
+    '塩竈市':        { status: 'balanced', balance: 2, supply: 6, demand: 6, canSupply: true },
+    '名取市':        { status: 'balanced', balance: -3, supply: 12, demand: 12, canSupply: true },
+    '富谷市':        { status: 'surplus', balance: 15, supply: 10, demand: 8, canSupply: true },
+    '利府町':        { status: 'surplus', balance: 12, supply: 8, demand: 7, canSupply: true },
+    '岩沼市':        { status: 'balanced', balance: -1, supply: 9, demand: 9, canSupply: true }
+  },
+  concrete: {
+    '仙台市青葉区':  { status: 'tight-high', balance: -32, supply: 2, demand: 5 },
+    '仙台市泉区':    { status: 'tight-high', balance: -25, supply: 1, demand: 2, isProject: true },
+    '仙台市太白区':  { status: 'tight-medium', balance: -12, supply: 3, demand: 4 },
+    '仙台市若林区':  { status: 'balanced', balance: -2, supply: 4, demand: 4, canSupply: true },
+    '仙台市宮城野区':{ status: 'balanced', balance: -3, supply: 4, demand: 4, canSupply: true },
+    '多賀城市':      { status: 'surplus', balance: 10, supply: 5, demand: 4, canSupply: true },
+    '塩竈市':        { status: 'surplus', balance: 12, supply: 4, demand: 3, canSupply: true },
+    '名取市':        { status: 'surplus', balance: 12, supply: 4, demand: 3, canSupply: true }
   }
 };
 
@@ -2237,8 +2260,14 @@ function showMunicipalityPopup(info) {
 
   html += '<div class="mesh-popup-section">';
   html += '<div class="mesh-popup-section-title">エリア内訳（現時点）</div>';
-  html += '<div class="mesh-popup-row"><span class="mesh-popup-key">供給能力</span><span class="mesh-popup-val">' + info.supply + ' 社</span></div>';
-  html += '<div class="mesh-popup-row"><span class="mesh-popup-key">競合需要</span><span class="mesh-popup-val">' + info.demand + ' 件</span></div>';
+  var supplyUnit = '社';
+  var demandUnit = '案件';
+  if (currentLayerType === 'equipment') { supplyUnit = '社'; demandUnit = '現場'; }
+  else if (currentLayerType === 'concrete') { supplyUnit = '工場'; demandUnit = '案件'; }
+  else if (currentLayerType === 'steel') { supplyUnit = '商社'; demandUnit = '案件'; }
+
+  html += '<div class="mesh-popup-row"><span class="mesh-popup-key">供給能力</span><span class="mesh-popup-val">' + info.supply + ' ' + supplyUnit + '</span></div>';
+  html += '<div class="mesh-popup-row"><span class="mesh-popup-key">競合需要</span><span class="mesh-popup-val">' + info.demand + ' ' + demandUnit + '</span></div>';
   html += '<div class="mesh-popup-row"><span class="mesh-popup-key">過不足率</span><span class="mesh-popup-val" style="color:' + (info.currentBalance < 0 ? '#c44a4a' : '#3d6b24') + '">' + (info.currentBalance > 0 ? '+' : '') + info.currentBalance + '%</span></div>';
   html += '</div>';
 
