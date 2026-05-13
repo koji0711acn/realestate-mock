@@ -101,6 +101,7 @@ const preloadedImages = [];
 function startGifSlideshow() {
   var display = document.getElementById('gif-display');
   var textEl = document.getElementById('gif-text');
+  if (!display || !textEl) return; // V4: landing has no slideshow
 
   var loadedCount = 0;
   slideImages.forEach(function(src, i) {

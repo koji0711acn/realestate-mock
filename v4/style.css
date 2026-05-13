@@ -1654,3 +1654,230 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
 .hearing-btn-export { background: #fff; color: #0067B3; border: 1px solid #0067B3; padding: 10px 20px; border-radius: 6px; font-size: 13px; cursor: pointer; font-family: inherit; }
 .hearing-btn-export:hover { background: #E6F1FB; }
 .hearing-loading { text-align: center; padding: 40px; color: #888; font-size: 14px; }
+
+/* ===== V4 Landing Page ===== */
+.landing-hero {
+  text-align: center;
+  padding: 60px 40px 40px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.landing-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1a3658;
+  margin: 0 0 12px;
+  letter-spacing: -0.5px;
+}
+.landing-subtitle {
+  font-size: 16px;
+  color: #5a8a3c;
+  margin: 0 0 24px;
+  font-weight: 500;
+}
+.landing-description {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.8;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.landing-section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1a3658;
+  margin: 0 0 24px;
+  text-align: center;
+}
+
+.landing-comparison,
+.landing-beforeafter,
+.landing-users {
+  padding: 40px 40px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.comparison-grid,
+.ba-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.comparison-col,
+.ba-col {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.comparison-col-highlight {
+  border-color: #5a8a3c;
+  background: #f7faf3;
+}
+
+.comparison-col-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.comparison-col-highlight .comparison-col-title {
+  color: #3d6b24;
+  border-bottom-color: #5a8a3c;
+}
+
+.comparison-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.comparison-list li {
+  font-size: 12px;
+  color: #555;
+  line-height: 1.7;
+  padding: 6px 0 6px 18px;
+  position: relative;
+}
+
+.comparison-list li::before {
+  content: "・";
+  position: absolute;
+  left: 0;
+  color: #999;
+}
+
+.comparison-col-highlight .comparison-list li::before {
+  color: #5a8a3c;
+}
+
+.ba-col-label {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 12px;
+  margin: 0 0 12px;
+}
+
+.ba-before .ba-col-label {
+  background: #f4f4f4;
+  color: #888;
+}
+
+.ba-after .ba-col-label {
+  background: #e8f3dc;
+  color: #3d6b24;
+}
+
+.ba-col-headline {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 12px;
+}
+
+.ba-after .ba-col-headline {
+  color: #3d6b24;
+}
+
+.ba-col-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ba-col-list li {
+  font-size: 12px;
+  color: #555;
+  line-height: 1.7;
+  padding: 6px 0 6px 18px;
+  position: relative;
+}
+
+.ba-col-list li::before {
+  content: "・";
+  position: absolute;
+  left: 0;
+  color: #999;
+}
+
+.ba-after .ba-col-list li::before {
+  color: #5a8a3c;
+}
+
+.landing-users-description {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.7;
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 24px;
+}
+
+.users-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+.user-card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 18px;
+}
+
+.user-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a3658;
+  margin: 0 0 8px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #5a8a3c;
+}
+
+.user-card-desc {
+  font-size: 12px;
+  color: #555;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.landing-cta {
+  text-align: center;
+  padding: 40px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.landing-start-btn {
+  background: #1a3658;
+  color: #fff;
+  border: none;
+  padding: 14px 40px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s;
+}
+
+.landing-start-btn:hover {
+  background: #0f2641;
+}
+
+.landing-cta-note {
+  font-size: 11px;
+  color: #888;
+  margin: 16px 0 0;
+  line-height: 1.6;
+}
