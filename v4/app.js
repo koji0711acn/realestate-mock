@@ -1808,6 +1808,12 @@ function resetDemo() {
 }
 
 function switchAppTab(tab) {
+  // V4: 全シーン画面を一旦非表示にする
+  ['project-detail-view','analysis-loading-overlay','supply-demand-view','optimization-loading-overlay','optimization-plans-view','vendor-recommendation-view','summary-view'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+
   if (tab === 'map') {
     // V4: 案件一覧画面を表示（マップではない）
     var plView = document.getElementById('project-list-view');
@@ -2263,8 +2269,218 @@ function backToProjectDetail() {
   document.getElementById('project-detail-view').style.display = 'block';
 }
 
+// ===== V4 Scene 3: Optimization & Vendors Data =====
+
+var optimizationPlansData = [
+  {
+    id: 'planA', recommended: true, name: '広域調達型', tagline: '東北全域から最適なリソースを業界横断PF経由で確保。AI推奨。',
+    metrics: { duration: '12ヶ月（予定通り）', cost: '+3.8%', risk: '低' },
+    detail: '<strong>鉄筋工：</strong>山形県●●建設から確保<br><strong>クレーン：</strong>福島県××重機から手配<br><strong>生コン：</strong>仙台市内△△商社の優先枠<br><strong>設備：</strong>過去BIM実績の▲▲設備工業'
+  },
+  {
+    id: 'planB', recommended: false, name: '工期調整型', tagline: '着工時期を5週間後ろ倒し。地元協力会社のみで完結。',
+    metrics: { duration: '13.2ヶ月（+5週）', cost: '+0.5%', risk: '低' },
+    detail: '<strong>着工日：</strong>当初予定から5週間遅延<br><strong>調達範囲：</strong>地元協力会社ネットワーク内<br><strong>メリット：</strong>取引慣行を維持<br><strong>デメリット：</strong>引渡しが1ヶ月遅延'
+  },
+  {
+    id: 'planC', recommended: false, name: '工法転換型', tagline: '一部部材をプレキャスト化。現場職人工数を約30%削減。',
+    metrics: { duration: '12ヶ月（予定通り）', cost: '+7.2%', risk: '中' },
+    detail: '<strong>工法変更：</strong>基礎・床版をプレキャスト化<br><strong>調達範囲：</strong>関東圏のPCa工場<br><strong>メリット：</strong>現場工数大幅削減<br><strong>デメリット：</strong>部材コスト・輸送リスク'
+  }
+];
+
+var vendorRecommendationsData = [
+  {
+    id: 'vendor1', category: '鉄筋工', name: '●●建設株式会社', location: '山形県山形市',
+    distance: '45km / 車60分', period: '2026/12/15 - 2027/02/15', unit: '人工単価 19,800円',
+    capacity: '6人工 / 当該期間', evaluation: '4.8 / 5.0', secured: false,
+    tags: [{label: '業界横断PF経由', type: 'normal'}, {label: '過去BIM実績 3件', type: 'bim'}]
+  },
+  {
+    id: 'vendor2', category: 'クレーン', name: '××重機株式会社', location: '福島県郡山市',
+    distance: '68km / 車90分', period: '2027/03/01 - 2027/05/30', unit: '日額 158,000円',
+    capacity: '50tクローラー 空きあり', evaluation: '4.7 / 5.0', secured: false,
+    tags: [{label: '業界横断PF経由', type: 'normal'}, {label: '稼働実績 12件', type: 'normal'}]
+  },
+  {
+    id: 'vendor3', category: '生コン', name: '△△商社株式会社', location: '仙台市青葉区',
+    distance: '5km / 車15分', period: '2026/11/01 - 2027/03/31', unit: 'm³単価 18,500円',
+    capacity: '420m³ 優先枠確保可能', evaluation: '4.9 / 5.0', secured: false,
+    tags: [{label: '業界横断PF経由', type: 'normal'}, {label: '即時手配可能', type: 'normal'}]
+  },
+  {
+    id: 'vendor4', category: '設備', name: '▲▲設備工業', location: '宮城県名取市',
+    distance: '18km / 車30分', period: '2027/04/15 - 2027/07/15', unit: '一式 28,000,000円',
+    capacity: '空調・給排水・電気一式', evaluation: '4.6 / 5.0', secured: false,
+    tags: [{label: '過去BIM実績 5件', type: 'bim'}, {label: '同型空調機対応可', type: 'bim'}]
+  }
+];
+
+var selectedPlanId = null;
+var securedVendors = {};
+
+// ===== V4 Scene 3: Optimization Logic =====
+
 function showOptimizationPlans() {
-  alert('AI推奨：全体最適化プランを表示します。\n（次のバッチでシーン3を実装します）');
+  document.getElementById('supply-demand-view').style.display = 'none';
+  document.getElementById('optimization-loading-overlay').style.display = 'block';
+  startOptimizationLoading();
+}
+
+function startOptimizationLoading() {
+  var steps = ['ol-step-1', 'ol-step-2', 'ol-step-3', 'ol-step-4'];
+  steps.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.className = 'ol-step';
+  });
+  steps.forEach(function(id, i) {
+    setTimeout(function() {
+      var el = document.getElementById(id);
+      if (el) el.className = 'ol-step active';
+    }, i * 600);
+    setTimeout(function() {
+      var el = document.getElementById(id);
+      if (el) el.className = 'ol-step done';
+    }, (i + 1) * 600);
+  });
+  setTimeout(function() {
+    document.getElementById('optimization-loading-overlay').style.display = 'none';
+    showOptimizationPlansView();
+  }, 3000);
+}
+
+function showOptimizationPlansView() {
+  document.getElementById('optimization-plans-view').style.display = 'block';
+  renderOptimizationPlans();
+  selectedPlanId = null;
+  document.getElementById('op-confirm-btn').style.display = 'none';
+}
+
+function renderOptimizationPlans() {
+  var grid = document.getElementById('op-plans-grid');
+  if (!grid) return;
+  var html = '';
+  optimizationPlansData.forEach(function(plan) {
+    var cardClass = 'op-plan-card' + (plan.recommended ? ' recommended' : '');
+    var badge = plan.recommended ? '<div class="op-plan-badge">AI推奨</div>' : '';
+    html += '<div class="' + cardClass + '" data-plan-id="' + plan.id + '" onclick="selectOptimizationPlan(\'' + plan.id + '\')">';
+    html += badge;
+    html += '<div class="op-plan-name">' + plan.name + '</div>';
+    html += '<div class="op-plan-tagline">' + plan.tagline + '</div>';
+    html += '<div class="op-plan-metrics">';
+    html += '<div class="op-plan-metric"><span class="op-plan-metric-key">工期</span><span class="op-plan-metric-val">' + plan.metrics.duration + '</span></div>';
+    html += '<div class="op-plan-metric"><span class="op-plan-metric-key">コスト</span><span class="op-plan-metric-val">' + plan.metrics.cost + '</span></div>';
+    html += '<div class="op-plan-metric"><span class="op-plan-metric-key">リスク</span><span class="op-plan-metric-val">' + plan.metrics.risk + '</span></div>';
+    html += '</div>';
+    html += '<div class="op-plan-detail">' + plan.detail + '</div>';
+    html += '</div>';
+  });
+  grid.innerHTML = html;
+}
+
+function selectOptimizationPlan(planId) {
+  selectedPlanId = planId;
+  document.querySelectorAll('.op-plan-card').forEach(function(card) {
+    card.classList.remove('selected');
+    if (card.dataset.planId === planId) card.classList.add('selected');
+  });
+  document.getElementById('op-confirm-btn').style.display = 'inline-block';
+}
+
+function confirmOptimizationPlan() {
+  if (!selectedPlanId) return;
+  document.getElementById('optimization-plans-view').style.display = 'none';
+  showVendorRecommendationView();
+}
+
+function backToOptimizationPlans() {
+  document.getElementById('vendor-recommendation-view').style.display = 'none';
+  document.getElementById('optimization-plans-view').style.display = 'block';
+}
+
+function backToSupplyDemandView() {
+  document.getElementById('optimization-plans-view').style.display = 'none';
+  document.getElementById('supply-demand-view').style.display = 'block';
+}
+
+function showVendorRecommendationView() {
+  document.getElementById('vendor-recommendation-view').style.display = 'block';
+  securedVendors = {};
+  renderVendorCards();
+  updateFinalizeButton();
+}
+
+function renderVendorCards() {
+  var grid = document.getElementById('vr-vendors-grid');
+  if (!grid) return;
+  var html = '';
+  vendorRecommendationsData.forEach(function(v) {
+    var secured = !!securedVendors[v.id];
+    var cardClass = 'vr-vendor-card' + (secured ? ' secured' : '');
+    var statusHtml = secured ? '<span class="vr-vendor-status vr-vendor-status-secured">✓ 確保済</span>' : '<span class="vr-vendor-status vr-vendor-status-available">空きあり</span>';
+    var btnHtml = secured
+      ? '<button class="vr-vendor-secure-btn" disabled>✓ 確保完了</button>'
+      : '<button class="vr-vendor-secure-btn" onclick="secureVendor(\'' + v.id + '\')">このリソースを確保する</button>';
+    var tagsHtml = v.tags.map(function(t) {
+      var tc = t.type === 'bim' ? 'vr-vendor-tag vr-vendor-tag-bim' : 'vr-vendor-tag';
+      return '<span class="' + tc + '">' + t.label + '</span>';
+    }).join('');
+
+    html += '<div class="' + cardClass + '">';
+    html += '<div class="vr-vendor-card-header"><span class="vr-vendor-category">' + v.category + '</span>' + statusHtml + '</div>';
+    html += '<div class="vr-vendor-name">' + v.name + '</div>';
+    html += '<div class="vr-vendor-meta">' + v.location + ' · ' + v.distance + '</div>';
+    html += '<div class="vr-vendor-details">';
+    html += '<div class="vr-vendor-detail-row"><span class="vr-vendor-detail-key">対応期間</span><span class="vr-vendor-detail-val">' + v.period + '</span></div>';
+    html += '<div class="vr-vendor-detail-row"><span class="vr-vendor-detail-key">単価</span><span class="vr-vendor-detail-val">' + v.unit + '</span></div>';
+    html += '<div class="vr-vendor-detail-row"><span class="vr-vendor-detail-key">提供可能</span><span class="vr-vendor-detail-val">' + v.capacity + '</span></div>';
+    html += '<div class="vr-vendor-detail-row"><span class="vr-vendor-detail-key">PF評価</span><span class="vr-vendor-detail-val">★ ' + v.evaluation + '</span></div>';
+    html += '</div>';
+    html += '<div class="vr-vendor-tags">' + tagsHtml + '</div>';
+    html += btnHtml;
+    html += '</div>';
+  });
+  grid.innerHTML = html;
+}
+
+function secureVendor(vendorId) {
+  securedVendors[vendorId] = true;
+  renderVendorCards();
+  updateFinalizeButton();
+}
+
+function updateFinalizeButton() {
+  var allSecured = vendorRecommendationsData.every(function(v) { return securedVendors[v.id]; });
+  var btn = document.getElementById('vr-finalize-btn');
+  var note = document.querySelector('.vr-cta-note');
+  if (btn) btn.disabled = !allSecured;
+  if (note) note.textContent = allSecured ? '全リソース確保完了。取引確定書の発行と社内決裁ワークフロー連携が可能です。' : '全リソースを確保後、本ボタンが有効になります';
+}
+
+function finalizeAllVendors() {
+  var confirmMsg = '【取引確定書を発行しました】\n\n' +
+    '・鉄筋工 ●●建設\n' +
+    '・クレーン ××重機\n' +
+    '・生コン △△商社\n' +
+    '・設備 ▲▲設備工業\n\n' +
+    '【社内決裁ワークフローに連携】\n' +
+    '本発注（合計約 6,200万円）を社内決裁システムに登録します。\n' +
+    '決裁ルート：建設管理部長 → 事業本部長\n\n' +
+    'OKを押すと最終サマリーに進みます。';
+  alert(confirmMsg);
+  document.getElementById('vendor-recommendation-view').style.display = 'none';
+  showSummaryView();
+}
+
+function showSummaryView() {
+  document.getElementById('summary-view').style.display = 'block';
+}
+
+function restartDemo() {
+  document.getElementById('summary-view').style.display = 'none';
+  document.getElementById('project-list-view').style.display = 'block';
+  securedVendors = {};
+  selectedPlanId = null;
 }
 
 // ===== Hearing (Task 131) =====

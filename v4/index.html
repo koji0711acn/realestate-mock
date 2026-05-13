@@ -299,6 +299,116 @@
     </div>
   </div>
 
+  <!-- ===== V4: Optimization Loading Overlay ===== -->
+  <div id="optimization-loading-overlay" style="display:none;position:fixed;top:40px;bottom:0;left:0;right:0;background:rgba(250,250,250,0.97);z-index:5000">
+    <div class="ol-container">
+      <div class="ol-title">最適化プランを生成中...</div>
+      <div class="ol-subtitle">複数制約を同時最適化しています</div>
+      <div class="ol-steps">
+        <div class="ol-step" id="ol-step-1">複数制約を同時最適化中</div>
+        <div class="ol-step" id="ol-step-2">地理空間上での到達可能性を計算中</div>
+        <div class="ol-step" id="ol-step-3">過去BIM実績を参照中</div>
+        <div class="ol-step" id="ol-step-4">コスト・工期・リスクを統合評価中</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== V4: Optimization Plans View ===== -->
+  <div id="optimization-plans-view" style="display:none;position:fixed;top:40px;bottom:0;left:0;right:0;background:#fafafa;overflow-y:auto">
+    <div class="op-container">
+      <div class="op-header">
+        <button class="pd-back-btn" onclick="backToSupplyDemandView()">← 需給可視化に戻る</button>
+        <div class="op-title-block">
+          <h1 class="op-title">AI推奨：全体最適化プラン</h1>
+          <p class="op-subtitle">複数の制約条件を同時に解いた3案を比較</p>
+        </div>
+      </div>
+
+      <div class="op-plans-grid" id="op-plans-grid"></div>
+
+      <div class="op-cta-section">
+        <button id="op-confirm-btn" class="op-confirm-btn" style="display:none" onclick="confirmOptimizationPlan()">このプランで進める →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== V4: Vendor Recommendation View ===== -->
+  <div id="vendor-recommendation-view" style="display:none;position:fixed;top:40px;bottom:0;left:0;right:0;background:#fafafa;overflow-y:auto">
+    <div class="vr-container">
+      <div class="vr-header">
+        <button class="pd-back-btn" onclick="backToOptimizationPlans()">← プラン選択に戻る</button>
+        <div class="vr-title-block">
+          <h1 class="vr-title">業者レコメンド</h1>
+          <p class="vr-subtitle">広域調達型プラン - 業界横断PFから即時確保可能なリソース</p>
+        </div>
+      </div>
+
+      <div class="vr-info-bar">
+        <div class="vr-info-item"><span class="vr-info-key">プラン</span><span class="vr-info-val">広域調達型（AI推奨）</span></div>
+        <div class="vr-info-item"><span class="vr-info-key">工期</span><span class="vr-info-val">12ヶ月（予定通り）</span></div>
+        <div class="vr-info-item"><span class="vr-info-key">コスト</span><span class="vr-info-val">当初予算比 +3.8%</span></div>
+        <div class="vr-info-item"><span class="vr-info-key">リスク</span><span class="vr-info-val vr-info-val-low">低</span></div>
+      </div>
+
+      <div class="vr-vendors-grid" id="vr-vendors-grid"></div>
+
+      <div class="vr-cta-section">
+        <button class="vr-finalize-btn" id="vr-finalize-btn" disabled onclick="finalizeAllVendors()">取引確定書を一括発行 → 社内決裁ワークフロー連携</button>
+        <p class="vr-cta-note">全リソースを確保後、本ボタンが有効になります</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== V4: Summary View ===== -->
+  <div id="summary-view" style="display:none;position:fixed;top:40px;bottom:0;left:0;right:0;background:#fafafa;overflow-y:auto">
+    <div class="sm-container">
+      <div class="sm-header">
+        <div class="sm-success-badge">✓ 全リソース確保完了</div>
+        <h1 class="sm-title">調達最適化サマリー</h1>
+        <p class="sm-subtitle">業界横断社会資本可視化プラットフォームによる効果</p>
+      </div>
+
+      <div class="sm-compare-grid">
+        <div class="sm-compare-col sm-compare-before">
+          <div class="sm-compare-label">Before</div>
+          <div class="sm-compare-headline">現状の協力会社ネットワークのみ</div>
+          <div class="sm-compare-metrics">
+            <div class="sm-metric"><div class="sm-metric-label">工期</div><div class="sm-metric-value">14.5ヶ月</div><div class="sm-metric-sub">+2.5ヶ月遅延</div></div>
+            <div class="sm-metric"><div class="sm-metric-label">コスト</div><div class="sm-metric-value">+14%</div><div class="sm-metric-sub">当初予算比</div></div>
+            <div class="sm-metric"><div class="sm-metric-label">リスク</div><div class="sm-metric-value sm-risk-high">高</div><div class="sm-metric-sub">地元依存・代替なし</div></div>
+            <div class="sm-metric"><div class="sm-metric-label">調達業務時間</div><div class="sm-metric-value">約 80時間</div><div class="sm-metric-sub">打診・交渉・契約</div></div>
+          </div>
+        </div>
+
+        <div class="sm-arrow">→</div>
+
+        <div class="sm-compare-col sm-compare-after">
+          <div class="sm-compare-label">After</div>
+          <div class="sm-compare-headline">業界横断PF活用</div>
+          <div class="sm-compare-metrics">
+            <div class="sm-metric"><div class="sm-metric-label">工期</div><div class="sm-metric-value sm-positive">12ヶ月</div><div class="sm-metric-sub">予定通り</div></div>
+            <div class="sm-metric"><div class="sm-metric-label">コスト</div><div class="sm-metric-value sm-positive">+2%</div><div class="sm-metric-sub">当初予算比</div></div>
+            <div class="sm-metric"><div class="sm-metric-label">リスク</div><div class="sm-metric-value sm-risk-low">低</div><div class="sm-metric-sub">代替候補確保済み</div></div>
+            <div class="sm-metric"><div class="sm-metric-label">調達業務時間</div><div class="sm-metric-value sm-positive">約 2時間</div><div class="sm-metric-sub">即時手配で完結</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sm-future-section">
+        <div class="sm-future-icon">🌐</div>
+        <div class="sm-future-text">
+          <div class="sm-future-title">本案件のデータも、将来の地域全体のリソース最適化に蓄積されます</div>
+          <div class="sm-future-desc">業界全体の社会資本を一つのインフラとして可視化・整理し、全国に最適配分していく構想の一部です</div>
+        </div>
+      </div>
+
+      <div class="sm-actions">
+        <button class="sm-action-btn" onclick="restartDemo()">案件一覧に戻る</button>
+        <button class="sm-action-btn sm-action-btn-secondary" onclick="switchAppTab('hearing')">ヒアリングを開始</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== Map View ===== -->
   <div id="map-view" style="display:none">
     <div id="screen-map">
