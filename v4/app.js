@@ -2052,50 +2052,69 @@ var layerDescriptions = {
 };
 
 // 後続バッチで実装する関数のスケルトン
+// 使用する都道府県コードと県名
+var GEOJSON_PREFS = [
+  { code: '03', name: '岩手県' },
+  { code: '04', name: '宮城県' },
+  { code: '06', name: '山形県' },
+  { code: '07', name: '福島県' },
+  { code: '08', name: '茨城県' },
+  { code: '10', name: '群馬県' },
+  { code: '11', name: '埼玉県' },
+  { code: '12', name: '千葉県' }
+];
+
+// デモで使う市区町村名のホワイトリスト
+var TARGET_MUNICIPALITIES = [
+  '仙台市青葉区', '仙台市泉区', '仙台市太白区', '仙台市若林区', '仙台市宮城野区',
+  '多賀城市', '塩竈市', '名取市', '富谷市', '利府町', '岩沼市',
+  '山形市', '米沢市', '福島市', '郡山市', 'いわき市',
+  '石巻市', '大崎市', '気仙沼市', '北上市',
+  '水戸市', 'つくば市', '日立市',
+  '川口市', 'さいたま市', '千葉市', '市川市', '高崎市'
+];
+
+// 市区町村ポリゴンデータ（GeoJSONから動的にロード）
+var municipalityPolygons = {};  // key: 市区町村名, value: GeoJSON Feature
+
 async function loadJapanGeoJSON() {
-  if (japanGeoJSON) return japanGeoJSON;
+  if (Object.keys(municipalityPolygons).length > 0) return municipalityPolygons;
+
+  var fetchPromises = GEOJSON_PREFS.map(function(pref) {
+    var url = 'https://cdn.jsdelivr.net/gh/smartnews-smri/japan-topography@main/data/municipality/geojson/s0010/N03-21_' + pref.code + '_210101.json';
+    return fetch(url)
+      .then(function(r) { return r.json(); })
+      .catch(function(e) { console.warn('Failed to load ' + pref.name + ':', e); return null; });
+  });
+
   try {
-    var response = await fetch('https://cdn.jsdelivr.net/gh/dataofjapan/land@master/japan.geojson');
-    japanGeoJSON = await response.json();
-    return japanGeoJSON;
+    var allGeoJSONs = await Promise.all(fetchPromises);
+    allGeoJSONs.forEach(function(geojson) {
+      if (!geojson || !geojson.features) return;
+      geojson.features.forEach(function(feature) {
+        var props = feature.properties || {};
+        // 市区町村名を取得（N03_004は市区町村名フィールド）
+        var muniName = props.N03_004 || props.name || '';
+        // 政令指定都市の区は N03_003=政令市名, N03_004=区名 で区別
+        var cityName = props.N03_003;
+        var fullName;
+        if (cityName && cityName.endsWith('市') && muniName.endsWith('区')) {
+          fullName = cityName + muniName;
+        } else {
+          fullName = muniName;
+        }
+        if (TARGET_MUNICIPALITIES.indexOf(fullName) >= 0) {
+          municipalityPolygons[fullName] = feature;
+        }
+      });
+    });
+    console.log('GeoJSON loaded:', Object.keys(municipalityPolygons).length, 'municipalities');
+    return municipalityPolygons;
   } catch (e) {
-    console.error('Failed to load japan.geojson:', e);
-    return null;
+    console.error('Failed to load GeoJSON:', e);
+    return {};
   }
 }
-
-// ===== V4 Municipality Polygon Data (simplified) =====
-// 各市区町村は5-10点の簡略化ポリゴンで表現。座標は [lat, lng] 形式。
-var municipalityPolygons = {
-  '仙台市青葉区':  [[38.302,140.733],[38.341,140.825],[38.317,140.873],[38.276,140.886],[38.244,140.870],[38.235,140.806],[38.267,140.745]],
-  '仙台市泉区':    [[38.380,140.812],[38.401,140.882],[38.371,140.946],[38.323,140.927],[38.302,140.882],[38.320,140.830],[38.355,140.805]],
-  '仙台市太白区':  [[38.227,140.788],[38.241,140.847],[38.221,140.901],[38.181,140.918],[38.146,140.866],[38.157,140.812],[38.198,140.778]],
-  '仙台市若林区':  [[38.231,140.881],[38.247,140.937],[38.236,140.989],[38.199,140.997],[38.181,140.965],[38.195,140.911]],
-  '仙台市宮城野区':[[38.281,140.908],[38.299,140.957],[38.288,141.007],[38.253,141.024],[38.236,140.985],[38.249,140.937]],
-  '多賀城市':      [[38.301,140.991],[38.317,141.018],[38.310,141.045],[38.281,141.040],[38.272,141.014],[38.287,140.991]],
-  '塩竈市':        [[38.328,141.012],[38.341,141.040],[38.330,141.067],[38.305,141.061],[38.301,141.038],[38.315,141.014]],
-  '名取市':        [[38.197,140.860],[38.205,140.917],[38.180,140.945],[38.142,140.939],[38.121,140.902],[38.140,140.860],[38.171,140.840]],
-  '富谷市':        [[38.434,140.853],[38.448,140.901],[38.421,140.929],[38.391,140.913],[38.388,140.872],[38.412,140.847]],
-  '利府町':        [[38.358,140.957],[38.371,140.987],[38.355,141.013],[38.328,141.001],[38.325,140.971],[38.345,140.951]],
-  '岩沼市':        [[38.121,140.835],[38.135,140.884],[38.115,140.920],[38.083,140.913],[38.064,140.872],[38.087,140.831]],
-  '山形市':        [[38.288,140.301],[38.310,140.388],[38.281,140.456],[38.219,140.461],[38.180,140.398],[38.214,140.321],[38.252,140.298]],
-  '米沢市':        [[37.969,140.045],[37.991,140.137],[37.967,140.211],[37.911,140.221],[37.880,140.158],[37.901,140.077]],
-  '福島市':        [[37.789,140.405],[37.819,140.501],[37.792,140.583],[37.733,140.587],[37.701,140.518],[37.722,140.435]],
-  '郡山市':        [[37.434,140.305],[37.460,140.398],[37.435,140.481],[37.376,140.495],[37.345,140.421],[37.366,140.331]],
-  '石巻市':        [[38.461,141.227],[38.488,141.331],[38.443,141.404],[38.391,141.385],[38.371,141.301],[38.413,141.231]],
-  '大崎市':        [[38.605,140.929],[38.628,141.011],[38.595,141.067],[38.541,141.055],[38.521,140.989],[38.553,140.918]],
-  '北上市':        [[39.305,141.067],[39.327,141.145],[39.301,141.207],[39.253,141.195],[39.235,141.130],[39.265,141.069]],
-  '気仙沼市':      [[38.911,141.541],[38.935,141.620],[38.911,141.681],[38.861,141.673],[38.843,141.601],[38.871,141.541]],
-  'いわき市':      [[37.052,140.835],[37.082,140.918],[37.045,140.991],[36.991,140.978],[36.961,140.901],[36.991,140.825]],
-  '水戸市':        [[36.385,140.420],[36.401,140.491],[36.378,140.551],[36.342,140.541],[36.331,140.475],[36.354,140.416]],
-  'つくば市':      [[36.115,140.061],[36.135,140.152],[36.108,140.215],[36.061,140.218],[36.035,140.151],[36.061,140.082]],
-  '日立市':        [[36.601,140.621],[36.621,140.701],[36.595,140.751],[36.557,140.738],[36.535,140.681],[36.561,140.625]],
-  '川口市':        [[35.821,139.685],[35.835,139.748],[35.818,139.788],[35.788,139.795],[35.770,139.748],[35.788,139.695]],
-  'さいたま市':    [[35.901,139.601],[35.928,139.701],[35.901,139.778],[35.852,139.788],[35.824,139.711],[35.845,139.621]],
-  '千葉市':        [[35.621,140.081],[35.652,140.165],[35.621,140.231],[35.575,140.218],[35.555,140.151],[35.581,140.085]],
-  '市川市':        [[35.728,139.911],[35.748,139.971],[35.731,140.011],[35.701,140.001],[35.685,139.951],[35.701,139.918]],
-  '高崎市':        [[36.331,138.961],[36.351,139.051],[36.321,139.115],[36.275,139.108],[36.255,139.041],[36.281,138.971]]
-};
 
 // レイヤー別市区町村データ。各レイヤーで表示する市区町村と、その需給状況を定義。
 var layerMunicipalityData = {
@@ -2253,8 +2272,8 @@ function drawSupplyAreaLayer(layerType) {
   municipalityLayer = L.layerGroup();
 
   Object.keys(data).forEach(function(muniName) {
-    var coords = municipalityPolygons[muniName];
-    if (!coords) return;
+    var feature = municipalityPolygons[muniName];
+    if (!feature) return;
     var info = data[muniName];
 
     var adjustedBalance = Math.round(info.balance * (info.balance < 0 ? multiplier : 1));
@@ -2268,11 +2287,13 @@ function drawSupplyAreaLayer(layerType) {
     var strokeColor = info.canSupply ? '#3d6b24' : '#888';
     var strokeWidth = info.canSupply ? 2.5 : 1;
 
-    var polygon = L.polygon(coords, {
-      color: strokeColor,
-      weight: strokeWidth,
-      fillColor: color.fill,
-      fillOpacity: color.opacity
+    var polygon = L.geoJSON(feature, {
+      style: {
+        color: strokeColor,
+        weight: strokeWidth,
+        fillColor: color.fill,
+        fillOpacity: color.opacity
+      }
     });
 
     var currentInfo = Object.assign({}, info, {
@@ -2286,8 +2307,10 @@ function drawSupplyAreaLayer(layerType) {
     municipalityLayer.addLayer(polygon);
 
     if (info.isProject) {
-      var centerLat = coords.reduce(function(s, c) { return s + c[0]; }, 0) / coords.length;
-      var centerLng = coords.reduce(function(s, c) { return s + c[1]; }, 0) / coords.length;
+      var bounds = polygon.getBounds();
+      var center = bounds.getCenter();
+      var centerLat = center.lat;
+      var centerLng = center.lng;
       var label = L.marker([centerLat, centerLng], {
         icon: L.divIcon({
           className: 'mesh-label',
@@ -2395,11 +2418,11 @@ function showMunicipalityPopup(info) {
 
   html += '</div>';
 
-  var muniCoords = municipalityPolygons[info.name];
-  if (muniCoords) {
-    var centerLat = muniCoords.reduce(function(s, c) { return s + c[0]; }, 0) / muniCoords.length;
-    var centerLng = muniCoords.reduce(function(s, c) { return s + c[1]; }, 0) / muniCoords.length;
-    L.popup({ maxWidth: 380, minWidth: 320 }).setLatLng([centerLat, centerLng]).setContent(html).openOn(sdMap);
+  var feature = municipalityPolygons[info.name];
+  if (feature) {
+    var tempLayer = L.geoJSON(feature);
+    var center = tempLayer.getBounds().getCenter();
+    L.popup({ maxWidth: 380, minWidth: 320 }).setLatLng([center.lat, center.lng]).setContent(html).openOn(sdMap);
   }
 }
 
