@@ -180,6 +180,64 @@
     </table>
   </div>
 
+  <!-- ===== V4: Project Detail View ===== -->
+  <div id="project-detail-view" style="display:none;position:fixed;top:40px;bottom:0;left:0;right:0;background:#fafafa;overflow-y:auto">
+    <div class="pd-container">
+      <div class="pd-header">
+        <button class="pd-back-btn" onclick="backToProjectList()">← 案件一覧に戻る</button>
+        <div class="pd-header-meta">
+          <span id="pd-status-badge" class="pl-status"></span>
+          <span id="pd-id" class="pl-row-id"></span>
+        </div>
+      </div>
+      <div class="pd-title-section">
+        <h1 id="pd-project-name" class="pd-title"></h1>
+        <p id="pd-project-location" class="pd-location"></p>
+      </div>
+      <div class="pd-info-grid">
+        <div class="pd-info-card">
+          <div class="pd-info-card-label">建物概要</div>
+          <div class="pd-info-list">
+            <div class="pd-info-row"><span class="pd-info-key">種別</span><span id="pd-type" class="pd-info-val"></span></div>
+            <div class="pd-info-row"><span class="pd-info-key">ブランド</span><span id="pd-brand" class="pd-info-val"></span></div>
+            <div class="pd-info-row"><span class="pd-info-key">構造</span><span id="pd-structure" class="pd-info-val"></span></div>
+            <div class="pd-info-row"><span class="pd-info-key">戸数</span><span id="pd-units" class="pd-info-val"></span></div>
+            <div class="pd-info-row"><span class="pd-info-key">延床面積</span><span id="pd-floor-area" class="pd-info-val"></span></div>
+          </div>
+        </div>
+        <div class="pd-info-card">
+          <div class="pd-info-card-label">工程・予算</div>
+          <div class="pd-info-list">
+            <div class="pd-info-row"><span class="pd-info-key">着工予定</span><span id="pd-start" class="pd-info-val"></span></div>
+            <div class="pd-info-row"><span class="pd-info-key">竣工予定</span><span id="pd-end" class="pd-info-val"></span></div>
+            <div class="pd-info-row"><span class="pd-info-key">想定工期</span><span id="pd-duration" class="pd-info-val"></span></div>
+            <div class="pd-info-row"><span class="pd-info-key">想定予算</span><span id="pd-budget" class="pd-info-val"></span></div>
+          </div>
+        </div>
+        <div class="pd-info-card">
+          <div class="pd-info-card-label">必要リソース概要</div>
+          <div class="pd-info-list">
+            <div class="pd-info-row"><span class="pd-info-key">職人(延べ人工)</span><span class="pd-info-val">約 1,840 人工</span></div>
+            <div class="pd-info-row"><span class="pd-info-key">主要重機</span><span class="pd-info-val">クレーン、杭打ち機ほか</span></div>
+            <div class="pd-info-row"><span class="pd-info-key">主要資材</span><span class="pd-info-val">生コン420m³、鉄骨38t</span></div>
+          </div>
+          <div class="pd-info-note">※ BIMデータから自動算出</div>
+        </div>
+      </div>
+      <div class="pd-bim-section">
+        <div class="pd-bim-icon">📐</div>
+        <div class="pd-bim-text">
+          <div class="pd-bim-title">過去類似案件のBIMデータ：宮城県内27件を参照</div>
+          <div class="pd-bim-desc">同型D-room案件の竣工実績データから、本案件のリソース必要量を精緻化しています</div>
+        </div>
+      </div>
+      <div class="pd-action-section">
+        <button class="pd-start-analysis-btn" onclick="startResourceAnalysis()">調達計画の分析を開始 →</button>
+        <p class="pd-action-note">業界横断データを用いて、リソース需給状況を地理空間上で分析します</p>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== Map View ===== -->
   <div id="map-view" style="display:none">
     <div id="screen-map">

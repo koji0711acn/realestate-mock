@@ -1891,9 +1891,46 @@ function renderProjectList() {
 }
 
 function selectProject(projectId) {
-  window.selectedProject = projectsData.find(function(p) { return p.id === projectId; });
-  console.log('V4: Project selected:', window.selectedProject);
-  showToast('案件 ' + projectId + ' を選択しました。詳細画面は次のバッチで実装します。');
+  showProjectDetailView(projectId);
+}
+
+function showProjectDetailView(projectId) {
+  var project = projectsData.find(function(p) { return p.id === projectId; });
+  if (!project) return;
+  window.selectedProject = project;
+  document.getElementById('project-list-view').style.display = 'none';
+  document.getElementById('project-detail-view').style.display = 'block';
+  document.getElementById('pd-id').textContent = project.id;
+  document.getElementById('pd-project-name').textContent = project.name;
+  document.getElementById('pd-project-location').textContent = project.location;
+  document.getElementById('pd-type').textContent = project.type;
+  document.getElementById('pd-brand').textContent = project.brand || '—';
+  document.getElementById('pd-structure').textContent = project.structure;
+  document.getElementById('pd-units').textContent = project.units ? project.units + ' 戸' : '—';
+  document.getElementById('pd-floor-area').textContent = project.floorArea ? project.floorArea.toLocaleString() + ' m²' : '—';
+  document.getElementById('pd-start').textContent = project.scheduledStart;
+  document.getElementById('pd-end').textContent = project.scheduledEnd;
+  var startDate = new Date(project.scheduledStart);
+  var endDate = new Date(project.scheduledEnd);
+  var months = (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth());
+  document.getElementById('pd-duration').textContent = months + ' ヶ月';
+  document.getElementById('pd-budget').textContent = '¥' + (project.budget / 1000000).toFixed(0) + 'M';
+  var badge = document.getElementById('pd-status-badge');
+  badge.textContent = project.status;
+  badge.className = 'pl-status';
+  if (project.status === '基本設計') badge.className += ' pl-status-design';
+  else if (project.status === '再見積中') badge.className += ' pl-status-revise';
+  else if (project.status === '着工済み') badge.className += ' pl-status-started';
+  else badge.className += ' pl-status-active';
+}
+
+function backToProjectList() {
+  document.getElementById('project-detail-view').style.display = 'none';
+  document.getElementById('project-list-view').style.display = 'block';
+}
+
+function startResourceAnalysis() {
+  alert('調達計画の分析を開始します。\n（次のバッチで需給可視化画面を実装します）');
 }
 
 function showProjectListView() {

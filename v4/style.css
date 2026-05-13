@@ -2037,3 +2037,30 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
   vertical-align: middle;
   font-weight: 500;
 }
+
+/* ===== V4 Project Detail View ===== */
+.pd-container { max-width: 1100px; margin: 0 auto; padding: 24px 32px; }
+.pd-header { display: flex; justify-content: space-between; align-items: center; margin: 0 0 16px; }
+.pd-back-btn { background: none; border: 1px solid #d0d0d0; border-radius: 6px; padding: 7px 14px; font-size: 12px; color: #555; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+.pd-back-btn:hover { background: #f0f3f7; border-color: #999; }
+.pd-header-meta { display: flex; gap: 12px; align-items: center; }
+.pd-title-section { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 24px 28px; margin: 0 0 16px; }
+.pd-title { font-size: 24px; font-weight: 600; color: #1a3658; margin: 0 0 8px; }
+.pd-location { font-size: 13px; color: #666; margin: 0; }
+.pd-info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 0 0 16px; }
+.pd-info-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; }
+.pd-info-card-label { font-size: 11px; font-weight: 600; color: #5a8a3c; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 12px; padding-bottom: 8px; border-bottom: 1px solid #e8ece2; }
+.pd-info-list { display: flex; flex-direction: column; gap: 8px; }
+.pd-info-row { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; }
+.pd-info-key { color: #888; }
+.pd-info-val { color: #333; font-weight: 500; text-align: right; }
+.pd-info-note { font-size: 10px; color: #999; margin: 12px 0 0; padding-top: 8px; border-top: 1px dashed #ececec; }
+.pd-bim-section { background: #f0f6fd; border: 1px solid #c5d9ee; border-radius: 10px; padding: 16px 20px; margin: 0 0 20px; display: flex; gap: 14px; align-items: center; }
+.pd-bim-icon { font-size: 24px; flex-shrink: 0; }
+.pd-bim-text { flex: 1; }
+.pd-bim-title { font-size: 13px; font-weight: 600; color: #1a3658; margin: 0 0 4px; }
+.pd-bim-desc { font-size: 11px; color: #5a7593; line-height: 1.6; }
+.pd-action-section { text-align: center; padding: 24px; }
+.pd-start-analysis-btn { background: #1a3658; color: #fff; border: none; padding: 14px 36px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.2s; }
+.pd-start-analysis-btn:hover { background: #0f2641; }
+.pd-action-note { font-size: 11px; color: #888; margin: 12px 0 0; }
