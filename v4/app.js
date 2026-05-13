@@ -2361,6 +2361,7 @@ function showMeshPopup(mesh) {
 }
 
 function switchLayerType(layerType) {
+  // ラジオボタンのactive切替
   document.querySelectorAll('.sd-layer-toggle').forEach(function(el) { el.classList.remove('active'); });
   var activeLabel = document.querySelector('.sd-layer-toggle[data-layer="' + layerType + '"]');
   if (activeLabel) activeLabel.classList.add('active');
@@ -2368,14 +2369,47 @@ function switchLayerType(layerType) {
   var setting = layerViewSettings[layerType];
   if (!setting || !sdMap) return;
 
-  // Leafletのコンテナサイズを再計算（flyToが効かない問題の対処）
-  sdMap.invalidateSize();
+  // 切替演出オーバーレイを表示（300ms）
+  showLayerSwitchOverlay(layerType);
 
-  // animate:true で滑らかに移動。flyTo は動作しないため setView を使用。
-  sdMap.setView(setting.center, setting.zoom, { animate: true, duration: 1.0 });
+  // 200ms後にメッシュをクリアし、地図移動
+  setTimeout(function() {
+    if (meshLayerGroup) sdMap.removeLayer(meshLayerGroup);
+    sdMap.invalidateSize();
+    sdMap.setView(setting.center, setting.zoom, { animate: false });
+  }, 200);
 
-  // 移動完了後にメッシュを再描画
-  setTimeout(function() { drawMeshLayer(layerType); }, 800);
+  // 500ms後にメッシュを再描画（オーバーレイ消えるタイミングと合わせる）
+  setTimeout(function() {
+    drawMeshLayer(layerType);
+    hideLayerSwitchOverlay();
+  }, 500);
+}
+
+function showLayerSwitchOverlay(layerType) {
+  var existing = document.getElementById('sd-layer-switch-overlay');
+  if (existing) existing.remove();
+
+  var labels = {
+    craftsmen: '職人需給を分析中...',
+    equipment: '重機需給を分析中...',
+    concrete: '生コン供給を分析中...',
+    steel: '鋼材調達経路を分析中...',
+    competing: '競合案件を解析中...'
+  };
+  var overlay = document.createElement('div');
+  overlay.id = 'sd-layer-switch-overlay';
+  overlay.innerHTML = '<div class="sd-switch-msg"><div class="sd-switch-spinner"></div><div>' + (labels[layerType] || '分析中...') + '</div></div>';
+  var mapContainer = document.querySelector('.sd-map-container');
+  if (mapContainer) mapContainer.appendChild(overlay);
+}
+
+function hideLayerSwitchOverlay() {
+  var overlay = document.getElementById('sd-layer-switch-overlay');
+  if (overlay) {
+    overlay.style.opacity = '0';
+    setTimeout(function() { overlay.remove(); }, 200);
+  }
 }
 
 function updateTimeline(monthIdx) {
