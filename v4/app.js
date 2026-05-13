@@ -2367,8 +2367,15 @@ function switchLayerType(layerType) {
 
   var setting = layerViewSettings[layerType];
   if (!setting || !sdMap) return;
-  sdMap.flyTo(setting.center, setting.zoom, { duration: 1.0 });
-  drawMeshLayer(layerType);
+
+  // Leafletのコンテナサイズを再計算（flyToが効かない問題の対処）
+  sdMap.invalidateSize();
+
+  // animate:true で滑らかに移動。flyTo は動作しないため setView を使用。
+  sdMap.setView(setting.center, setting.zoom, { animate: true, duration: 1.0 });
+
+  // 移動完了後にメッシュを再描画
+  setTimeout(function() { drawMeshLayer(layerType); }, 800);
 }
 
 function updateTimeline(monthIdx) {
