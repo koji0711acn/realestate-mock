@@ -2064,9 +2064,199 @@ async function loadJapanGeoJSON() {
   }
 }
 
+// ===== V4 Municipality Polygon Data (simplified) =====
+// 各市区町村は5-10点の簡略化ポリゴンで表現。座標は [lat, lng] 形式。
+var municipalityPolygons = {
+  '仙台市青葉区':  [[38.302,140.733],[38.341,140.825],[38.317,140.873],[38.276,140.886],[38.244,140.870],[38.235,140.806],[38.267,140.745]],
+  '仙台市泉区':    [[38.380,140.812],[38.401,140.882],[38.371,140.946],[38.323,140.927],[38.302,140.882],[38.320,140.830],[38.355,140.805]],
+  '仙台市太白区':  [[38.227,140.788],[38.241,140.847],[38.221,140.901],[38.181,140.918],[38.146,140.866],[38.157,140.812],[38.198,140.778]],
+  '仙台市若林区':  [[38.231,140.881],[38.247,140.937],[38.236,140.989],[38.199,140.997],[38.181,140.965],[38.195,140.911]],
+  '仙台市宮城野区':[[38.281,140.908],[38.299,140.957],[38.288,141.007],[38.253,141.024],[38.236,140.985],[38.249,140.937]],
+  '多賀城市':      [[38.301,140.991],[38.317,141.018],[38.310,141.045],[38.281,141.040],[38.272,141.014],[38.287,140.991]],
+  '塩竈市':        [[38.328,141.012],[38.341,141.040],[38.330,141.067],[38.305,141.061],[38.301,141.038],[38.315,141.014]],
+  '名取市':        [[38.197,140.860],[38.205,140.917],[38.180,140.945],[38.142,140.939],[38.121,140.902],[38.140,140.860],[38.171,140.840]],
+  '富谷市':        [[38.434,140.853],[38.448,140.901],[38.421,140.929],[38.391,140.913],[38.388,140.872],[38.412,140.847]],
+  '利府町':        [[38.358,140.957],[38.371,140.987],[38.355,141.013],[38.328,141.001],[38.325,140.971],[38.345,140.951]],
+  '岩沼市':        [[38.121,140.835],[38.135,140.884],[38.115,140.920],[38.083,140.913],[38.064,140.872],[38.087,140.831]],
+  '山形市':        [[38.288,140.301],[38.310,140.388],[38.281,140.456],[38.219,140.461],[38.180,140.398],[38.214,140.321],[38.252,140.298]],
+  '米沢市':        [[37.969,140.045],[37.991,140.137],[37.967,140.211],[37.911,140.221],[37.880,140.158],[37.901,140.077]],
+  '福島市':        [[37.789,140.405],[37.819,140.501],[37.792,140.583],[37.733,140.587],[37.701,140.518],[37.722,140.435]],
+  '郡山市':        [[37.434,140.305],[37.460,140.398],[37.435,140.481],[37.376,140.495],[37.345,140.421],[37.366,140.331]],
+  '石巻市':        [[38.461,141.227],[38.488,141.331],[38.443,141.404],[38.391,141.385],[38.371,141.301],[38.413,141.231]],
+  '大崎市':        [[38.605,140.929],[38.628,141.011],[38.595,141.067],[38.541,141.055],[38.521,140.989],[38.553,140.918]],
+  '北上市':        [[39.305,141.067],[39.327,141.145],[39.301,141.207],[39.253,141.195],[39.235,141.130],[39.265,141.069]],
+  '気仙沼市':      [[38.911,141.541],[38.935,141.620],[38.911,141.681],[38.861,141.673],[38.843,141.601],[38.871,141.541]]
+};
+
+// レイヤー別市区町村データ。各レイヤーで表示する市区町村と、その需給状況を定義。
+var layerMunicipalityData = {
+  craftsmen: {
+    '仙台市青葉区':  { status: 'tight-high', balance: -22, supply: 18, demand: 23 },
+    '仙台市泉区':    { status: 'tight-high', balance: -18, supply: 14, demand: 17, isProject: true },
+    '仙台市太白区':  { status: 'tight-medium', balance: -10, supply: 24, demand: 27 },
+    '仙台市若林区':  { status: 'tight-medium', balance: -9, supply: 21, demand: 23 },
+    '仙台市宮城野区':{ status: 'tight-high', balance: -16, supply: 16, demand: 19 },
+    '多賀城市':      { status: 'balanced', balance: -3, supply: 9, demand: 9 },
+    '塩竈市':        { status: 'balanced', balance: -2, supply: 7, demand: 7 },
+    '名取市':        { status: 'tight-medium', balance: -8, supply: 12, demand: 13 },
+    '富谷市':        { status: 'balanced', balance: 4, supply: 11, demand: 10 },
+    '利府町':        { status: 'balanced', balance: 1, supply: 6, demand: 6 },
+    '岩沼市':        { status: 'balanced', balance: -1, supply: 8, demand: 8 },
+    '山形市':        { status: 'surplus', balance: 14, supply: 32, demand: 28, canSupply: true },
+    '米沢市':        { status: 'surplus', balance: 22, supply: 28, demand: 22, canSupply: true },
+    '福島市':        { status: 'tight-high', balance: -19, supply: 26, demand: 32 },
+    '郡山市':        { status: 'tight-medium', balance: -7, supply: 35, demand: 38 },
+    '石巻市':        { status: 'tight-high', balance: -25, supply: 11, demand: 15 },
+    '大崎市':        { status: 'balanced', balance: -4, supply: 22, demand: 23 },
+    '北上市':        { status: 'surplus', balance: 8, supply: 25, demand: 23, canSupply: true },
+    '気仙沼市':      { status: 'tight-medium', balance: -11, supply: 9, demand: 10 }
+  }
+};
+
 function drawSupplyAreaLayer(layerType) {
-  console.log('V4: drawSupplyAreaLayer will be implemented in next batch:', layerType);
-  // 後続バッチで実装
+  currentLayerType = layerType;
+  clearSupplyAreaLayers();
+
+  var data = layerMunicipalityData[layerType];
+  if (!data) return;
+
+  var monthIdx = parseInt((document.getElementById('sd-timeline-slider') || {}).value || 0);
+  var multipliers = monthlyIntensityMultiplier || [1,1,1,1,1,1,1,1,1,1,1,1];
+  var multiplier = multipliers[monthIdx] || 1;
+
+  municipalityLayer = L.layerGroup();
+
+  Object.keys(data).forEach(function(muniName) {
+    var coords = municipalityPolygons[muniName];
+    if (!coords) return;
+    var info = data[muniName];
+
+    var adjustedBalance = Math.round(info.balance * (info.balance < 0 ? multiplier : 1));
+    var adjustedStatus = info.status;
+    if (adjustedBalance <= -15) adjustedStatus = 'tight-high';
+    else if (adjustedBalance <= -5) adjustedStatus = 'tight-medium';
+    else if (adjustedBalance <= 5) adjustedStatus = 'balanced';
+    else adjustedStatus = 'surplus';
+
+    var color = getMuniStatusColor(adjustedStatus);
+    var strokeColor = info.canSupply ? '#3d6b24' : '#888';
+    var strokeWidth = info.canSupply ? 2.5 : 1;
+
+    var polygon = L.polygon(coords, {
+      color: strokeColor,
+      weight: strokeWidth,
+      fillColor: color.fill,
+      fillOpacity: color.opacity
+    });
+
+    var currentInfo = Object.assign({}, info, {
+      name: muniName,
+      currentBalance: adjustedBalance,
+      currentStatus: adjustedStatus
+    });
+
+    polygon.on('click', function() { showMunicipalityPopup(currentInfo); });
+    polygon.bindTooltip(muniName + '（過不足率 ' + (adjustedBalance > 0 ? '+' : '') + adjustedBalance + '%）', { sticky: true });
+    municipalityLayer.addLayer(polygon);
+
+    if (info.isProject) {
+      var centerLat = coords.reduce(function(s, c) { return s + c[0]; }, 0) / coords.length;
+      var centerLng = coords.reduce(function(s, c) { return s + c[1]; }, 0) / coords.length;
+      var label = L.marker([centerLat, centerLng], {
+        icon: L.divIcon({
+          className: 'mesh-label',
+          html: '<div style="background:rgba(26,54,88,0.9);color:#fff;font-size:9px;padding:2px 6px;border-radius:8px;white-space:nowrap;font-weight:600;pointer-events:none">本案件</div>',
+          iconSize: [50, 14],
+          iconAnchor: [25, 25]
+        })
+      });
+      municipalityLayer.addLayer(label);
+    }
+  });
+
+  municipalityLayer.addTo(sdMap);
+}
+
+function getMuniStatusColor(status) {
+  if (status === 'tight-high') return { fill: '#e85a5a', opacity: 0.55 };
+  if (status === 'tight-medium') return { fill: '#f0a050', opacity: 0.5 };
+  if (status === 'balanced') return { fill: '#efd333', opacity: 0.45 };
+  if (status === 'surplus') return { fill: '#88b562', opacity: 0.5 };
+  return { fill: '#cccccc', opacity: 0.3 };
+}
+
+function getMuniStatusLabel(status) {
+  if (status === 'tight-high') return '深刻に逼迫';
+  if (status === 'tight-medium') return '逼迫';
+  if (status === 'balanced') return '均衡';
+  if (status === 'surplus') return '供給余力あり';
+  return '—';
+}
+
+function showMunicipalityPopup(info) {
+  var monthlyData = [];
+  var multipliers = monthlyIntensityMultiplier || [0.5,0.7,0.9,1.1,1.2,1.3,1.2,1.4,1.0,0.8,0.6,0.4];
+  for (var i = 0; i < 12; i++) {
+    var base = info.balance;
+    var adjusted = Math.round(base * (base < 0 ? multipliers[i] : 1));
+    var status;
+    if (adjusted <= -15) status = 'tight-high';
+    else if (adjusted <= -5) status = 'tight-medium';
+    else if (adjusted <= 5) status = 'balanced';
+    else status = 'surplus';
+    monthlyData.push({ month: i + 1, value: adjusted, status: status });
+  }
+  var currentMonth = parseInt((document.getElementById('sd-timeline-slider') || {}).value || 0) + 1;
+  var maxAbs = Math.max.apply(null, monthlyData.map(function(d) { return Math.abs(d.value); }));
+  if (maxAbs < 15) maxAbs = 15;
+
+  var resourceLabel = '職人需給バランス';
+  if (currentLayerType === 'equipment') resourceLabel = '重機需給バランス';
+  else if (currentLayerType === 'concrete') resourceLabel = '生コン需給バランス';
+  else if (currentLayerType === 'steel') resourceLabel = '鋼材需給バランス';
+  else if (currentLayerType === 'competing') resourceLabel = '競合案件密度';
+
+  var html = '<div class="mesh-popup-content">';
+  html += '<div class="mesh-popup-header"><div class="mesh-popup-area">' + info.name + '</div></div>';
+  html += '<div class="mesh-popup-status-row ' + info.currentStatus + '">';
+  html += '<span class="mesh-popup-status-label">' + resourceLabel + '（' + currentMonth + 'ヶ月目）</span>';
+  html += '<span class="mesh-popup-status-val">' + getMuniStatusLabel(info.currentStatus) + '（' + (info.currentBalance > 0 ? '+' : '') + info.currentBalance + '%）</span>';
+  html += '</div>';
+
+  html += '<div class="mesh-popup-section">';
+  html += '<div class="mesh-popup-section-title">工期12ヶ月の需給推移</div>';
+  html += '<div class="mesh-chart"><div class="mesh-chart-bars">';
+  monthlyData.forEach(function(d, i) {
+    var h = Math.abs(d.value) / maxAbs * 100;
+    var cls = 'mesh-chart-bar ' + d.status + ((i + 1) === currentMonth ? ' current' : '');
+    html += '<div class="' + cls + '" style="height:' + h + '%" title="' + (i+1) + 'ヶ月目: ' + (d.value > 0 ? '+' : '') + d.value + '%"></div>';
+  });
+  html += '</div><div class="mesh-chart-labels">';
+  for (var i = 1; i <= 12; i++) html += '<span>' + (i % 3 === 0 || i === 1 ? i : '') + '</span>';
+  html += '</div></div></div>';
+
+  html += '<div class="mesh-popup-section">';
+  html += '<div class="mesh-popup-section-title">エリア内訳（現時点）</div>';
+  html += '<div class="mesh-popup-row"><span class="mesh-popup-key">供給能力</span><span class="mesh-popup-val">' + info.supply + ' 社</span></div>';
+  html += '<div class="mesh-popup-row"><span class="mesh-popup-key">競合需要</span><span class="mesh-popup-val">' + info.demand + ' 件</span></div>';
+  html += '<div class="mesh-popup-row"><span class="mesh-popup-key">過不足率</span><span class="mesh-popup-val" style="color:' + (info.currentBalance < 0 ? '#c44a4a' : '#3d6b24') + '">' + (info.currentBalance > 0 ? '+' : '') + info.currentBalance + '%</span></div>';
+  html += '</div>';
+
+  if (info.canSupply) {
+    html += '<div class="mesh-popup-causes" style="background:#e8f3dc;color:#3d6b24">';
+    html += '<div class="mesh-popup-causes-title" style="color:#3d6b24">本案件からの調達可能性</div>';
+    html += '✓ 本案件から調達可能なエリア';
+    html += '</div>';
+  }
+
+  html += '</div>';
+
+  var muniCoords = municipalityPolygons[info.name];
+  if (muniCoords) {
+    var centerLat = muniCoords.reduce(function(s, c) { return s + c[0]; }, 0) / muniCoords.length;
+    var centerLng = muniCoords.reduce(function(s, c) { return s + c[1]; }, 0) / muniCoords.length;
+    L.popup({ maxWidth: 380, minWidth: 320 }).setLatLng([centerLat, centerLng]).setContent(html).openOn(sdMap);
+  }
 }
 
 function clearSupplyAreaLayers() {
