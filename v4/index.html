@@ -231,26 +231,31 @@
         </div>
       </div>
       <div class="pd-action-section">
-        <button class="pd-start-analysis-btn" onclick="startResourceAnalysis()">調達計画の分析を開始 →</button>
-        <p class="pd-action-note">業界横断データを用いて、リソース需給状況を地理空間上で分析します</p>
+        <button id="pd-start-analysis-btn" class="pd-start-analysis-btn" onclick="startResourceAnalysis()">調達計画の分析を開始 →</button>
+        <button id="pd-goto-demo-btn" class="pd-start-analysis-btn pd-goto-demo-btn" style="display:none" onclick="gotoDemoProject()">デモ対象の案件（D-room泉区紫山新築計画）に移動 →</button>
+        <p class="pd-action-note" id="pd-action-note">業界横断データを用いて、リソース需給状況を地理空間上で分析します</p>
       </div>
     </div>
   </div>
 
-  <!-- ===== V4: Analysis Loading Overlay ===== -->
-  <div id="analysis-loading-overlay" style="display:none;position:fixed;top:40px;bottom:0;left:0;right:0;background:rgba(250,250,250,0.97);z-index:5000;overflow:hidden">
-    <div class="alo-container">
-      <div class="alo-title">分析中...</div>
-      <div class="alo-subtitle">業界横断データを地理空間上で統合解析しています</div>
-      <div class="alo-streams">
-        <div class="alo-stream"><span class="alo-label">建設労働需給データを参照中</span><div class="alo-scroll" id="alo-scroll-1"></div></div>
-        <div class="alo-stream"><span class="alo-label">重機稼働状況を確認中</span><div class="alo-scroll" id="alo-scroll-2"></div></div>
-        <div class="alo-stream"><span class="alo-label">資材在庫を照会中</span><div class="alo-scroll" id="alo-scroll-3"></div></div>
-        <div class="alo-stream"><span class="alo-label">周辺案件パイプラインを参照中</span><div class="alo-scroll" id="alo-scroll-4"></div></div>
-        <div class="alo-stream"><span class="alo-label">過去BIMデータを参照中</span><div class="alo-scroll" id="alo-scroll-5"></div></div>
-        <div class="alo-stream"><span class="alo-label">災害復旧需要を分析中</span><div class="alo-scroll" id="alo-scroll-6"></div></div>
+  <!-- ===== V4: Analysis Loading Overlay (v2) ===== -->
+  <div id="analysis-loading-overlay" style="display:none;position:fixed;top:40px;bottom:0;left:0;right:0;background:#fafafa;z-index:5000;overflow-y:auto">
+    <div class="alo2-container">
+      <div class="alo2-header">
+        <div class="alo2-title">調達計画の分析を開始しています</div>
+        <div class="alo2-subtitle">業界横断データを地理空間上で統合解析します</div>
       </div>
-      <div class="alo-progress"><div class="alo-progress-bar" id="alo-progress-bar"></div></div>
+
+      <div class="alo2-steps" id="alo2-steps">
+        <!-- JSで動的に挿入 -->
+      </div>
+
+      <div class="alo2-sources">
+        <div class="alo2-sources-title">参照データソース</div>
+        <div class="alo2-sources-grid" id="alo2-sources-grid">
+          <!-- JSで動的に挿入 -->
+        </div>
+      </div>
     </div>
   </div>
 

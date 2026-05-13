@@ -2064,6 +2064,8 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
 .pd-start-analysis-btn { background: #1a3658; color: #fff; border: none; padding: 14px 36px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.2s; }
 .pd-start-analysis-btn:hover { background: #0f2641; }
 .pd-action-note { font-size: 11px; color: #888; margin: 12px 0 0; }
+.pd-goto-demo-btn { background: #5a8a3c; }
+.pd-goto-demo-btn:hover { background: #3d6b24; }
 
 /* ===== V4 Analysis Loading Overlay ===== */
 .alo-container { max-width: 800px; margin: 80px auto 0; padding: 40px; text-align: center; }
@@ -2370,3 +2372,124 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
 @keyframes sdSpin {
   to { transform: rotate(360deg); }
 }
+
+/* ===== V4 Analysis Loading Overlay v2 (Claude-style) ===== */
+.alo2-container { max-width: 760px; margin: 60px auto 40px; padding: 0 40px; }
+.alo2-header { text-align: center; margin: 0 0 32px; }
+.alo2-title { font-size: 24px; font-weight: 600; color: #1a3658; margin: 0 0 8px; }
+.alo2-subtitle { font-size: 13px; color: #888; margin: 0; }
+
+.alo2-steps { display: flex; flex-direction: column; gap: 8px; margin: 0 0 32px; }
+
+.alo2-step {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 14px 18px;
+  transition: all 0.3s ease;
+}
+
+.alo2-step.pending { opacity: 0.5; }
+.alo2-step.processing { border-color: #5a8a3c; box-shadow: 0 0 0 1px rgba(90,138,60,0.15); }
+.alo2-step.done { border-color: #cfe0bd; background: #f7faf3; }
+
+.alo2-step-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.alo2-step-icon {
+  width: 18px; height: 18px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.alo2-step-spinner {
+  width: 14px; height: 14px;
+  border: 2px solid #e0e0e0;
+  border-top-color: #5a8a3c;
+  border-radius: 50%;
+  animation: alo2Spin 0.6s linear infinite;
+  display: none;
+}
+
+.alo2-step.processing .alo2-step-spinner { display: block; }
+
+.alo2-step-check {
+  display: none;
+  width: 16px; height: 16px;
+  background: #5a8a3c;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 10px;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.alo2-step.done .alo2-step-check { display: flex; }
+
+.alo2-step-dot {
+  width: 8px; height: 8px;
+  background: #d0d0d0;
+  border-radius: 50%;
+  display: block;
+}
+
+.alo2-step.pending .alo2-step-dot { display: block; }
+.alo2-step.processing .alo2-step-dot, .alo2-step.done .alo2-step-dot { display: none; }
+
+@keyframes alo2Spin { to { transform: rotate(360deg); } }
+
+.alo2-step-text { flex: 1; font-size: 13px; color: #333; font-weight: 500; }
+.alo2-step.done .alo2-step-text { color: #3d6b24; }
+
+.alo2-step-result {
+  display: none;
+  font-size: 11px;
+  color: #5a7593;
+  margin: 8px 0 0;
+  padding: 8px 12px;
+  background: rgba(90,138,60,0.06);
+  border-left: 2px solid #5a8a3c;
+  border-radius: 0 4px 4px 0;
+}
+
+.alo2-step.done .alo2-step-result { display: block; }
+
+.alo2-step-sources {
+  display: none;
+  font-size: 10px;
+  color: #999;
+  margin: 6px 0 0;
+  padding: 4px 0 0 30px;
+  font-family: 'Courier New', monospace;
+  min-height: 14px;
+  border-top: 1px dashed #ececec;
+  padding-top: 6px;
+}
+
+.alo2-step.processing .alo2-step-sources { display: block; }
+
+.alo2-sources { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 16px 20px; }
+.alo2-sources-title { font-size: 10px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 12px; }
+.alo2-sources-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.alo2-source-badge {
+  font-size: 11px;
+  padding: 8px 12px;
+  background: #fafafa;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  color: #999;
+  text-align: center;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.alo2-source-badge.active { background: #f7faf3; border-color: #5a8a3c; color: #3d6b24; font-weight: 500; }
+.alo2-source-badge.active::before { content: '✓'; }

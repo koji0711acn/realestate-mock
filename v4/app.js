@@ -1859,16 +1859,56 @@ async function loadProjectsData() {
     var response = await fetch('data/projects.json?v=20260514v4');
     projectsData = await response.json();
     renderProjectList();
+    setupProjectListFilters();
   } catch (e) {
     console.error('Failed to load projects.json:', e);
+  }
+}
+
+// ===== V4 Project List Filter & Search =====
+var plFilters = { status: 'すべて', type: 'すべて', area: 'すべて', search: '' };
+
+function applyProjectListFilters() {
+  return projectsData.filter(function(p) {
+    if (plFilters.status !== 'すべて' && p.status !== plFilters.status) return false;
+    if (plFilters.type !== 'すべて' && p.type !== plFilters.type) return false;
+    if (plFilters.area !== 'すべて') {
+      if (plFilters.area === '仙台市内' && p.location.indexOf('仙台市') < 0) return false;
+      if (plFilters.area === '宮城県内' && p.location.indexOf('宮城県') < 0 && p.location.indexOf('仙台市') < 0) return false;
+      if (plFilters.area === '山形県' && p.location.indexOf('山形県') < 0) return false;
+      if (plFilters.area === '福島県' && p.location.indexOf('福島県') < 0) return false;
+    }
+    if (plFilters.search) {
+      var s = plFilters.search.toLowerCase();
+      if (p.name.toLowerCase().indexOf(s) < 0 && p.id.toLowerCase().indexOf(s) < 0) return false;
+    }
+    return true;
+  });
+}
+
+function setupProjectListFilters() {
+  var selects = document.querySelectorAll('.pl-filter-select');
+  if (selects.length >= 3) {
+    selects[0].addEventListener('change', function() { plFilters.status = this.value; renderProjectList(); });
+    selects[1].addEventListener('change', function() { plFilters.type = this.value; renderProjectList(); });
+    selects[2].addEventListener('change', function() { plFilters.area = this.value; renderProjectList(); });
+  }
+  var search = document.querySelector('.pl-search');
+  if (search) {
+    search.addEventListener('input', function() { plFilters.search = this.value; renderProjectList(); });
   }
 }
 
 function renderProjectList() {
   var tbody = document.getElementById('pl-table-body');
   if (!tbody) return;
+  var filtered = applyProjectListFilters();
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px;color:#999;font-size:12px">条件に合致する案件がありません</td></tr>';
+    return;
+  }
   var html = '';
-  projectsData.forEach(function(p) {
+  filtered.forEach(function(p) {
     var rowClass = p.selected ? 'pl-row-highlight' : '';
     var statusClass = 'pl-status-active';
     if (p.status === '基本設計' || p.status === '実施設計') statusClass = 'pl-status-design';
@@ -1925,6 +1965,24 @@ function showProjectDetailView(projectId) {
   else if (project.status === '再見積中') badge.className += ' pl-status-revise';
   else if (project.status === '着工済み') badge.className += ' pl-status-started';
   else badge.className += ' pl-status-active';
+
+  // デモ対象（PRJ002）以外の場合、分析開始ボタンを無効化してデモ移動ボタンを表示
+  var startBtn = document.getElementById('pd-start-analysis-btn');
+  var gotoBtn = document.getElementById('pd-goto-demo-btn');
+  var actionNote = document.getElementById('pd-action-note');
+  if (project.id === 'PRJ002') {
+    if (startBtn) { startBtn.style.display = 'inline-block'; startBtn.disabled = false; }
+    if (gotoBtn) gotoBtn.style.display = 'none';
+    if (actionNote) actionNote.textContent = '業界横断データを用いて、リソース需給状況を地理空間上で分析します';
+  } else {
+    if (startBtn) startBtn.style.display = 'none';
+    if (gotoBtn) gotoBtn.style.display = 'inline-block';
+    if (actionNote) actionNote.textContent = '本デモではPRJ002（D-room泉区紫山新築計画）を対象としています';
+  }
+}
+
+function gotoDemoProject() {
+  showProjectDetailView('PRJ002');
 }
 
 function backToProjectList() {
@@ -2119,38 +2177,133 @@ var sdLayerGroups = { craftsmen: null, equipment: null, materials: null, competi
 var sdProjectMarker = null;
 
 // ===== V4 Scene 2: Loading Animation =====
+// ===== V4 Analysis Loading v2 (Claude-style) =====
+var alo2Steps = [
+  {
+    id: 'craftsmen',
+    text: '建設労働需給データを取得中',
+    sources: ['建設業労働需給調査（東北地方）令和6年9月', 'JACIC技能労働者DB', '東北建設業協会データ', '宮城県建設業協会データ'],
+    duration: 2200,
+    result: '✓ 8職種・東北6県のデータ取得（1,240件）'
+  },
+  {
+    id: 'equipment',
+    text: '重機の稼働状況を確認中',
+    sources: ['建設機械器具リース業等動態調査', '東北リース業協会', 'A社レンタル管理システム', 'B社建機稼働DB'],
+    duration: 2400,
+    result: '✓ 14業者・96台の稼働状況確認完了'
+  },
+  {
+    id: 'materials',
+    text: '主要資材の供給枠を照会中',
+    sources: ['主要建設資材需給・価格動向調査', '東北生コンクリート工業組合', '鉄鋼商社協会データ', '東北圏在庫DB'],
+    duration: 2600,
+    result: '✓ 7業者・主要資材在庫枠の照会完了'
+  },
+  {
+    id: 'projects',
+    text: '周辺案件パイプラインを参照中',
+    sources: ['案件パイプライン統合データ', '国交省インフラみらいマップ', '宮城県公共工事台帳', '近隣民間案件DB'],
+    duration: 2800,
+    result: '✓ 半径50km圏内 62案件のパイプライン分析完了'
+  },
+  {
+    id: 'bim',
+    text: '過去類似案件のBIMデータを参照中',
+    sources: ['D-room類似案件BIMアーカイブ', 'D-room泉中央A（2022竣工）', 'D-room泉中央B（2023竣工）', 'D-room青葉（2024竣工）'],
+    duration: 3000,
+    result: '✓ 宮城県内 D-room類似案件 27件 のBIMデータ参照完了'
+  },
+  {
+    id: 'recovery',
+    text: '災害復旧需要・地域リスクを分析中',
+    sources: ['東日本大震災復旧工事継続案件', '令和元年東日本台風水害復旧', '宮城県地震被害想定データ', '東北圏インフラ老朽度マップ'],
+    duration: 3200,
+    result: '✓ 過去5年の災害復旧需要パターン解析完了'
+  }
+];
+
+var alo2DataSources = [
+  '国交省統計',
+  'JACIC',
+  '業界横断PF',
+  '過去BIM実績',
+  '災害復旧履歴',
+  '案件パイプライン'
+];
+
 function startAnalysisLoadingAnimation() {
-  var scrollData = [
-    { id: 'alo-scroll-1', items: ['型枠工 -8%', '鉄筋工 -18%', '左官 -12%', '電工 -15%', '塗装工 -7%', '防水工 -3%', '内装工 -6%', '設備工 -9%', '解体工 -4%', '配管工 -8%'] },
-    { id: 'alo-scroll-2', items: ['クレーン 25t', 'クレーン 50t', '杭打ち機', 'ショベル 0.7m³', 'ショベル 1.0m³', '高所作業車 12m', 'ローラー', 'ブルドーザー', 'ダンプ 10t', 'コンクリポンプ'] },
-    { id: 'alo-scroll-3', items: ['生コン 24-21-20N', '異形鉄筋 D13', '異形鉄筋 D16', 'H形鋼 200×200', '木材 杉KD', '断熱材 グラスウール', '石膏ボード 12.5mm', 'サッシ アルミ', '塗料 EP', 'シーリング材'] },
-    { id: 'alo-scroll-4', items: ['仙台地下鉄延伸', '仙台駅東口再開発', '東北自動車道補修', '石巻復旧工事', '福島県庁更新', '郡山駅前広場', '山形駅西口開発', '塩竈漁港整備', '気仙沼水産センター', '名取河川改修'] },
-    { id: 'alo-scroll-5', items: ['D-room泉中央A（2022）', 'D-room泉中央B（2023）', 'D-room青葉（2024）', 'D-room太白（2023）', 'D-room若林（2022）', 'D-room多賀城（2024）', 'D-room塩竈（2023）', 'D-room名取（2024）', 'D-room仙台駅東（2022）', 'D-room仙台南（2023）'] },
-    { id: 'alo-scroll-6', items: ['東日本大震災復旧需要 高', '令和元年台風水害 中', '令和3年福島沖地震 中', '令和4年福島沖地震 低', '令和6年能登半島 低', '令和5年豪雨 中', '令和2年台風 低', '宮城県沖地震想定 中', '長町利府活断層 中', '日本海溝想定 高'] }
-  ];
-
-  scrollData.forEach(function(s) {
-    var el = document.getElementById(s.id);
-    if (!el) return;
-    var fullText = s.items.concat(s.items).concat(s.items);
-    el.innerHTML = fullText.map(function(item) { return '<span>' + item + '</span>'; }).join('');
-    el.style.transform = 'translateX(0)';
-    setTimeout(function() {
-      el.style.transition = 'transform 4s linear';
-      el.style.transform = 'translateX(-50%)';
-    }, 50);
-  });
-
-  var bar = document.getElementById('alo-progress-bar');
-  if (bar) {
-    bar.style.width = '0%';
-    setTimeout(function() { bar.style.transition = 'width 4.5s linear'; bar.style.width = '100%'; }, 50);
+  var stepsContainer = document.getElementById('alo2-steps');
+  if (stepsContainer) {
+    var stepsHtml = '';
+    alo2Steps.forEach(function(s) {
+      stepsHtml += '<div class="alo2-step pending" id="alo2-step-' + s.id + '">';
+      stepsHtml += '<div class="alo2-step-row">';
+      stepsHtml += '<div class="alo2-step-icon">';
+      stepsHtml += '<span class="alo2-step-dot"></span>';
+      stepsHtml += '<div class="alo2-step-spinner"></div>';
+      stepsHtml += '<div class="alo2-step-check">✓</div>';
+      stepsHtml += '</div>';
+      stepsHtml += '<div class="alo2-step-text">' + s.text + '</div>';
+      stepsHtml += '</div>';
+      stepsHtml += '<div class="alo2-step-sources" id="alo2-sources-' + s.id + '">　</div>';
+      stepsHtml += '<div class="alo2-step-result">' + s.result + '</div>';
+      stepsHtml += '</div>';
+    });
+    stepsContainer.innerHTML = stepsHtml;
   }
 
+  var sourcesGrid = document.getElementById('alo2-sources-grid');
+  if (sourcesGrid) {
+    sourcesGrid.innerHTML = alo2DataSources.map(function(s) {
+      return '<div class="alo2-source-badge" data-source="' + s + '">' + s + '</div>';
+    }).join('');
+  }
+
+  var startOffsets = [0, 200, 400, 600, 800, 1000];
+  var sourceRotationIntervals = [];
+
+  alo2Steps.forEach(function(step, i) {
+    var stepEl = document.getElementById('alo2-step-' + step.id);
+    if (!stepEl) return;
+
+    setTimeout(function() {
+      stepEl.classList.remove('pending');
+      stepEl.classList.add('processing');
+
+      var sourceEl = document.getElementById('alo2-sources-' + step.id);
+      if (sourceEl) {
+        var idx = 0;
+        var interval = setInterval(function() {
+          sourceEl.textContent = '→ ' + step.sources[idx % step.sources.length];
+          idx++;
+        }, 380);
+        sourceRotationIntervals.push(interval);
+        setTimeout(function() { clearInterval(interval); }, step.duration);
+      }
+    }, startOffsets[i]);
+
+    setTimeout(function() {
+      stepEl.classList.remove('processing');
+      stepEl.classList.add('done');
+    }, startOffsets[i] + step.duration);
+  });
+
+  alo2DataSources.forEach(function(s, i) {
+    setTimeout(function() {
+      var badge = document.querySelector('.alo2-source-badge[data-source="' + s + '"]');
+      if (badge) badge.classList.add('active');
+    }, 800 + i * 600);
+  });
+
+  var maxFinishTime = Math.max.apply(null, alo2Steps.map(function(s, i) { return startOffsets[i] + s.duration; }));
   setTimeout(function() {
-    document.getElementById('analysis-loading-overlay').style.display = 'none';
-    showSupplyDemandView();
-  }, 4500);
+    sourceRotationIntervals.forEach(function(intv) { clearInterval(intv); });
+    setTimeout(function() {
+      document.getElementById('analysis-loading-overlay').style.display = 'none';
+      showSupplyDemandView();
+    }, 800);
+  }, maxFinishTime);
 }
 
 // ===== V4 Scene 2: Supply Demand View =====
