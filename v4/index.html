@@ -134,8 +134,54 @@
 
   </div>
 
+  <!-- ===== V4: Project List View ===== -->
+  <div id="project-list-view" style="display:none;position:fixed;top:40px;bottom:0;left:0;right:0;background:#fafafa;overflow-y:auto;padding:24px 32px">
+    <div class="pl-header">
+      <h1 class="pl-title">案件一覧</h1>
+      <p class="pl-subtitle">担当案件の建設準備状況一覧</p>
+    </div>
+
+    <div class="pl-filter-bar">
+      <div class="pl-filter-group">
+        <label class="pl-filter-label">ステータス</label>
+        <select class="pl-filter-select"><option>すべて</option><option>着工準備中</option><option>基本設計</option><option>再見積中</option><option>着工済み</option></select>
+      </div>
+      <div class="pl-filter-group">
+        <label class="pl-filter-label">種別</label>
+        <select class="pl-filter-select"><option>すべて</option><option>賃貸住宅</option><option>戸建分譲</option><option>事業施設</option><option>物流施設</option></select>
+      </div>
+      <div class="pl-filter-group">
+        <label class="pl-filter-label">エリア</label>
+        <select class="pl-filter-select"><option>すべて</option><option>仙台市内</option><option>宮城県内</option><option>山形県</option><option>福島県</option></select>
+      </div>
+      <div class="pl-filter-group" style="margin-left:auto">
+        <input type="text" class="pl-search" placeholder="案件名で検索...">
+      </div>
+    </div>
+
+    <table class="pl-table">
+      <thead>
+        <tr>
+          <th style="width:90px">ID</th>
+          <th style="width:120px">ステータス</th>
+          <th>案件名</th>
+          <th style="width:100px">種別</th>
+          <th style="width:80px">ブランド</th>
+          <th style="width:140px">所在地</th>
+          <th style="width:60px">戸数</th>
+          <th style="width:140px">構造</th>
+          <th style="width:110px">着工予定</th>
+          <th style="width:100px">予算</th>
+        </tr>
+      </thead>
+      <tbody id="pl-table-body">
+        <!-- JavaScriptで動的に挿入 -->
+      </tbody>
+    </table>
+  </div>
+
   <!-- ===== Map View ===== -->
-  <div id="map-view">
+  <div id="map-view" style="display:none">
     <div id="screen-map">
       <div id="map"></div>
       <div id="guide-text">エリアを選択して評価を開始</div>

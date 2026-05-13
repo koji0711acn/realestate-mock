@@ -1881,3 +1881,159 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
   margin: 16px 0 0;
   line-height: 1.6;
 }
+
+/* ===== V4 Project List View ===== */
+.pl-header {
+  margin: 0 0 20px;
+}
+.pl-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #1a3658;
+  margin: 0 0 4px;
+}
+.pl-subtitle {
+  font-size: 12px;
+  color: #888;
+  margin: 0;
+}
+
+.pl-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin: 0 0 16px;
+}
+
+.pl-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pl-filter-label {
+  font-size: 11px;
+  color: #666;
+  font-weight: 500;
+}
+
+.pl-filter-select {
+  padding: 6px 10px;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: inherit;
+  background: #fff;
+  cursor: pointer;
+}
+
+.pl-search {
+  padding: 7px 12px;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: inherit;
+  width: 200px;
+}
+
+.pl-table {
+  width: 100%;
+  background: #fff;
+  border-collapse: collapse;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  font-size: 12px;
+}
+
+.pl-table thead {
+  background: #f0f3f7;
+}
+
+.pl-table th {
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #555;
+  border-bottom: 1px solid #d8dde3;
+}
+
+.pl-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #ececec;
+  color: #333;
+  vertical-align: middle;
+}
+
+.pl-table tbody tr {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.pl-table tbody tr:hover {
+  background: #f7faf3;
+}
+
+.pl-table tbody tr.pl-row-highlight {
+  background: #fff8e1;
+  border-left: 3px solid #f0a050;
+}
+
+.pl-table tbody tr.pl-row-highlight:hover {
+  background: #fff3d4;
+}
+
+.pl-status {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.pl-status-active {
+  background: #e8f3dc;
+  color: #3d6b24;
+}
+
+.pl-status-design {
+  background: #e0ecf6;
+  color: #2c5d8f;
+}
+
+.pl-status-revise {
+  background: #fce8d4;
+  color: #a45c1e;
+}
+
+.pl-status-started {
+  background: #ececec;
+  color: #666;
+}
+
+.pl-row-id {
+  font-size: 11px;
+  color: #999;
+  font-family: 'Courier New', monospace;
+}
+
+.pl-row-name {
+  font-weight: 500;
+}
+
+.pl-row-highlight-tag {
+  display: inline-block;
+  background: #f0a050;
+  color: #fff;
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  margin-left: 8px;
+  vertical-align: middle;
+  font-weight: 500;
+}

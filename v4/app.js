@@ -200,17 +200,11 @@ function gradeFill(grade) {
   return { A: '#5cb87a', B: '#4db6a0', C: '#e8a830', D: '#e57373' }[grade];
 }
 
-// ===== Screen 0 -> Screen 1 =====
+// ===== Screen 0 -> Project List (V4) =====
 function startDemo() {
   if (gifInterval) { clearInterval(gifInterval); gifInterval = null; }
-  document.getElementById('screen0').style.display = 'none';
-  document.getElementById('screen-map').style.display = 'block';
-  document.getElementById('app-tabs').style.display = 'flex';
-  var floatBtn = document.getElementById('hearing-float-btn');
-  if (floatBtn) floatBtn.style.display = 'flex';
-  var resetBtn = document.getElementById('reset-float-btn');
-  if (resetBtn) resetBtn.style.display = 'flex';
-  initMap();
+  showProjectListView();
+  loadProjectsData();
 }
 
 // ===== Map Init (Screen 1) =====
@@ -1803,8 +1797,13 @@ function resetDemo() {
 
 function switchAppTab(tab) {
   if (tab === 'map') {
-    document.getElementById('map-view').style.display = '';
-    document.getElementById('hearing-view').style.display = 'none';
+    // V4: 案件一覧画面を表示（マップではない）
+    var plView = document.getElementById('project-list-view');
+    if (plView) plView.style.display = 'block';
+    var mapView = document.getElementById('map-view');
+    if (mapView) mapView.style.display = 'none';
+    var hearingView = document.getElementById('hearing-view');
+    if (hearingView) hearingView.style.display = 'none';
     document.getElementById('tab-map').style.borderBottomColor = '#5a8a3c';
     document.getElementById('tab-map').style.color = '#3d6b24';
     document.getElementById('tab-map').style.fontWeight = '500';
@@ -1813,14 +1812,11 @@ function switchAppTab(tab) {
     document.getElementById('tab-hearing').style.fontWeight = '400';
     if (document.getElementById('hearing-float-btn')) document.getElementById('hearing-float-btn').style.display = 'flex';
     if (document.getElementById('reset-float-btn')) document.getElementById('reset-float-btn').style.display = 'flex';
-    var gb = document.querySelector('.guide-bubble');
-    if (gb && guideStep > 0) gb.style.display = '';
-    var gpf = document.querySelectorAll('.guide-pulse-fixed');
-    gpf.forEach(function(el) { el.style.display = ''; });
-    if (typeof map !== 'undefined') map.invalidateSize();
   } else {
     document.getElementById('map-view').style.display = 'none';
     document.getElementById('hearing-view').style.display = '';
+    var plView = document.getElementById('project-list-view');
+    if (plView) plView.style.display = 'none';
     document.getElementById('tab-hearing').style.borderBottomColor = '#5a8a3c';
     document.getElementById('tab-hearing').style.color = '#3d6b24';
     document.getElementById('tab-hearing').style.fontWeight = '500';
@@ -1835,6 +1831,77 @@ function switchAppTab(tab) {
     gpf2.forEach(function(el) { el.style.display = 'none'; });
     if (typeof autoStartHearing === 'function') autoStartHearing();
   }
+}
+
+// ===== V4: Project List View =====
+var projectsData = [];
+
+async function loadProjectsData() {
+  try {
+    var response = await fetch('data/projects.json?v=20260514v4');
+    projectsData = await response.json();
+    renderProjectList();
+  } catch (e) {
+    console.error('Failed to load projects.json:', e);
+  }
+}
+
+function renderProjectList() {
+  var tbody = document.getElementById('pl-table-body');
+  if (!tbody) return;
+  var html = '';
+  projectsData.forEach(function(p) {
+    var rowClass = p.selected ? 'pl-row-highlight' : '';
+    var statusClass = 'pl-status-active';
+    if (p.status === '基本設計') statusClass = 'pl-status-design';
+    else if (p.status === '再見積中') statusClass = 'pl-status-revise';
+    else if (p.status === '着工済み') statusClass = 'pl-status-started';
+
+    var highlightTag = p.highlight ? '<span class="pl-row-highlight-tag">' + p.highlight + '</span>' : '';
+    var brandText = p.brand || '—';
+    var unitsText = p.units ? p.units + '戸' : '—';
+    var budgetText = '¥' + (p.budget / 1000000).toFixed(0) + 'M';
+
+    html += '<tr class="' + rowClass + '" onclick="selectProject(\'' + p.id + '\')">';
+    html += '<td><span class="pl-row-id">' + p.id + '</span></td>';
+    html += '<td><span class="pl-status ' + statusClass + '">' + p.status + '</span></td>';
+    html += '<td><span class="pl-row-name">' + p.name + '</span>' + highlightTag + '</td>';
+    html += '<td>' + p.type + '</td>';
+    html += '<td>' + brandText + '</td>';
+    html += '<td>' + p.location + '</td>';
+    html += '<td>' + unitsText + '</td>';
+    html += '<td>' + p.structure + '</td>';
+    html += '<td>' + p.scheduledStart + '</td>';
+    html += '<td>' + budgetText + '</td>';
+    html += '</tr>';
+  });
+  tbody.innerHTML = html;
+}
+
+function selectProject(projectId) {
+  window.selectedProject = projectsData.find(function(p) { return p.id === projectId; });
+  console.log('V4: Project selected:', window.selectedProject);
+  showToast('案件 ' + projectId + ' を選択しました。詳細画面は次のバッチで実装します。');
+}
+
+function showProjectListView() {
+  var landingScreen = document.getElementById('landing-screen') || document.getElementById('screen-0') || document.getElementById('screen0');
+  if (landingScreen) landingScreen.style.display = 'none';
+
+  var mapView = document.getElementById('map-view');
+  if (mapView) mapView.style.display = 'none';
+
+  var hearingView = document.getElementById('hearing-view');
+  if (hearingView) hearingView.style.display = 'none';
+
+  var plView = document.getElementById('project-list-view');
+  if (plView) plView.style.display = 'block';
+
+  var appTabs = document.getElementById('app-tabs');
+  if (appTabs) appTabs.style.display = 'flex';
+
+  var tabMap = document.getElementById('tab-map');
+  if (tabMap) tabMap.textContent = '案件一覧';
 }
 
 // ===== Hearing (Task 131) =====
