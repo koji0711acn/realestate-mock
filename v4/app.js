@@ -2176,6 +2176,69 @@ var layerMunicipalityData = {
   }
 };
 
+// ===== V4 Vendor Pin Data (番地レベル) =====
+var vendorPinsData = {
+  craftsmen: [
+    { name: '●●建設株式会社', addr: '山形県山形市あこや町2-12-15', coords: [38.236, 140.358], status: 'available', capacity: '鉄筋工チーム6名 / 月96人工' },
+    { name: '東北建設工業', addr: '宮城県多賀城市中央2-8-3', coords: [38.301, 141.005], status: 'available', capacity: '型枠工5名・鉄筋工4名 / 月72人工' },
+    { name: '北上鉄筋工業', addr: '岩手県北上市相去町3-21-8', coords: [39.281, 141.135], status: 'available', capacity: '鉄筋工8名 / 月128人工' },
+    { name: '米沢建設', addr: '山形県米沢市中央4-3-21', coords: [37.918, 140.119], status: 'limited', capacity: '鉄筋工3名 / 月48人工（一部期間）' }
+  ],
+  equipment: [
+    { name: '××重機株式会社', addr: '福島県郡山市待池台3-21-8', coords: [37.412, 140.391], status: 'available', capacity: '50tクローラークレーン 1台、杭打ち機 2台' },
+    { name: '東北建機リース', addr: '宮城県塩竈市港町2-15-4', coords: [38.317, 141.022], status: 'limited', capacity: '25tクレーン 1台（5月以降）' },
+    { name: '仙台クレーン工業', addr: '宮城県多賀城市八幡4-2-9', coords: [38.297, 141.005], status: 'available', capacity: '30tクレーン・高所作業車各1台' }
+  ],
+  concrete: [
+    { name: '△△商社株式会社', addr: '宮城県仙台市青葉区中央4-3-1', coords: [38.269, 140.872], status: 'limited', capacity: '優先枠 420m³（要早期確保）' },
+    { name: '名取生コン工業', addr: '宮城県名取市増田字幾世橋8-5', coords: [38.169, 140.892], status: 'available', capacity: '日量 180m³ / 工期内累計 450m³' },
+    { name: '多賀城レミコン', addr: '宮城県多賀城市町前3-7-12', coords: [38.292, 141.005], status: 'available', capacity: '日量 150m³ / 工期内累計 380m³' }
+  ],
+  steel: [
+    { name: '関東鋼業株式会社', addr: '埼玉県川口市本町4-2-15', coords: [35.808, 139.722], status: 'available', capacity: 'H形鋼・異形鉄筋 全量対応可能' },
+    { name: '茨城スチール', addr: '茨城県つくば市東光台2-8-3', coords: [36.085, 140.115], status: 'available', capacity: 'H形鋼 38t確保可能' },
+    { name: '千葉鉄鋼商社', addr: '千葉県市川市新井3-9-22', coords: [35.722, 139.918], status: 'available', capacity: '異形鉄筋・H形鋼 一括対応' },
+    { name: '仙台メタル', addr: '宮城県仙台市宮城野区福室3-2-5', coords: [38.286, 141.001], status: 'limited', capacity: 'H形鋼 部分対応（数量限定）' }
+  ],
+  competing: []
+};
+
+function drawVendorPins(layerType) {
+  if (vendorPinsLayer) { sdMap.removeLayer(vendorPinsLayer); vendorPinsLayer = null; }
+  var vendors = vendorPinsData[layerType];
+  if (!vendors || vendors.length === 0) return;
+
+  vendorPinsLayer = L.layerGroup();
+  vendors.forEach(function(v) {
+    var color = v.status === 'available' ? '#3d6b24' : '#d6841d';
+    var pin = L.marker(v.coords, {
+      icon: L.divIcon({
+        className: 'vendor-pin-icon',
+        html: '<div style="width:14px;height:14px;background:' + color + ';border:2px solid #fff;border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,0.3)"></div>',
+        iconSize: [18, 18],
+        iconAnchor: [9, 9]
+      })
+    });
+    pin.bindTooltip(v.name, { direction: 'top' });
+    pin.on('click', function() { showVendorPopup(v); });
+    vendorPinsLayer.addLayer(pin);
+  });
+  vendorPinsLayer.addTo(sdMap);
+}
+
+function showVendorPopup(vendor) {
+  var statusLabel = vendor.status === 'available' ? '<span style="color:#3d6b24;font-weight:600">✓ 空きあり</span>' : '<span style="color:#d6841d;font-weight:600">△ 限定的</span>';
+  var html = '<div class="vendor-popup-content">';
+  html += '<div class="vendor-popup-name">' + vendor.name + '</div>';
+  html += '<div class="vendor-popup-addr">📍 ' + vendor.addr + '</div>';
+  html += '<div class="vendor-popup-row"><span class="vendor-popup-key">稼働状況</span>' + statusLabel + '</div>';
+  html += '<div class="vendor-popup-row"><span class="vendor-popup-key">提供可能</span><span class="vendor-popup-val">' + vendor.capacity + '</span></div>';
+  html += '<div class="vendor-popup-note">業界横断PF経由で即時手配可能。シーン3の業者レコメンドにも表示されます。</div>';
+  html += '</div>';
+
+  L.popup({ maxWidth: 320, minWidth: 260 }).setLatLng(vendor.coords).setContent(html).openOn(sdMap);
+}
+
 function drawSupplyAreaLayer(layerType) {
   currentLayerType = layerType;
   clearSupplyAreaLayers();
@@ -2238,6 +2301,9 @@ function drawSupplyAreaLayer(layerType) {
   });
 
   municipalityLayer.addTo(sdMap);
+
+  // 業者ピンも描画
+  drawVendorPins(layerType);
 }
 
 function getMuniStatusColor(status) {

@@ -2493,3 +2493,12 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
 }
 .alo2-source-badge.active { background: #f7faf3; border-color: #5a8a3c; color: #3d6b24; font-weight: 500; }
 .alo2-source-badge.active::before { content: '✓'; }
+
+/* ===== V4 Vendor Pin Popup ===== */
+.vendor-popup-content { font-family: 'Hiragino Sans', 'Yu Gothic', sans-serif; min-width: 260px; }
+.vendor-popup-name { font-size: 13px; font-weight: 600; color: #1a3658; margin: 0 0 4px; }
+.vendor-popup-addr { font-size: 11px; color: #888; margin: 0 0 10px; padding: 0 0 8px; border-bottom: 1px solid #ececec; }
+.vendor-popup-row { display: flex; justify-content: space-between; font-size: 11px; padding: 3px 0; align-items: baseline; }
+.vendor-popup-key { color: #888; }
+.vendor-popup-val { color: #333; font-weight: 500; text-align: right; flex: 1; margin-left: 12px; }
+.vendor-popup-note { font-size: 10px; color: #5a7593; background: #f0f6fd; padding: 6px 10px; border-radius: 4px; margin: 10px 0 0; line-height: 1.5; }
