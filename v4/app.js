@@ -1871,26 +1871,22 @@ function renderProjectList() {
   projectsData.forEach(function(p) {
     var rowClass = p.selected ? 'pl-row-highlight' : '';
     var statusClass = 'pl-status-active';
-    if (p.status === '基本設計') statusClass = 'pl-status-design';
-    else if (p.status === '再見積中') statusClass = 'pl-status-revise';
+    if (p.status === '基本設計' || p.status === '実施設計') statusClass = 'pl-status-design';
+    else if (p.status === '再見積中' || p.status === '施工図確認') statusClass = 'pl-status-revise';
     else if (p.status === '着工済み') statusClass = 'pl-status-started';
 
     var highlightTag = p.highlight ? '<span class="pl-row-highlight-tag">' + p.highlight + '</span>' : '';
-    var brandText = p.brand || '—';
-    var unitsText = p.units ? p.units + '戸' : '—';
-    var budgetText = '¥' + (p.budget / 1000000).toFixed(0) + 'M';
+    var scaleText = p.units ? p.units + '戸' : (p.floorArea ? p.floorArea.toLocaleString() + 'm²' : '—');
 
     html += '<tr class="' + rowClass + '" onclick="selectProject(\'' + p.id + '\')">';
     html += '<td><span class="pl-row-id">' + p.id + '</span></td>';
     html += '<td><span class="pl-status ' + statusClass + '">' + p.status + '</span></td>';
     html += '<td><span class="pl-row-name">' + p.name + '</span>' + highlightTag + '</td>';
     html += '<td>' + p.type + '</td>';
-    html += '<td>' + brandText + '</td>';
     html += '<td>' + p.location + '</td>';
-    html += '<td>' + unitsText + '</td>';
-    html += '<td>' + p.structure + '</td>';
+    html += '<td>' + scaleText + '</td>';
     html += '<td>' + p.scheduledStart + '</td>';
-    html += '<td>' + budgetText + '</td>';
+    html += '<td>' + p.manager + '</td>';
     html += '</tr>';
   });
   tbody.innerHTML = html;
@@ -1910,6 +1906,7 @@ function showProjectDetailView(projectId) {
   document.getElementById('pd-project-name').textContent = project.name;
   document.getElementById('pd-project-location').textContent = project.location;
   document.getElementById('pd-type').textContent = project.type;
+  document.getElementById('pd-owner').textContent = project.owner ? project.owner + ' 様' : '—';
   document.getElementById('pd-brand').textContent = project.brand || '—';
   document.getElementById('pd-structure').textContent = project.structure;
   document.getElementById('pd-units').textContent = project.units ? project.units + ' 戸' : '—';

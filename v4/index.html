@@ -164,14 +164,12 @@
         <tr>
           <th style="width:90px">ID</th>
           <th style="width:120px">ステータス</th>
-          <th>案件名</th>
+          <th style="width:340px">案件名</th>
           <th style="width:100px">種別</th>
-          <th style="width:80px">ブランド</th>
-          <th style="width:140px">所在地</th>
-          <th style="width:60px">戸数</th>
-          <th style="width:140px">構造</th>
+          <th style="width:170px">所在地</th>
+          <th style="width:90px">規模</th>
           <th style="width:110px">着工予定</th>
-          <th style="width:100px">予算</th>
+          <th style="width:80px">担当</th>
         </tr>
       </thead>
       <tbody id="pl-table-body">
@@ -199,6 +197,7 @@
           <div class="pd-info-card-label">建物概要</div>
           <div class="pd-info-list">
             <div class="pd-info-row"><span class="pd-info-key">種別</span><span id="pd-type" class="pd-info-val"></span></div>
+            <div class="pd-info-row"><span class="pd-info-key">施主</span><span id="pd-owner" class="pd-info-val"></span></div>
             <div class="pd-info-row"><span class="pd-info-key">ブランド</span><span id="pd-brand" class="pd-info-val"></span></div>
             <div class="pd-info-row"><span class="pd-info-key">構造</span><span id="pd-structure" class="pd-info-val"></span></div>
             <div class="pd-info-row"><span class="pd-info-key">戸数</span><span id="pd-units" class="pd-info-val"></span></div>
@@ -270,7 +269,6 @@
           <label class="sd-layer-toggle"><input type="checkbox" data-layer="equipment" onchange="toggleLayer(this)"> <span class="sd-layer-color" style="background:#f0a050"></span>重機需給</label>
           <label class="sd-layer-toggle"><input type="checkbox" data-layer="materials" onchange="toggleLayer(this)"> <span class="sd-layer-color" style="background:#5a8a3c"></span>資材需給</label>
           <label class="sd-layer-toggle"><input type="checkbox" data-layer="competing" onchange="toggleLayer(this)"> <span class="sd-layer-color" style="background:#2c5d8f"></span>競合案件</label>
-          <label class="sd-layer-toggle"><input type="checkbox" data-layer="bim" onchange="toggleLayer(this)"> <span class="sd-layer-color" style="background:#8a4fb3"></span>過去BIM実績</label>
         </div>
         <div class="sd-timeline-controls">
           <div class="sd-timeline-label">工期 (12ヶ月)</div>
