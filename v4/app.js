@@ -654,14 +654,26 @@ function showGuideStep2() { advanceGuide(2); }
 function showGuideStep3() { advanceGuide(3); }
 function hideGuide() { clearGuideUI(); }
 
-function showToast(msg) {
-  const existing = document.querySelector('.toast');
-  if (existing) existing.remove();
-  const toast = document.createElement('div');
-  toast.className = 'toast';
-  toast.textContent = msg;
-  document.getElementById('screen-map').appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
+function showToast(message, duration) {
+  duration = duration || 3000;
+
+  var existingToast = document.getElementById('v4-toast');
+  if (existingToast) existingToast.remove();
+
+  var toast = document.createElement('div');
+  toast.id = 'v4-toast';
+  toast.style.cssText = 'position:fixed;bottom:40px;left:50%;transform:translateX(-50%);background:rgba(26,54,88,0.95);color:#fff;padding:12px 24px;border-radius:8px;font-size:13px;z-index:100000;box-shadow:0 4px 12px rgba(0,0,0,0.2);opacity:0;transition:opacity 0.3s';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+
+  setTimeout(function() { toast.style.opacity = '1'; }, 10);
+
+  setTimeout(function() {
+    toast.style.opacity = '0';
+    setTimeout(function() {
+      if (toast.parentNode) toast.remove();
+    }, 300);
+  }, duration);
 }
 
 // ===== Screen 2: Area Selected =====
