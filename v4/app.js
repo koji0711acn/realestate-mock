@@ -1930,7 +1930,9 @@ function backToProjectList() {
 }
 
 function startResourceAnalysis() {
-  alert('調達計画の分析を開始します。\n（次のバッチで需給可視化画面を実装します）');
+  document.getElementById('project-detail-view').style.display = 'none';
+  document.getElementById('analysis-loading-overlay').style.display = 'block';
+  startAnalysisLoadingAnimation();
 }
 
 function showProjectListView() {
@@ -1951,6 +1953,318 @@ function showProjectListView() {
 
   var tabMap = document.getElementById('tab-map');
   if (tabMap) tabMap.textContent = '案件一覧';
+}
+
+// ===== V4 Scene 2: Supply Demand Data =====
+
+var V4_PROJECT_CENTER = [38.3056, 140.8918]; // 仙台市泉区中心
+
+var craftsmenHeatmapData = [
+  { coords: [38.2682, 140.8694], intensity: 0.9, area: '仙台市中心部' },
+  { coords: [38.3056, 140.8918], intensity: 0.8, area: '仙台市泉区' },
+  { coords: [38.1888, 140.8597], intensity: 0.7, area: '仙台市青葉区' },
+  { coords: [38.4350, 141.3025], intensity: 0.95, area: '石巻市' },
+  { coords: [37.7503, 140.4675], intensity: 0.85, area: '福島市' },
+  { coords: [38.2406, 140.3633], intensity: 0.6, area: '山形市' },
+  { coords: [37.7886, 140.4694], intensity: 0.75, area: '郡山市' },
+  { coords: [38.3553, 141.0419], intensity: 0.55, area: '塩竈市' }
+];
+
+var equipmentData = [
+  { coords: [38.2682, 140.8694], type: 'crane', status: 'busy', name: '仙台市内クレーン' },
+  { coords: [38.3056, 140.8918], type: 'pile_driver', status: 'busy', name: '仙台市内杭打機' },
+  { coords: [37.4007, 140.3886], type: 'crane', status: 'available', name: '郡山リース' },
+  { coords: [38.2406, 140.3633], type: 'crane', status: 'busy', name: '山形市稼働中' }
+];
+
+var materialsData = [
+  { coords: [38.2682, 140.8694], status: 'limited', name: '仙台生コン工場（受注上限）' },
+  { coords: [38.3553, 141.0419], status: 'limited', name: '塩竈鋼材商社' },
+  { coords: [37.7503, 140.4675], status: 'available', name: '福島生コン工場' }
+];
+
+var competingProjectsData = [
+  { coords: [38.2682, 140.8694], name: '仙台地下鉄延伸工事', type: 'public' },
+  { coords: [38.2700, 140.8800], name: '仙台駅東口再開発', type: 'private' },
+  { coords: [38.4350, 141.3025], name: '石巻市災害復旧', type: 'recovery' }
+];
+
+var bimPastProjectsData = [
+  { coords: [38.3100, 140.8950], name: 'D-room泉中央A（2022年竣工）' },
+  { coords: [38.2950, 140.8800], name: 'D-room泉中央B（2023年竣工）' },
+  { coords: [38.2682, 140.8650], name: 'D-room青葉（2024年竣工）' }
+];
+
+var vendorLocationsData = [
+  { coords: [38.2406, 140.3633], name: '●●建設（山形）', category: 'craftsmen' },
+  { coords: [37.4007, 140.3886], name: '××重機（郡山）', category: 'equipment' },
+  { coords: [38.2682, 140.8694], name: '△△商社（仙台青葉）', category: 'materials' }
+];
+
+var projectPhases = [
+  '準備工事', '基礎工事', '基礎工事', '基礎工事ピーク',
+  '躯体工事', '躯体工事ピーク', '躯体工事', '建方ピーク',
+  '外装・設備', '内装工事', '内装工事', '竣工検査'
+];
+
+var monthlyIntensityMultiplier = [
+  0.5, 0.7, 0.9, 1.1, 1.2, 1.3, 1.2, 1.4, 1.0, 0.8, 0.6, 0.4
+];
+
+var alertsData = [
+  {
+    id: 'alert1',
+    severity: 'high',
+    title: '鉄筋工の調達リスク',
+    detail: {
+      period: '基礎・躯体工事のピーク時期（着工4〜6か月目）',
+      area: '東北全域、特に仙台市内および石巻・福島方面',
+      cause: '仙台地下鉄延伸工事、石巻災害復旧工事、近隣民間案件3件との競合',
+      impact: '地元協力会社のみでは6人工不足。工期1.5か月延長の可能性',
+      bimNote: '過去類似案件のBIM実績データから、本案件は鉄筋工48人工が必要と算出（業界標準値より6%多い）',
+      dataSource: '建設労働需給調査（東北地方、令和6年9月）'
+    }
+  },
+  {
+    id: 'alert2',
+    severity: 'medium',
+    title: '重機（クレーン・杭打ち機）の競合需要',
+    detail: {
+      period: '鉄骨建方時期（着工7〜9か月目）',
+      area: '仙台市内および隣接県',
+      cause: '仙台市地下鉄延伸工事と稼働期間が重複',
+      impact: '自社協力会社ネットワーク内の手配可能性：低。広域からの調達が必要',
+      dataSource: '建設機械器具リース業等の動態調査'
+    }
+  },
+  {
+    id: 'alert3',
+    severity: 'medium',
+    title: '生コンの供給枠制約',
+    detail: {
+      period: '基礎工事および躯体工事の打設タイミング',
+      area: '仙台市内',
+      cause: '仙台市内の生コン工場2社が、東北自動車道補修工事と公共建築物更新需要で受注上限',
+      impact: '打設タイミングの調整、または広域からの調達が必要',
+      dataSource: '主要建設資材需給・価格動向調査'
+    }
+  },
+  {
+    id: 'alert4',
+    severity: 'info',
+    title: '周辺案件の動向',
+    detail: {
+      period: '工期全体',
+      area: '半径10km圏内',
+      cause: '他社民間案件が3件進行中',
+      impact: '職人・重機の争奪可能性あり。事前のリソース確保推奨',
+      dataSource: '案件パイプライン統合データ'
+    }
+  }
+];
+
+var sdLayerVisibility = { craftsmen: true, equipment: false, materials: false, competing: false, bim: false };
+
+var sdMap = null;
+var sdLayerGroups = { craftsmen: null, equipment: null, materials: null, competing: null, bim: null };
+var sdProjectMarker = null;
+
+// ===== V4 Scene 2: Loading Animation =====
+function startAnalysisLoadingAnimation() {
+  var scrollData = [
+    { id: 'alo-scroll-1', items: ['型枠工 -8%', '鉄筋工 -18%', '左官 -12%', '電工 -15%', '塗装工 -7%', '防水工 -3%', '内装工 -6%', '設備工 -9%', '解体工 -4%', '配管工 -8%'] },
+    { id: 'alo-scroll-2', items: ['クレーン 25t', 'クレーン 50t', '杭打ち機', 'ショベル 0.7m³', 'ショベル 1.0m³', '高所作業車 12m', 'ローラー', 'ブルドーザー', 'ダンプ 10t', 'コンクリポンプ'] },
+    { id: 'alo-scroll-3', items: ['生コン 24-21-20N', '異形鉄筋 D13', '異形鉄筋 D16', 'H形鋼 200×200', '木材 杉KD', '断熱材 グラスウール', '石膏ボード 12.5mm', 'サッシ アルミ', '塗料 EP', 'シーリング材'] },
+    { id: 'alo-scroll-4', items: ['仙台地下鉄延伸', '仙台駅東口再開発', '東北自動車道補修', '石巻復旧工事', '福島県庁更新', '郡山駅前広場', '山形駅西口開発', '塩竈漁港整備', '気仙沼水産センター', '名取河川改修'] },
+    { id: 'alo-scroll-5', items: ['D-room泉中央A（2022）', 'D-room泉中央B（2023）', 'D-room青葉（2024）', 'D-room太白（2023）', 'D-room若林（2022）', 'D-room多賀城（2024）', 'D-room塩竈（2023）', 'D-room名取（2024）', 'D-room仙台駅東（2022）', 'D-room仙台南（2023）'] },
+    { id: 'alo-scroll-6', items: ['東日本大震災復旧需要 高', '令和元年台風水害 中', '令和3年福島沖地震 中', '令和4年福島沖地震 低', '令和6年能登半島 低', '令和5年豪雨 中', '令和2年台風 低', '宮城県沖地震想定 中', '長町利府活断層 中', '日本海溝想定 高'] }
+  ];
+
+  scrollData.forEach(function(s) {
+    var el = document.getElementById(s.id);
+    if (!el) return;
+    var fullText = s.items.concat(s.items).concat(s.items);
+    el.innerHTML = fullText.map(function(item) { return '<span>' + item + '</span>'; }).join('');
+    el.style.transform = 'translateX(0)';
+    setTimeout(function() {
+      el.style.transition = 'transform 4s linear';
+      el.style.transform = 'translateX(-50%)';
+    }, 50);
+  });
+
+  var bar = document.getElementById('alo-progress-bar');
+  if (bar) {
+    bar.style.width = '0%';
+    setTimeout(function() { bar.style.transition = 'width 4.5s linear'; bar.style.width = '100%'; }, 50);
+  }
+
+  setTimeout(function() {
+    document.getElementById('analysis-loading-overlay').style.display = 'none';
+    showSupplyDemandView();
+  }, 4500);
+}
+
+// ===== V4 Scene 2: Supply Demand View =====
+function showSupplyDemandView() {
+  document.getElementById('supply-demand-view').style.display = 'block';
+
+  var p = window.selectedProject;
+  if (p) {
+    document.getElementById('sd-project-label').textContent = p.name + '（' + p.location + '）';
+    document.getElementById('sd-info-location').textContent = p.location;
+  }
+
+  initSDMap();
+  renderAlerts();
+  updateTimeline(0);
+}
+
+function initSDMap() {
+  if (sdMap) {
+    sdMap.remove();
+    sdMap = null;
+  }
+  sdMap = L.map('sd-map', { zoomControl: true }).setView([38.2682, 140.7], 9);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors © CARTO',
+    subdomains: 'abcd',
+    maxZoom: 19
+  }).addTo(sdMap);
+
+  sdProjectMarker = L.marker(V4_PROJECT_CENTER, {
+    icon: L.divIcon({
+      className: 'sd-project-marker-icon',
+      html: '<div style="width:24px;height:24px;background:#1a3658;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.3)"></div>',
+      iconSize: [30, 30],
+      iconAnchor: [15, 15]
+    })
+  }).addTo(sdMap);
+  sdProjectMarker.bindTooltip('本案件：' + (window.selectedProject ? window.selectedProject.name : ''), { permanent: false, direction: 'top' });
+
+  createLayerGroups();
+  if (sdLayerVisibility.craftsmen && sdLayerGroups.craftsmen) sdLayerGroups.craftsmen.addTo(sdMap);
+}
+
+function createLayerGroups() {
+  sdLayerGroups.craftsmen = L.layerGroup();
+  craftsmenHeatmapData.forEach(function(d) {
+    var color = '#e85a5a';
+    var opacity = 0.15 + d.intensity * 0.35;
+    var radius = 3000 + d.intensity * 4000;
+    var circle = L.circle(d.coords, {
+      radius: radius, color: color, fillColor: color, fillOpacity: opacity, weight: 1
+    });
+    circle.bindTooltip(d.area + '（逼迫度 ' + Math.round(d.intensity * 100) + '%）');
+    sdLayerGroups.craftsmen.addLayer(circle);
+  });
+
+  sdLayerGroups.equipment = L.layerGroup();
+  equipmentData.forEach(function(d) {
+    var color = d.status === 'busy' ? '#c44a4a' : '#5a8a3c';
+    var marker = L.circleMarker(d.coords, {
+      radius: 8, color: color, fillColor: color, fillOpacity: 0.7, weight: 2
+    });
+    marker.bindTooltip(d.name + '（' + (d.status === 'busy' ? '稼働中' : '空きあり') + '）');
+    sdLayerGroups.equipment.addLayer(marker);
+  });
+
+  sdLayerGroups.materials = L.layerGroup();
+  materialsData.forEach(function(d) {
+    var color = d.status === 'limited' ? '#f0a050' : '#5a8a3c';
+    var marker = L.circleMarker(d.coords, {
+      radius: 9, color: color, fillColor: color, fillOpacity: 0.6, weight: 2
+    });
+    marker.bindTooltip(d.name);
+    sdLayerGroups.materials.addLayer(marker);
+  });
+
+  sdLayerGroups.competing = L.layerGroup();
+  competingProjectsData.forEach(function(d) {
+    var marker = L.circleMarker(d.coords, {
+      radius: 7, color: '#2c5d8f', fillColor: '#2c5d8f', fillOpacity: 0.5, weight: 2
+    });
+    marker.bindTooltip(d.name);
+    sdLayerGroups.competing.addLayer(marker);
+  });
+
+  sdLayerGroups.bim = L.layerGroup();
+  bimPastProjectsData.forEach(function(d) {
+    var marker = L.circleMarker(d.coords, {
+      radius: 6, color: '#8a4fb3', fillColor: '#8a4fb3', fillOpacity: 0.4, weight: 2
+    });
+    marker.bindTooltip(d.name);
+    sdLayerGroups.bim.addLayer(marker);
+  });
+}
+
+function toggleLayer(checkbox) {
+  var layer = checkbox.dataset.layer;
+  sdLayerVisibility[layer] = checkbox.checked;
+  if (!sdLayerGroups[layer] || !sdMap) return;
+  if (checkbox.checked) sdLayerGroups[layer].addTo(sdMap);
+  else sdMap.removeLayer(sdLayerGroups[layer]);
+}
+
+function updateTimeline(monthIdx) {
+  monthIdx = parseInt(monthIdx);
+  document.getElementById('sd-timeline-month').textContent = (monthIdx + 1) + 'ヶ月目';
+  document.getElementById('sd-timeline-phase').textContent = projectPhases[monthIdx];
+
+  var multiplier = monthlyIntensityMultiplier[monthIdx];
+  if (sdLayerGroups.craftsmen) {
+    sdLayerGroups.craftsmen.clearLayers();
+    craftsmenHeatmapData.forEach(function(d) {
+      var adjustedIntensity = Math.min(1, d.intensity * multiplier);
+      var color = '#e85a5a';
+      var opacity = 0.1 + adjustedIntensity * 0.4;
+      var radius = 2500 + adjustedIntensity * 5000;
+      var circle = L.circle(d.coords, {
+        radius: radius, color: color, fillColor: color, fillOpacity: opacity, weight: 1
+      });
+      circle.bindTooltip(d.area + '（' + (monthIdx + 1) + 'ヶ月目 逼迫度 ' + Math.round(adjustedIntensity * 100) + '%）');
+      sdLayerGroups.craftsmen.addLayer(circle);
+    });
+  }
+}
+
+function renderAlerts() {
+  var container = document.getElementById('sd-alerts-container');
+  if (!container) return;
+  var html = '';
+  alertsData.forEach(function(a, i) {
+    var severityClass = 'sd-alert-severity-' + a.severity;
+    html += '<div class="sd-alert" data-alert-id="' + a.id + '" onclick="toggleAlert(this)" style="opacity:0;animation:fadeInUp 0.4s ease-out ' + (i * 0.15) + 's forwards">';
+    html += '<div class="sd-alert-header"><div class="sd-alert-severity ' + severityClass + '"></div><div class="sd-alert-title">' + a.title + '</div><div class="sd-alert-toggle">▶</div></div>';
+    html += '<div class="sd-alert-detail">';
+    html += '<div class="sd-alert-detail-row"><span class="sd-alert-detail-key">期間</span><span class="sd-alert-detail-val">' + a.detail.period + '</span></div>';
+    html += '<div class="sd-alert-detail-row"><span class="sd-alert-detail-key">エリア</span><span class="sd-alert-detail-val">' + a.detail.area + '</span></div>';
+    html += '<div class="sd-alert-detail-row"><span class="sd-alert-detail-key">原因</span><span class="sd-alert-detail-val">' + a.detail.cause + '</span></div>';
+    html += '<div class="sd-alert-detail-row"><span class="sd-alert-detail-key">影響</span><span class="sd-alert-detail-val">' + a.detail.impact + '</span></div>';
+    if (a.detail.bimNote) html += '<div class="sd-alert-bim-note">📐 ' + a.detail.bimNote + '</div>';
+    html += '<div class="sd-alert-detail-row" style="margin-top:6px;padding-top:6px;border-top:1px dashed #ececec"><span class="sd-alert-detail-key">データソース</span><span class="sd-alert-detail-val" style="font-size:10px;color:#999">' + a.detail.dataSource + '</span></div>';
+    html += '</div></div>';
+  });
+  container.innerHTML = html;
+
+  if (!document.getElementById('sd-fadeIn-keyframes')) {
+    var style = document.createElement('style');
+    style.id = 'sd-fadeIn-keyframes';
+    style.innerHTML = '@keyframes fadeInUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }';
+    document.head.appendChild(style);
+  }
+}
+
+function toggleAlert(el) {
+  el.classList.toggle('expanded');
+}
+
+function backToProjectDetail() {
+  document.getElementById('supply-demand-view').style.display = 'none';
+  document.getElementById('project-detail-view').style.display = 'block';
+}
+
+function showOptimizationPlans() {
+  alert('AI推奨：全体最適化プランを表示します。\n（次のバッチでシーン3を実装します）');
 }
 
 // ===== Hearing (Task 131) =====

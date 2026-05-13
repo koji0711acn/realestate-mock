@@ -2064,3 +2064,79 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
 .pd-start-analysis-btn { background: #1a3658; color: #fff; border: none; padding: 14px 36px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.2s; }
 .pd-start-analysis-btn:hover { background: #0f2641; }
 .pd-action-note { font-size: 11px; color: #888; margin: 12px 0 0; }
+
+/* ===== V4 Analysis Loading Overlay ===== */
+.alo-container { max-width: 800px; margin: 80px auto 0; padding: 40px; text-align: center; }
+.alo-title { font-size: 28px; font-weight: 600; color: #1a3658; margin: 0 0 8px; }
+.alo-subtitle { font-size: 13px; color: #888; margin: 0 0 32px; }
+.alo-streams { display: flex; flex-direction: column; gap: 8px; margin: 0 0 24px; }
+.alo-stream { background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px 14px; display: flex; align-items: center; gap: 12px; overflow: hidden; }
+.alo-label { font-size: 11px; color: #5a7593; font-weight: 500; min-width: 200px; flex-shrink: 0; }
+.alo-scroll { flex: 1; font-size: 11px; color: #999; white-space: nowrap; overflow: hidden; font-family: 'Courier New', monospace; }
+.alo-scroll span { display: inline-block; margin-right: 16px; }
+.alo-progress { height: 3px; background: #e0e0e0; border-radius: 2px; overflow: hidden; }
+.alo-progress-bar { height: 100%; background: #5a8a3c; width: 0%; transition: width 0.1s linear; }
+
+/* ===== V4 Supply Demand View ===== */
+.sd-layout { display: flex; height: 100%; }
+.sd-map-container { flex: 1; position: relative; }
+#sd-map { width: 100%; height: 100%; background: #e8eef4; }
+
+.sd-map-overlay-top { position: absolute; top: 16px; left: 16px; right: 16px; z-index: 500; display: flex; justify-content: space-between; align-items: center; }
+.sd-back-btn { background: rgba(255,255,255,0.95); border: 1px solid #d0d0d0; border-radius: 6px; padding: 7px 14px; font-size: 12px; color: #555; cursor: pointer; font-family: inherit; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+.sd-back-btn:hover { background: #fff; }
+.sd-project-label { background: rgba(255,255,255,0.95); border: 1px solid #d0d0d0; border-radius: 6px; padding: 7px 14px; font-size: 12px; color: #1a3658; font-weight: 500; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+
+.sd-layer-controls { position: absolute; bottom: 100px; left: 16px; background: rgba(255,255,255,0.97); border: 1px solid #d0d0d0; border-radius: 8px; padding: 12px 14px; z-index: 500; box-shadow: 0 2px 8px rgba(0,0,0,0.1); min-width: 180px; }
+.sd-layer-controls-title { font-size: 10px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 8px; padding-bottom: 6px; border-bottom: 1px solid #e8e8e8; }
+.sd-layer-toggle { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #333; cursor: pointer; padding: 4px 0; }
+.sd-layer-toggle input { margin: 0; }
+.sd-layer-color { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+.sd-timeline-controls { position: absolute; bottom: 16px; left: 16px; right: 16px; background: rgba(255,255,255,0.97); border: 1px solid #d0d0d0; border-radius: 8px; padding: 10px 18px; z-index: 500; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 16px; }
+.sd-timeline-label { font-size: 11px; color: #666; font-weight: 500; flex-shrink: 0; }
+.sd-timeline-slider { flex: 1; }
+.sd-timeline-info { display: flex; gap: 10px; align-items: center; font-size: 12px; color: #333; flex-shrink: 0; min-width: 180px; }
+.sd-timeline-phase { background: #f0f6fd; color: #2c5d8f; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 500; }
+
+.sd-side-panel { width: 380px; background: #fff; border-left: 1px solid #e0e0e0; overflow-y: scroll; padding: 20px; scrollbar-width: thin; }
+.sd-side-panel::-webkit-scrollbar { width: 6px; }
+.sd-side-panel::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
+
+.sd-panel-section { margin: 0 0 20px; padding: 0 0 16px; border-bottom: 1px solid #ececec; }
+.sd-panel-section:last-of-type { border-bottom: none; }
+.sd-panel-section-title { font-size: 12px; font-weight: 600; color: #1a3658; margin: 0 0 10px; display: flex; align-items: center; justify-content: space-between; }
+.sd-alert-count { background: #fce8e8; color: #c44a4a; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 500; }
+.sd-panel-row { display: flex; justify-content: space-between; align-items: baseline; font-size: 11px; padding: 4px 0; }
+.sd-panel-key { color: #888; }
+.sd-panel-val { color: #333; font-weight: 500; }
+
+.sd-alerts-list { display: flex; flex-direction: column; gap: 8px; }
+.sd-alert { background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px 12px; cursor: pointer; transition: all 0.15s; }
+.sd-alert:hover { border-color: #b0b0b0; }
+.sd-alert-header { display: flex; align-items: center; gap: 8px; }
+.sd-alert-severity { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.sd-alert-severity-high { background: #c44a4a; }
+.sd-alert-severity-medium { background: #f0a050; }
+.sd-alert-severity-info { background: #2c5d8f; }
+.sd-alert-title { font-size: 12px; font-weight: 500; color: #333; flex: 1; }
+.sd-alert-toggle { font-size: 10px; color: #999; }
+.sd-alert-detail { font-size: 11px; color: #555; line-height: 1.6; margin: 8px 0 0; padding: 8px 0 0; border-top: 1px solid #f0f0f0; display: none; }
+.sd-alert.expanded .sd-alert-detail { display: block; }
+.sd-alert.expanded .sd-alert-toggle { transform: rotate(90deg); }
+.sd-alert-detail-row { display: flex; justify-content: space-between; padding: 3px 0; font-size: 11px; }
+.sd-alert-detail-key { color: #888; }
+.sd-alert-detail-val { color: #333; font-weight: 500; text-align: right; }
+.sd-alert-bim-note { background: #f0f6fd; border-left: 3px solid #2c5d8f; padding: 6px 10px; margin: 8px 0 0; font-size: 10px; color: #5a7593; border-radius: 0 4px 4px 0; }
+
+.sd-panel-cta { margin: 16px 0 0; }
+.sd-optimize-btn { width: 100%; background: #1a3658; color: #fff; border: none; padding: 14px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.2s; animation: sdPulse 2s ease-in-out 1s 3; }
+.sd-optimize-btn:hover { background: #0f2641; }
+
+@keyframes sdPulse {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+}

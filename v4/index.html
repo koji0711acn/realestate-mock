@@ -238,6 +238,67 @@
     </div>
   </div>
 
+  <!-- ===== V4: Analysis Loading Overlay ===== -->
+  <div id="analysis-loading-overlay" style="display:none;position:fixed;top:40px;bottom:0;left:0;right:0;background:rgba(250,250,250,0.97);z-index:5000;overflow:hidden">
+    <div class="alo-container">
+      <div class="alo-title">分析中...</div>
+      <div class="alo-subtitle">業界横断データを地理空間上で統合解析しています</div>
+      <div class="alo-streams">
+        <div class="alo-stream"><span class="alo-label">建設労働需給データを参照中</span><div class="alo-scroll" id="alo-scroll-1"></div></div>
+        <div class="alo-stream"><span class="alo-label">重機稼働状況を確認中</span><div class="alo-scroll" id="alo-scroll-2"></div></div>
+        <div class="alo-stream"><span class="alo-label">資材在庫を照会中</span><div class="alo-scroll" id="alo-scroll-3"></div></div>
+        <div class="alo-stream"><span class="alo-label">周辺案件パイプラインを参照中</span><div class="alo-scroll" id="alo-scroll-4"></div></div>
+        <div class="alo-stream"><span class="alo-label">過去BIMデータを参照中</span><div class="alo-scroll" id="alo-scroll-5"></div></div>
+        <div class="alo-stream"><span class="alo-label">災害復旧需要を分析中</span><div class="alo-scroll" id="alo-scroll-6"></div></div>
+      </div>
+      <div class="alo-progress"><div class="alo-progress-bar" id="alo-progress-bar"></div></div>
+    </div>
+  </div>
+
+  <!-- ===== V4: Supply Demand View ===== -->
+  <div id="supply-demand-view" style="display:none;position:fixed;top:40px;bottom:0;left:0;right:0;background:#fafafa">
+    <div class="sd-layout">
+      <div class="sd-map-container">
+        <div id="sd-map"></div>
+        <div class="sd-map-overlay-top">
+          <button class="sd-back-btn" onclick="backToProjectDetail()">← 案件詳細に戻る</button>
+          <div class="sd-project-label" id="sd-project-label"></div>
+        </div>
+        <div class="sd-layer-controls">
+          <div class="sd-layer-controls-title">表示レイヤー</div>
+          <label class="sd-layer-toggle"><input type="checkbox" data-layer="craftsmen" checked onchange="toggleLayer(this)"> <span class="sd-layer-color" style="background:#e85a5a"></span>職人需給</label>
+          <label class="sd-layer-toggle"><input type="checkbox" data-layer="equipment" onchange="toggleLayer(this)"> <span class="sd-layer-color" style="background:#f0a050"></span>重機需給</label>
+          <label class="sd-layer-toggle"><input type="checkbox" data-layer="materials" onchange="toggleLayer(this)"> <span class="sd-layer-color" style="background:#5a8a3c"></span>資材需給</label>
+          <label class="sd-layer-toggle"><input type="checkbox" data-layer="competing" onchange="toggleLayer(this)"> <span class="sd-layer-color" style="background:#2c5d8f"></span>競合案件</label>
+          <label class="sd-layer-toggle"><input type="checkbox" data-layer="bim" onchange="toggleLayer(this)"> <span class="sd-layer-color" style="background:#8a4fb3"></span>過去BIM実績</label>
+        </div>
+        <div class="sd-timeline-controls">
+          <div class="sd-timeline-label">工期 (12ヶ月)</div>
+          <input type="range" id="sd-timeline-slider" min="0" max="11" value="0" class="sd-timeline-slider" oninput="updateTimeline(this.value)">
+          <div class="sd-timeline-info"><span id="sd-timeline-month">1ヶ月目</span> <span id="sd-timeline-phase" class="sd-timeline-phase">準備工事</span></div>
+        </div>
+      </div>
+
+      <div class="sd-side-panel">
+        <div class="sd-panel-section">
+          <div class="sd-panel-section-title">案件概要</div>
+          <div class="sd-panel-row"><span class="sd-panel-key">所在地</span><span id="sd-info-location" class="sd-panel-val"></span></div>
+          <div class="sd-panel-row"><span class="sd-panel-key">工期</span><span id="sd-info-duration" class="sd-panel-val">12ヶ月</span></div>
+          <div class="sd-panel-row"><span class="sd-panel-key">必要職人</span><span class="sd-panel-val">約1,840人工</span></div>
+        </div>
+
+        <div class="sd-panel-section">
+          <div class="sd-panel-section-title">調達リスクアラート <span class="sd-alert-count" id="sd-alert-count">4件</span></div>
+          <div id="sd-alerts-container" class="sd-alerts-list"></div>
+        </div>
+
+        <div class="sd-panel-cta">
+          <button id="sd-optimize-btn" class="sd-optimize-btn" onclick="showOptimizationPlans()">AI推奨：全体最適化プランを確認 →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== Map View ===== -->
   <div id="map-view" style="display:none">
     <div id="screen-map">
