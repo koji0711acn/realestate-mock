@@ -2085,7 +2085,16 @@ var municipalityPolygons = {
   '石巻市':        [[38.461,141.227],[38.488,141.331],[38.443,141.404],[38.391,141.385],[38.371,141.301],[38.413,141.231]],
   '大崎市':        [[38.605,140.929],[38.628,141.011],[38.595,141.067],[38.541,141.055],[38.521,140.989],[38.553,140.918]],
   '北上市':        [[39.305,141.067],[39.327,141.145],[39.301,141.207],[39.253,141.195],[39.235,141.130],[39.265,141.069]],
-  '気仙沼市':      [[38.911,141.541],[38.935,141.620],[38.911,141.681],[38.861,141.673],[38.843,141.601],[38.871,141.541]]
+  '気仙沼市':      [[38.911,141.541],[38.935,141.620],[38.911,141.681],[38.861,141.673],[38.843,141.601],[38.871,141.541]],
+  'いわき市':      [[37.052,140.835],[37.082,140.918],[37.045,140.991],[36.991,140.978],[36.961,140.901],[36.991,140.825]],
+  '水戸市':        [[36.385,140.420],[36.401,140.491],[36.378,140.551],[36.342,140.541],[36.331,140.475],[36.354,140.416]],
+  'つくば市':      [[36.115,140.061],[36.135,140.152],[36.108,140.215],[36.061,140.218],[36.035,140.151],[36.061,140.082]],
+  '日立市':        [[36.601,140.621],[36.621,140.701],[36.595,140.751],[36.557,140.738],[36.535,140.681],[36.561,140.625]],
+  '川口市':        [[35.821,139.685],[35.835,139.748],[35.818,139.788],[35.788,139.795],[35.770,139.748],[35.788,139.695]],
+  'さいたま市':    [[35.901,139.601],[35.928,139.701],[35.901,139.778],[35.852,139.788],[35.824,139.711],[35.845,139.621]],
+  '千葉市':        [[35.621,140.081],[35.652,140.165],[35.621,140.231],[35.575,140.218],[35.555,140.151],[35.581,140.085]],
+  '市川市':        [[35.728,139.911],[35.748,139.971],[35.731,140.011],[35.701,140.001],[35.685,139.951],[35.701,139.918]],
+  '高崎市':        [[36.331,138.961],[36.351,139.051],[36.321,139.115],[36.275,139.108],[36.255,139.041],[36.281,138.971]]
 };
 
 // レイヤー別市区町村データ。各レイヤーで表示する市区町村と、その需給状況を定義。
@@ -2133,6 +2142,37 @@ var layerMunicipalityData = {
     '多賀城市':      { status: 'surplus', balance: 10, supply: 5, demand: 4, canSupply: true },
     '塩竈市':        { status: 'surplus', balance: 12, supply: 4, demand: 3, canSupply: true },
     '名取市':        { status: 'surplus', balance: 12, supply: 4, demand: 3, canSupply: true }
+  },
+  steel: {
+    '仙台市青葉区':  { status: 'tight-medium', balance: -10, supply: 3, demand: 4, isProject: true },
+    '仙台市宮城野区':{ status: 'tight-medium', balance: -8, supply: 2, demand: 3 },
+    '福島市':        { status: 'tight-medium', balance: -7, supply: 4, demand: 5 },
+    '郡山市':        { status: 'tight-medium', balance: -6, supply: 5, demand: 6 },
+    'いわき市':      { status: 'balanced', balance: -3, supply: 6, demand: 6, canSupply: true },
+    '水戸市':        { status: 'balanced', balance: 2, supply: 5, demand: 5, canSupply: true },
+    'つくば市':      { status: 'surplus', balance: 12, supply: 7, demand: 6, canSupply: true },
+    '日立市':        { status: 'surplus', balance: 10, supply: 6, demand: 5, canSupply: true },
+    '川口市':        { status: 'surplus', balance: 18, supply: 14, demand: 10, canSupply: true },
+    'さいたま市':    { status: 'surplus', balance: 16, supply: 12, demand: 9, canSupply: true },
+    '千葉市':        { status: 'surplus', balance: 22, supply: 16, demand: 11, canSupply: true },
+    '市川市':        { status: 'surplus', balance: 20, supply: 11, demand: 8, canSupply: true },
+    '高崎市':        { status: 'surplus', balance: 14, supply: 9, demand: 7, canSupply: true }
+  },
+  competing: {
+    '仙台市青葉区':  { status: 'tight-high', balance: -28, supply: 0, demand: 8, competingProjects: ['仙台地下鉄延伸工事', '仙台駅東口再開発', '青葉通り商業ビル建替'] },
+    '仙台市泉区':    { status: 'tight-medium', balance: -10, supply: 0, demand: 3, isProject: true, competingProjects: ['泉中央サイト再開発', '富谷リテール物流センター'] },
+    '仙台市宮城野区':{ status: 'tight-high', balance: -18, supply: 0, demand: 5, competingProjects: ['仙台港コンテナターミナル増設', '仙台駅東口集合住宅2件'] },
+    '仙台市太白区':  { status: 'tight-medium', balance: -8, supply: 0, demand: 3, competingProjects: ['長町メディカルセンター', '太白区民間案件'] },
+    '仙台市若林区':  { status: 'balanced', balance: -3, supply: 0, demand: 1 },
+    '多賀城市':      { status: 'balanced', balance: -2, supply: 0, demand: 1 },
+    '塩竈市':        { status: 'balanced', balance: 0, supply: 0, demand: 0 },
+    '名取市':        { status: 'balanced', balance: -1, supply: 0, demand: 1 },
+    '富谷市':        { status: 'surplus', balance: 5, supply: 0, demand: 0, canSupply: true },
+    '石巻市':        { status: 'tight-high', balance: -25, supply: 0, demand: 7, competingProjects: ['石巻港湾施設災害復旧', '東日本大震災メンテナンス工事'] },
+    '福島市':        { status: 'tight-high', balance: -22, supply: 0, demand: 6, competingProjects: ['福島県庁更新工事', '福島駅前再開発', '原発廃炉関連'] },
+    '郡山市':        { status: 'tight-medium', balance: -8, supply: 0, demand: 4, competingProjects: ['郡山駅前広場整備', '郡山ロジスティクスセンター'] },
+    '山形市':        { status: 'balanced', balance: 0, supply: 0, demand: 0 },
+    '大崎市':        { status: 'balanced', balance: -2, supply: 0, demand: 1 }
   }
 };
 
@@ -2265,11 +2305,20 @@ function showMunicipalityPopup(info) {
   if (currentLayerType === 'equipment') { supplyUnit = '社'; demandUnit = '現場'; }
   else if (currentLayerType === 'concrete') { supplyUnit = '工場'; demandUnit = '案件'; }
   else if (currentLayerType === 'steel') { supplyUnit = '商社'; demandUnit = '案件'; }
+  else if (currentLayerType === 'competing') { supplyUnit = '—'; demandUnit = '案件'; }
 
   html += '<div class="mesh-popup-row"><span class="mesh-popup-key">供給能力</span><span class="mesh-popup-val">' + info.supply + ' ' + supplyUnit + '</span></div>';
   html += '<div class="mesh-popup-row"><span class="mesh-popup-key">競合需要</span><span class="mesh-popup-val">' + info.demand + ' ' + demandUnit + '</span></div>';
   html += '<div class="mesh-popup-row"><span class="mesh-popup-key">過不足率</span><span class="mesh-popup-val" style="color:' + (info.currentBalance < 0 ? '#c44a4a' : '#3d6b24') + '">' + (info.currentBalance > 0 ? '+' : '') + info.currentBalance + '%</span></div>';
   html += '</div>';
+
+  // 競合案件リスト表示（競合レイヤーのみ）
+  if (currentLayerType === 'competing' && info.competingProjects && info.competingProjects.length > 0) {
+    html += '<div class="mesh-popup-causes">';
+    html += '<div class="mesh-popup-causes-title">このエリアの主な競合案件</div>';
+    html += info.competingProjects.map(function(p) { return '・' + p; }).join('<br>');
+    html += '</div>';
+  }
 
   if (info.canSupply) {
     html += '<div class="mesh-popup-causes" style="background:#e8f3dc;color:#3d6b24">';
