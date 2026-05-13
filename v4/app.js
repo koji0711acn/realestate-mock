@@ -1960,43 +1960,89 @@ function showProjectListView() {
 
 // ===== V4 Scene 2: Supply Demand Data =====
 
-var V4_PROJECT_CENTER = [38.3056, 140.8918]; // 仙台市泉区中心
+var V4_PROJECT_CENTER = [38.315, 140.88]; // 仙台市泉区紫山周辺
 
-var craftsmenHeatmapData = [
-  { coords: [38.2682, 140.8694], intensity: 0.9, area: '仙台市中心部' },
-  { coords: [38.3056, 140.8918], intensity: 0.8, area: '仙台市泉区' },
-  { coords: [38.1888, 140.8597], intensity: 0.7, area: '仙台市青葉区' },
-  { coords: [38.4350, 141.3025], intensity: 0.95, area: '石巻市' },
-  { coords: [37.7503, 140.4675], intensity: 0.85, area: '福島市' },
-  { coords: [38.2406, 140.3633], intensity: 0.6, area: '山形市' },
-  { coords: [37.7886, 140.4694], intensity: 0.75, area: '郡山市' },
-  { coords: [38.3553, 141.0419], intensity: 0.55, area: '塩竈市' }
+// ===== V4 Mesh Data (Supply-Demand Balance per 4km mesh) =====
+// メッシュベース需給データ。各メッシュは約4km×4km。
+// status: 'tight-high'(深刻に逼迫,赤), 'tight-medium'(逼迫,オレンジ), 'balanced'(均衡,黄), 'surplus'(余力,緑)
+// balance: 過不足率（%、マイナスが不足）
+// canSupply: 本案件から調達可能なエリア（緑枠で表示）
+
+var meshDataCraftsmen = [
+  { id: 'M5440-21', area: '仙台市青葉区中心部', bounds: [[38.255, 140.85], [38.295, 140.91]], status: 'tight-high', balance: -22, supply: 18, demand: 23 },
+  { id: 'M5440-22', area: '仙台市泉区紫山周辺', bounds: [[38.295, 140.85], [38.335, 140.91]], status: 'tight-high', balance: -18, supply: 14, demand: 17, isProject: true },
+  { id: 'M5440-23', area: '仙台市青葉区西部', bounds: [[38.255, 140.79], [38.295, 140.85]], status: 'tight-medium', balance: -12, supply: 22, demand: 25 },
+  { id: 'M5440-24', area: '仙台市太白区', bounds: [[38.215, 140.85], [38.255, 140.91]], status: 'tight-medium', balance: -10, supply: 24, demand: 27 },
+  { id: 'M5440-25', area: '仙台市宮城野区', bounds: [[38.255, 140.91], [38.295, 140.97]], status: 'tight-high', balance: -16, supply: 16, demand: 19 },
+  { id: 'M5440-26', area: '仙台市若林区', bounds: [[38.215, 140.91], [38.255, 140.97]], status: 'tight-medium', balance: -9, supply: 21, demand: 23 },
+  { id: 'M5440-27', area: '多賀城・塩竈', bounds: [[38.255, 140.97], [38.295, 141.03]], status: 'balanced', balance: -3, supply: 28, demand: 29 },
+  { id: 'M5440-28', area: '名取市', bounds: [[38.175, 140.85], [38.215, 140.91]], status: 'tight-medium', balance: -8, supply: 19, demand: 21 },
+  { id: 'M5640-21', area: '石巻市', bounds: [[38.415, 141.27], [38.455, 141.33]], status: 'tight-high', balance: -25, supply: 11, demand: 15 },
+  { id: 'M5440-30', area: '福島市', bounds: [[37.735, 140.45], [37.775, 140.51]], status: 'tight-high', balance: -19, supply: 26, demand: 32 },
+  { id: 'M5440-31', area: '山形市', bounds: [[38.225, 140.33], [38.265, 140.39]], status: 'surplus', balance: 14, supply: 32, demand: 28, canSupply: true },
+  { id: 'M5440-32', area: '米沢市', bounds: [[37.895, 140.10], [37.935, 140.16]], status: 'surplus', balance: 22, supply: 28, demand: 22, canSupply: true },
+  { id: 'M5440-33', area: '郡山市', bounds: [[37.385, 140.36], [37.425, 140.42]], status: 'tight-medium', balance: -7, supply: 35, demand: 38 },
+  { id: 'M5440-34', area: '北上市', bounds: [[39.275, 141.08], [39.315, 141.14]], status: 'balanced', balance: 2, supply: 25, demand: 24 },
+  { id: 'M5440-35', area: '大崎市', bounds: [[38.555, 140.94], [38.595, 141.00]], status: 'balanced', balance: -4, supply: 22, demand: 23 }
 ];
 
-var equipmentData = [
-  { coords: [38.2682, 140.8694], type: 'crane', status: 'busy', name: '仙台市内クレーン' },
-  { coords: [38.3056, 140.8918], type: 'pile_driver', status: 'busy', name: '仙台市内杭打機' },
-  { coords: [37.4007, 140.3886], type: 'crane', status: 'available', name: '郡山リース' },
-  { coords: [38.2406, 140.3633], type: 'crane', status: 'busy', name: '山形市稼働中' }
+var meshDataEquipment = [
+  { id: 'EQ-01', area: '仙台市青葉区中心部', bounds: [[38.255, 140.85], [38.295, 140.91]], status: 'tight-high', balance: -28, supply: 8, demand: 11 },
+  { id: 'EQ-02', area: '仙台市泉区紫山周辺', bounds: [[38.295, 140.85], [38.335, 140.91]], status: 'tight-high', balance: -20, supply: 6, demand: 8, isProject: true },
+  { id: 'EQ-03', area: '仙台市青葉区西部', bounds: [[38.255, 140.79], [38.295, 140.85]], status: 'tight-medium', balance: -12, supply: 9, demand: 10 },
+  { id: 'EQ-04', area: '仙台市太白区', bounds: [[38.215, 140.85], [38.255, 140.91]], status: 'tight-medium', balance: -10, supply: 10, demand: 11 },
+  { id: 'EQ-05', area: '仙台市宮城野区', bounds: [[38.255, 140.91], [38.295, 140.97]], status: 'tight-high', balance: -18, supply: 7, demand: 9 },
+  { id: 'EQ-06', area: '仙台市若林区', bounds: [[38.215, 140.91], [38.255, 140.97]], status: 'tight-medium', balance: -8, supply: 11, demand: 12 },
+  { id: 'EQ-07', area: '多賀城・塩竈', bounds: [[38.255, 140.97], [38.295, 141.03]], status: 'surplus', balance: 8, supply: 14, demand: 13, canSupply: true },
+  { id: 'EQ-08', area: '名取市', bounds: [[38.175, 140.85], [38.215, 140.91]], status: 'balanced', balance: -3, supply: 12, demand: 12, canSupply: true },
+  { id: 'EQ-09', area: '富谷市', bounds: [[38.355, 140.83], [38.395, 140.89]], status: 'surplus', balance: 15, supply: 10, demand: 8, canSupply: true }
 ];
 
-var materialsData = [
-  { coords: [38.2682, 140.8694], status: 'limited', name: '仙台生コン工場（受注上限）' },
-  { coords: [38.3553, 141.0419], status: 'limited', name: '塩竈鋼材商社' },
-  { coords: [37.7503, 140.4675], status: 'available', name: '福島生コン工場' }
+var meshDataConcrete = [
+  { id: 'CC-01', area: '仙台市青葉区中心部', bounds: [[38.255, 140.85], [38.295, 140.91]], status: 'tight-high', balance: -32, supply: 2, demand: 5 },
+  { id: 'CC-02', area: '仙台市泉区紫山周辺', bounds: [[38.295, 140.85], [38.335, 140.91]], status: 'tight-high', balance: -25, supply: 1, demand: 2, isProject: true },
+  { id: 'CC-03', area: '仙台市太白区', bounds: [[38.215, 140.85], [38.255, 140.91]], status: 'tight-medium', balance: -12, supply: 3, demand: 4 },
+  { id: 'CC-04', area: '仙台市宮城野区', bounds: [[38.255, 140.91], [38.295, 140.97]], status: 'balanced', balance: -3, supply: 4, demand: 4, canSupply: true },
+  { id: 'CC-05', area: '多賀城・塩竈', bounds: [[38.255, 140.97], [38.295, 141.03]], status: 'surplus', balance: 10, supply: 5, demand: 4, canSupply: true },
+  { id: 'CC-06', area: '名取市', bounds: [[38.175, 140.85], [38.215, 140.91]], status: 'surplus', balance: 12, supply: 4, demand: 3, canSupply: true }
 ];
 
-var competingProjectsData = [
-  { coords: [38.2682, 140.8694], name: '仙台地下鉄延伸工事', type: 'public' },
-  { coords: [38.2700, 140.8800], name: '仙台駅東口再開発', type: 'private' },
-  { coords: [38.4350, 141.3025], name: '石巻市災害復旧', type: 'recovery' }
+var meshDataSteel = [
+  { id: 'ST-01', area: '仙台市', bounds: [[38.20, 140.80], [38.40, 141.05]], status: 'tight-medium', balance: -10, supply: 3, demand: 4, isProject: true },
+  { id: 'ST-02', area: '宮城県中部', bounds: [[38.40, 140.70], [38.65, 141.05]], status: 'balanced', balance: -3, supply: 4, demand: 4 },
+  { id: 'ST-03', area: '福島県中部', bounds: [[37.30, 140.30], [37.70, 140.65]], status: 'tight-medium', balance: -8, supply: 5, demand: 6 },
+  { id: 'ST-04', area: '茨城県北部', bounds: [[36.50, 140.30], [36.90, 140.70]], status: 'surplus', balance: 12, supply: 8, demand: 6, canSupply: true },
+  { id: 'ST-05', area: '埼玉県北部', bounds: [[36.05, 139.20], [36.45, 139.70]], status: 'surplus', balance: 18, supply: 14, demand: 10, canSupply: true },
+  { id: 'ST-06', area: '千葉県北部', bounds: [[35.65, 140.00], [35.95, 140.40]], status: 'surplus', balance: 22, supply: 16, demand: 11, canSupply: true },
+  { id: 'ST-07', area: '岩手県中部', bounds: [[39.20, 140.95], [39.50, 141.25]], status: 'balanced', balance: 5, supply: 6, demand: 5 },
+  { id: 'ST-08', area: '山形県中部', bounds: [[38.00, 140.10], [38.40, 140.45]], status: 'surplus', balance: 14, supply: 8, demand: 6, canSupply: true }
 ];
 
-var bimPastProjectsData = [
-  { coords: [38.3100, 140.8950], name: 'D-room泉中央A（2022年竣工）' },
-  { coords: [38.2950, 140.8800], name: 'D-room泉中央B（2023年竣工）' },
-  { coords: [38.2682, 140.8650], name: 'D-room青葉（2024年竣工）' }
+var meshDataCompeting = [
+  { id: 'CP-01', area: '仙台市青葉区中心部', bounds: [[38.255, 140.85], [38.295, 140.91]], status: 'tight-high', balance: -28, supply: 0, demand: 8, competingProjects: ['仙台地下鉄延伸工事', '仙台駅東口再開発', '青葉通り商業ビル建替'] },
+  { id: 'CP-02', area: '仙台市泉区紫山周辺', bounds: [[38.295, 140.85], [38.335, 140.91]], status: 'tight-medium', balance: -10, supply: 0, demand: 3, competingProjects: ['泉中央サイト再開発', '富谷リテール物流センター'], isProject: true },
+  { id: 'CP-03', area: '仙台市宮城野区', bounds: [[38.255, 140.91], [38.295, 140.97]], status: 'tight-high', balance: -18, supply: 0, demand: 5, competingProjects: ['仙台港コンテナターミナル増設', '仙台駅東口集合住宅2件'] },
+  { id: 'CP-04', area: '石巻市', bounds: [[38.415, 141.27], [38.455, 141.33]], status: 'tight-high', balance: -25, supply: 0, demand: 7, competingProjects: ['石巻港湾施設災害復旧', '東日本大震災メンテナンス工事'] },
+  { id: 'CP-05', area: '福島市', bounds: [[37.735, 140.45], [37.775, 140.51]], status: 'tight-high', balance: -22, supply: 0, demand: 6, competingProjects: ['福島県庁更新工事', '福島駅前再開発', '原発廃炉関連'] },
+  { id: 'CP-06', area: '郡山市', bounds: [[37.385, 140.36], [37.425, 140.42]], status: 'tight-medium', balance: -8, supply: 0, demand: 4, competingProjects: ['郡山駅前広場整備', '郡山ロジスティクスセンター（PRJ005）'] }
 ];
+
+// レイヤー切替時のズーム設定
+var layerViewSettings = {
+  craftsmen:  { center: [38.31, 140.88], zoom: 9,  label: '東北100km圏' },
+  equipment:  { center: [38.31, 140.88], zoom: 11, label: '30km圏' },
+  concrete:   { center: [38.315, 140.88], zoom: 12, label: '20km圏' },
+  steel:      { center: [37.5, 140.0],   zoom: 7,  label: '関東圏まで' },
+  competing:  { center: [38.31, 140.88], zoom: 9,  label: '東北100km圏' }
+};
+
+// メッシュ月別需給推移計算用：フェーズごとの乗数
+var phaseMultipliers = [0.5, 0.7, 0.9, 1.1, 1.2, 1.3, 1.2, 1.4, 1.0, 0.8, 0.6, 0.4];
+
+// 現在表示中のレイヤー
+var currentLayerType = 'craftsmen';
+// メッシュレイヤーのLeaflet参照
+var meshLayerGroup = null;
 
 var vendorLocationsData = [
   { coords: [38.2406, 140.3633], name: '●●建設（山形）', category: 'craftsmen' },
@@ -2127,107 +2173,219 @@ function initSDMap() {
     sdMap.remove();
     sdMap = null;
   }
-  sdMap = L.map('sd-map', { zoomControl: true }).setView([38.2682, 140.7], 9);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors © CARTO',
-    subdomains: 'abcd',
-    maxZoom: 19
+  // 初期：仙台市泉区紫山周辺、半径15km圏
+  sdMap = L.map('sd-map', { zoomControl: true }).setView([38.315, 140.88], 10);
+  L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', {
+    attribution: '<a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank">国土地理院</a>',
+    maxZoom: 18
   }).addTo(sdMap);
 
+  // 本案件の所在地ピン
   sdProjectMarker = L.marker(V4_PROJECT_CENTER, {
     icon: L.divIcon({
       className: 'sd-project-marker-icon',
-      html: '<div style="width:24px;height:24px;background:#1a3658;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.3)"></div>',
-      iconSize: [30, 30],
-      iconAnchor: [15, 15]
+      html: '<div style="width:22px;height:22px;background:#1a3658;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.4)"></div>',
+      iconSize: [28, 28],
+      iconAnchor: [14, 14]
     })
   }).addTo(sdMap);
   sdProjectMarker.bindTooltip('本案件：' + (window.selectedProject ? window.selectedProject.name : ''), { permanent: false, direction: 'top' });
 
-  createLayerGroups();
-  if (sdLayerVisibility.craftsmen && sdLayerGroups.craftsmen) sdLayerGroups.craftsmen.addTo(sdMap);
+  // メッシュレイヤー初期表示
+  drawMeshLayer('craftsmen');
 }
 
-function createLayerGroups() {
-  sdLayerGroups.craftsmen = L.layerGroup();
-  craftsmenHeatmapData.forEach(function(d) {
-    var color = '#e85a5a';
-    var opacity = 0.15 + d.intensity * 0.35;
-    var radius = 3000 + d.intensity * 4000;
-    var circle = L.circle(d.coords, {
-      radius: radius, color: color, fillColor: color, fillOpacity: opacity, weight: 1
-    });
-    circle.bindTooltip(d.area + '（逼迫度 ' + Math.round(d.intensity * 100) + '%）');
-    sdLayerGroups.craftsmen.addLayer(circle);
-  });
-
-  sdLayerGroups.equipment = L.layerGroup();
-  equipmentData.forEach(function(d) {
-    var color = d.status === 'busy' ? '#c44a4a' : '#5a8a3c';
-    var marker = L.circleMarker(d.coords, {
-      radius: 8, color: color, fillColor: color, fillOpacity: 0.7, weight: 2
-    });
-    marker.bindTooltip(d.name + '（' + (d.status === 'busy' ? '稼働中' : '空きあり') + '）');
-    sdLayerGroups.equipment.addLayer(marker);
-  });
-
-  sdLayerGroups.materials = L.layerGroup();
-  materialsData.forEach(function(d) {
-    var color = d.status === 'limited' ? '#f0a050' : '#5a8a3c';
-    var marker = L.circleMarker(d.coords, {
-      radius: 9, color: color, fillColor: color, fillOpacity: 0.6, weight: 2
-    });
-    marker.bindTooltip(d.name);
-    sdLayerGroups.materials.addLayer(marker);
-  });
-
-  sdLayerGroups.competing = L.layerGroup();
-  competingProjectsData.forEach(function(d) {
-    var marker = L.circleMarker(d.coords, {
-      radius: 7, color: '#2c5d8f', fillColor: '#2c5d8f', fillOpacity: 0.5, weight: 2
-    });
-    marker.bindTooltip(d.name);
-    sdLayerGroups.competing.addLayer(marker);
-  });
-
-  sdLayerGroups.bim = L.layerGroup();
-  bimPastProjectsData.forEach(function(d) {
-    var marker = L.circleMarker(d.coords, {
-      radius: 6, color: '#8a4fb3', fillColor: '#8a4fb3', fillOpacity: 0.4, weight: 2
-    });
-    marker.bindTooltip(d.name);
-    sdLayerGroups.bim.addLayer(marker);
-  });
+function getMeshData(layerType) {
+  if (layerType === 'craftsmen') return meshDataCraftsmen;
+  if (layerType === 'equipment') return meshDataEquipment;
+  if (layerType === 'concrete') return meshDataConcrete;
+  if (layerType === 'steel') return meshDataSteel;
+  if (layerType === 'competing') return meshDataCompeting;
+  return [];
 }
 
-function toggleLayer(checkbox) {
-  var layer = checkbox.dataset.layer;
-  sdLayerVisibility[layer] = checkbox.checked;
-  if (!sdLayerGroups[layer] || !sdMap) return;
-  if (checkbox.checked) sdLayerGroups[layer].addTo(sdMap);
-  else sdMap.removeLayer(sdLayerGroups[layer]);
+function getStatusColor(status) {
+  if (status === 'tight-high') return { fill: '#e85a5a', opacity: 0.55 };
+  if (status === 'tight-medium') return { fill: '#f0a050', opacity: 0.5 };
+  if (status === 'balanced') return { fill: '#efd333', opacity: 0.45 };
+  if (status === 'surplus') return { fill: '#88b562', opacity: 0.5 };
+  return { fill: '#cccccc', opacity: 0.3 };
+}
+
+function getStatusLabel(status) {
+  if (status === 'tight-high') return '深刻に逼迫';
+  if (status === 'tight-medium') return '逼迫';
+  if (status === 'balanced') return '均衡';
+  if (status === 'surplus') return '供給余力あり';
+  return '—';
+}
+
+function drawMeshLayer(layerType) {
+  currentLayerType = layerType;
+  if (meshLayerGroup) sdMap.removeLayer(meshLayerGroup);
+  meshLayerGroup = L.layerGroup();
+  var data = getMeshData(layerType);
+  var slider = document.getElementById('sd-timeline-slider');
+  var monthIdx = parseInt((slider && slider.value) || 0);
+  var multiplier = phaseMultipliers[monthIdx];
+
+  data.forEach(function(m) {
+    var adjustedBalance = Math.round(m.balance * (m.balance < 0 ? multiplier : 1));
+    var adjustedStatus = m.status;
+    if (adjustedBalance <= -15) adjustedStatus = 'tight-high';
+    else if (adjustedBalance <= -5) adjustedStatus = 'tight-medium';
+    else if (adjustedBalance <= 5) adjustedStatus = 'balanced';
+    else adjustedStatus = 'surplus';
+
+    var color = getStatusColor(adjustedStatus);
+    var strokeColor = m.canSupply ? '#3d6b24' : '#fff';
+    var strokeWidth = m.canSupply ? 3 : 1;
+    var dashArray = m.canSupply ? null : '2,2';
+
+    var rect = L.rectangle(m.bounds, {
+      color: strokeColor, weight: strokeWidth, fillColor: color.fill, fillOpacity: color.opacity, dashArray: dashArray
+    });
+
+    var currentMesh = Object.assign({}, m, { currentBalance: adjustedBalance, currentStatus: adjustedStatus });
+    rect.on('click', function() { showMeshPopup(currentMesh); });
+    rect.bindTooltip(m.area + '（過不足率 ' + (adjustedBalance > 0 ? '+' : '') + adjustedBalance + '%）', { sticky: true });
+    meshLayerGroup.addLayer(rect);
+
+    if (m.isProject) {
+      var center = [(m.bounds[0][0] + m.bounds[1][0]) / 2, (m.bounds[0][1] + m.bounds[1][1]) / 2];
+      var label = L.marker(center, {
+        icon: L.divIcon({
+          className: 'mesh-label',
+          html: '<div style="background:rgba(26,54,88,0.9);color:#fff;font-size:9px;padding:2px 6px;border-radius:8px;white-space:nowrap;font-weight:600;pointer-events:none">本案件</div>',
+          iconSize: [50, 14],
+          iconAnchor: [25, 25]
+        })
+      });
+      meshLayerGroup.addLayer(label);
+    }
+  });
+
+  meshLayerGroup.addTo(sdMap);
+}
+
+function showMeshPopup(mesh) {
+  var monthlyData = [];
+  for (var i = 0; i < 12; i++) {
+    var base = mesh.balance;
+    var adjusted = Math.round(base * (base < 0 ? phaseMultipliers[i] : 1));
+    var status;
+    if (adjusted <= -15) status = 'tight-high';
+    else if (adjusted <= -5) status = 'tight-medium';
+    else if (adjusted <= 5) status = 'balanced';
+    else status = 'surplus';
+    monthlyData.push({ month: i + 1, value: adjusted, status: status });
+  }
+  var currentMonth = parseInt(document.getElementById('sd-timeline-slider').value) + 1;
+
+  var maxAbs = Math.max.apply(null, monthlyData.map(function(d) { return Math.abs(d.value); }));
+  if (maxAbs < 15) maxAbs = 15;
+
+  var unitLabel = '人工/月';
+  var supplyUnit = '社';
+  var demandUnit = '案件';
+  if (currentLayerType === 'equipment') { unitLabel = '台'; supplyUnit = '社'; demandUnit = '稼働'; }
+  else if (currentLayerType === 'concrete') { unitLabel = 'm³/日'; supplyUnit = '工場'; demandUnit = '案件'; }
+  else if (currentLayerType === 'steel') { unitLabel = 't/月'; supplyUnit = '商社'; demandUnit = '案件'; }
+  else if (currentLayerType === 'competing') { unitLabel = '案件'; supplyUnit = '—'; demandUnit = '案件'; }
+
+  var resourceLabel = '職人需給バランス';
+  if (currentLayerType === 'equipment') resourceLabel = '重機需給バランス';
+  else if (currentLayerType === 'concrete') resourceLabel = '生コン需給バランス';
+  else if (currentLayerType === 'steel') resourceLabel = '鋼材需給バランス';
+  else if (currentLayerType === 'competing') resourceLabel = '競合案件密度';
+
+  var html = '<div class="mesh-popup-content">';
+  html += '<div class="mesh-popup-header"><div class="mesh-popup-area">' + mesh.area + '</div><div class="mesh-popup-meshid">メッシュID: ' + mesh.id + ' (約4km×4km)</div></div>';
+  html += '<div class="mesh-popup-status-row ' + mesh.currentStatus + '">';
+  html += '<span class="mesh-popup-status-label">' + resourceLabel + '（' + currentMonth + 'ヶ月目）</span>';
+  html += '<span class="mesh-popup-status-val">' + getStatusLabel(mesh.currentStatus) + '（' + (mesh.currentBalance > 0 ? '+' : '') + mesh.currentBalance + '%）</span>';
+  html += '</div>';
+
+  html += '<div class="mesh-popup-section">';
+  html += '<div class="mesh-popup-section-title">工期12ヶ月の需給推移</div>';
+  html += '<div class="mesh-chart"><div class="mesh-chart-bars">';
+  monthlyData.forEach(function(d, i) {
+    var h = Math.abs(d.value) / maxAbs * 100;
+    var cls = 'mesh-chart-bar ' + d.status + ((i + 1) === currentMonth ? ' current' : '');
+    html += '<div class="' + cls + '" style="height:' + h + '%" title="' + (i+1) + 'ヶ月目: ' + (d.value > 0 ? '+' : '') + d.value + '%"></div>';
+  });
+  html += '</div><div class="mesh-chart-labels">';
+  for (var i = 1; i <= 12; i++) html += '<span>' + (i % 3 === 0 || i === 1 ? i : '') + '</span>';
+  html += '</div></div></div>';
+
+  if (currentLayerType !== 'competing') {
+    html += '<div class="mesh-popup-section">';
+    html += '<div class="mesh-popup-section-title">エリア内訳（現時点）</div>';
+    html += '<div class="mesh-popup-row"><span class="mesh-popup-key">供給能力</span><span class="mesh-popup-val">' + mesh.supply + ' ' + supplyUnit + '</span></div>';
+    html += '<div class="mesh-popup-row"><span class="mesh-popup-key">競合需要</span><span class="mesh-popup-val">' + mesh.demand + ' ' + demandUnit + '</span></div>';
+    html += '<div class="mesh-popup-row"><span class="mesh-popup-key">過不足率</span><span class="mesh-popup-val" style="color:' + (mesh.currentBalance < 0 ? '#c44a4a' : '#3d6b24') + '">' + (mesh.currentBalance > 0 ? '+' : '') + mesh.currentBalance + '%</span></div>';
+    html += '</div>';
+  }
+
+  if (mesh.competingProjects && mesh.competingProjects.length > 0) {
+    html += '<div class="mesh-popup-causes">';
+    html += '<div class="mesh-popup-causes-title">このエリアの競合案件</div>';
+    html += mesh.competingProjects.map(function(p) { return '・' + p; }).join('<br>');
+    html += '</div>';
+  } else if (mesh.currentStatus === 'tight-high' || mesh.currentStatus === 'tight-medium') {
+    html += '<div class="mesh-popup-causes">';
+    html += '<div class="mesh-popup-causes-title">主な競合需要（推定）</div>';
+    if (mesh.area.indexOf('仙台') >= 0 || mesh.area.indexOf('泉') >= 0) {
+      html += '・仙台地下鉄延伸工事（公共）<br>・仙台駅東口再開発（民間）<br>・近隣マンション3件';
+    } else if (mesh.area.indexOf('石巻') >= 0) {
+      html += '・石巻港湾施設災害復旧<br>・東日本大震災メンテナンス工事継続';
+    } else if (mesh.area.indexOf('福島') >= 0) {
+      html += '・福島県庁更新工事<br>・福島駅前再開発<br>・原発廃炉関連';
+    } else {
+      html += '・近隣公共工事<br>・民間建築案件';
+    }
+    html += '</div>';
+  }
+
+  if (mesh.canSupply) {
+    html += '<div class="mesh-popup-causes" style="background:#e8f3dc;color:#3d6b24">';
+    html += '<div class="mesh-popup-causes-title" style="color:#3d6b24">本案件からの調達可能性</div>';
+    html += '✓ 本案件から調達可能なエリア';
+    html += '</div>';
+  }
+
+  html += '</div>';
+
+  var center = [(mesh.bounds[0][0]+mesh.bounds[1][0])/2, (mesh.bounds[0][1]+mesh.bounds[1][1])/2];
+  L.popup({ maxWidth: 380, minWidth: 320 }).setLatLng(center).setContent(html).openOn(sdMap);
+}
+
+function switchLayerType(layerType) {
+  document.querySelectorAll('.sd-layer-toggle').forEach(function(el) { el.classList.remove('active'); });
+  var activeLabel = document.querySelector('.sd-layer-toggle[data-layer="' + layerType + '"]');
+  if (activeLabel) activeLabel.classList.add('active');
+
+  var setting = layerViewSettings[layerType];
+  if (!setting || !sdMap) return;
+  sdMap.flyTo(setting.center, setting.zoom, { duration: 1.0 });
+  drawMeshLayer(layerType);
 }
 
 function updateTimeline(monthIdx) {
   monthIdx = parseInt(monthIdx);
   document.getElementById('sd-timeline-month').textContent = (monthIdx + 1) + 'ヶ月目';
-  document.getElementById('sd-timeline-phase').textContent = projectPhases[monthIdx];
+  var phase = projectPhases[monthIdx];
+  var phaseEl = document.getElementById('sd-timeline-phase');
+  phaseEl.textContent = phase;
+  phaseEl.className = 'sd-timeline-phase' + (phase.indexOf('ピーク') >= 0 ? ' peak' : '');
+  drawMeshLayer(currentLayerType);
+}
 
-  var multiplier = monthlyIntensityMultiplier[monthIdx];
-  if (sdLayerGroups.craftsmen) {
-    sdLayerGroups.craftsmen.clearLayers();
-    craftsmenHeatmapData.forEach(function(d) {
-      var adjustedIntensity = Math.min(1, d.intensity * multiplier);
-      var color = '#e85a5a';
-      var opacity = 0.1 + adjustedIntensity * 0.4;
-      var radius = 2500 + adjustedIntensity * 5000;
-      var circle = L.circle(d.coords, {
-        radius: radius, color: color, fillColor: color, fillOpacity: opacity, weight: 1
-      });
-      circle.bindTooltip(d.area + '（' + (monthIdx + 1) + 'ヶ月目 逼迫度 ' + Math.round(adjustedIntensity * 100) + '%）');
-      sdLayerGroups.craftsmen.addLayer(circle);
-    });
-  }
+// 旧createLayerGroups, toggleLayerは使用しないが、エラー回避のため空関数として残す
+function createLayerGroups() {}
+function toggleLayer(checkbox) {
+  var layer = checkbox.dataset.layer;
+  if (layer) switchLayerType(layer);
 }
 
 function renderAlerts() {
