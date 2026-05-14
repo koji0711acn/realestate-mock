@@ -1936,6 +1936,92 @@ function selectProject(projectId) {
   showProjectDetailView(projectId);
 }
 
+function togglePdCard(cardId) {
+  var el = document.getElementById('pd-expand-' + cardId);
+  if (!el) return;
+  if (el.style.display === 'none' || !el.style.display) {
+    el.style.display = 'block';
+    if (cardId === 'schedule') {
+      renderPdGanttChart();
+      renderPdBudgetChart();
+    }
+    if (cardId === 'resource') {
+      renderPdResourceBars();
+    }
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+function renderPdGanttChart() {
+  var container = document.getElementById('pd-gantt-chart');
+  if (!container || container.dataset.rendered) return;
+  var phases = [
+    { name: '準備工事', start: 0, duration: 1 },
+    { name: '基礎工事', start: 1, duration: 3 },
+    { name: '躯体工事', start: 3, duration: 4 },
+    { name: '外装工事', start: 6, duration: 3 },
+    { name: '内装工事', start: 8, duration: 3 },
+    { name: '検査・引渡し', start: 11, duration: 1 }
+  ];
+  var totalMonths = 12;
+  var html = '';
+  phases.forEach(function(p) {
+    var leftPct = (p.start / totalMonths) * 100;
+    var widthPct = (p.duration / totalMonths) * 100;
+    html += '<div class="pd-gantt-row">';
+    html += '<div class="pd-gantt-label">' + p.name + '</div>';
+    html += '<div class="pd-gantt-bar-wrap"><div class="pd-gantt-bar" style="left:' + leftPct + '%;width:' + widthPct + '%"></div></div>';
+    html += '</div>';
+  });
+  html += '<div class="pd-gantt-axis"><span>着工</span><span>3M</span><span>6M</span><span>9M</span><span>竣工</span></div>';
+  container.innerHTML = html;
+  container.dataset.rendered = 'true';
+}
+
+function renderPdBudgetChart() {
+  var container = document.getElementById('pd-budget-chart');
+  if (!container || container.dataset.rendered) return;
+  var monthly = [3, 6, 12, 18, 24, 32, 42, 56, 68, 80, 92, 100];
+  var html = '';
+  monthly.forEach(function(v, i) {
+    var prev = i === 0 ? 0 : monthly[i-1];
+    var monthly_share = v - prev;
+    html += '<div class="pd-budget-bar" style="height:' + (monthly_share * 4) + '%" title="' + (i+1) + 'ヶ月目: 累計 ' + v + '%"></div>';
+  });
+  container.innerHTML = html;
+  var labelsContainer = document.createElement('div');
+  labelsContainer.className = 'pd-budget-labels';
+  labelsContainer.innerHTML = '<span>1M</span><span></span><span></span><span></span><span>6M</span><span></span><span></span><span></span><span></span><span></span><span></span><span>12M</span>';
+  container.parentNode.insertBefore(labelsContainer, container.nextSibling);
+  container.dataset.rendered = 'true';
+}
+
+function renderPdResourceBars() {
+  var container = document.getElementById('pd-resource-bars');
+  if (!container || container.dataset.rendered) return;
+  var resources = [
+    { name: '鉄筋工', value: 480, max: 600 },
+    { name: '型枠工', value: 360, max: 600 },
+    { name: '左官工', value: 180, max: 600 },
+    { name: '鳶工', value: 220, max: 600 },
+    { name: '電工', value: 240, max: 600 },
+    { name: '設備工', value: 200, max: 600 },
+    { name: '内装工', value: 160, max: 600 }
+  ];
+  var html = '';
+  resources.forEach(function(r) {
+    var widthPct = (r.value / r.max) * 100;
+    html += '<div class="pd-resource-bar-row">';
+    html += '<div class="pd-resource-bar-label">' + r.name + '</div>';
+    html += '<div class="pd-resource-bar-wrap"><div class="pd-resource-bar" style="width:' + widthPct + '%"></div></div>';
+    html += '<div class="pd-resource-bar-value">' + r.value + ' 人工</div>';
+    html += '</div>';
+  });
+  container.innerHTML = html;
+  container.dataset.rendered = 'true';
+}
+
 function showProjectDetailView(projectId) {
   var project = projectsData.find(function(p) { return p.id === projectId; });
   if (!project) return;

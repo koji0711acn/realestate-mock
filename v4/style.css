@@ -2514,3 +2514,48 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
 .sm-download-buttons { display: flex; gap: 12px; flex-wrap: wrap; }
 .sm-download-btn { background: #fff; color: #1a3658; border: 1px solid #1a3658; padding: 10px 18px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit; transition: all 0.2s; }
 .sm-download-btn:hover { background: #f0f3f7; }
+
+/* ===== V4 Layer Controls (Refined) ===== */
+.sd-layer-controls { min-width: 280px !important; max-width: 320px; }
+.sd-layer-controls-header { display: flex; justify-content: space-between; align-items: center; margin: 0 0 10px; padding: 0 0 6px; border-bottom: 1px solid #e8e8e8; }
+.sd-layer-controls .sd-layer-controls-title { margin: 0; border: none; padding: 0; }
+.sd-layer-add-btn { background: #f0f3f7; border: 1px solid #d0d0d0; border-radius: 50%; width: 22px; height: 22px; font-size: 14px; color: #666; cursor: help; display: flex; align-items: center; justify-content: center; font-family: inherit; transition: all 0.15s; }
+.sd-layer-add-btn:hover { background: #5a8a3c; color: #fff; border-color: #5a8a3c; }
+.sd-layer-toggle-list { display: flex; flex-direction: column; gap: 4px; }
+.sd-layer-toggle { display: flex; align-items: flex-start !important; gap: 8px !important; padding: 8px 10px !important; }
+.sd-layer-info { flex: 1; }
+.sd-layer-name { font-size: 12px; color: #333; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+.sd-layer-toggle.active .sd-layer-name { color: #1a3658; font-weight: 600; }
+.sd-layer-desc { font-size: 10px; color: #888; line-height: 1.5; margin: 3px 0 0; }
+.sd-layer-toggle input { margin-top: 2px; }
+
+/* ===== V4 Project Detail Expand ===== */
+.pd-info-card-header { display: flex; justify-content: space-between; align-items: center; margin: 0 0 12px; padding-bottom: 8px; border-bottom: 1px solid #e8ece2; }
+.pd-info-card-header .pd-info-card-label { margin: 0; padding: 0; border: none; }
+.pd-card-expand-btn { background: #f7faf3; border: 1px solid #cfe0bd; color: #3d6b24; padding: 3px 10px; border-radius: 12px; font-size: 10px; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+.pd-card-expand-btn:hover { background: #5a8a3c; color: #fff; border-color: #5a8a3c; }
+.pd-card-expand { margin: 14px 0 0; padding: 14px 0 0; border-top: 1px dashed #ececec; }
+.pd-expand-section { margin: 0 0 14px; }
+.pd-expand-section:last-child { margin-bottom: 0; }
+.pd-expand-title { font-size: 11px; font-weight: 600; color: #5a7593; margin: 0 0 6px; }
+.pd-expand-text { font-size: 11px; color: #555; line-height: 1.7; margin: 0; }
+
+.pd-gantt { display: flex; flex-direction: column; gap: 4px; padding: 4px 0; }
+.pd-gantt-row { display: flex; align-items: center; gap: 8px; font-size: 10px; }
+.pd-gantt-label { width: 70px; color: #666; text-align: right; flex-shrink: 0; }
+.pd-gantt-bar-wrap { flex: 1; height: 12px; background: #f4f4f4; border-radius: 3px; position: relative; }
+.pd-gantt-bar { position: absolute; top: 0; bottom: 0; background: linear-gradient(to bottom, #5a8a3c, #3d6b24); border-radius: 3px; }
+.pd-gantt-axis { display: flex; justify-content: space-between; margin: 4px 0 0 78px; font-size: 9px; color: #999; }
+
+.pd-budget-chart { display: flex; align-items: flex-end; gap: 3px; height: 60px; padding: 4px 0; border-bottom: 1px solid #ececec; }
+.pd-budget-bar { flex: 1; background: linear-gradient(to top, #5a8a3c, #88b562); border-radius: 2px 2px 0 0; min-height: 4px; position: relative; cursor: help; }
+.pd-budget-bar:hover { opacity: 0.7; }
+.pd-budget-labels { display: flex; gap: 3px; padding: 4px 0 0; font-size: 9px; color: #999; }
+.pd-budget-labels span { flex: 1; text-align: center; }
+
+.pd-resource-bars { display: flex; flex-direction: column; gap: 4px; }
+.pd-resource-bar-row { display: flex; align-items: center; gap: 8px; font-size: 10px; }
+.pd-resource-bar-label { width: 70px; color: #666; flex-shrink: 0; }
+.pd-resource-bar-wrap { flex: 1; height: 14px; background: #f4f4f4; border-radius: 3px; position: relative; }
+.pd-resource-bar { height: 100%; background: linear-gradient(to right, #5a8a3c, #88b562); border-radius: 3px; }
+.pd-resource-bar-value { font-size: 10px; color: #333; width: 60px; text-align: right; }

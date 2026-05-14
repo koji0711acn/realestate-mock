@@ -195,7 +195,10 @@
       </div>
       <div class="pd-info-grid">
         <div class="pd-info-card">
-          <div class="pd-info-card-label">建物概要</div>
+          <div class="pd-info-card-header">
+            <div class="pd-info-card-label">建物概要</div>
+            <button class="pd-card-expand-btn" onclick="togglePdCard('building')">＋ 詳細</button>
+          </div>
           <div class="pd-info-list">
             <div class="pd-info-row"><span class="pd-info-key">種別</span><span id="pd-type" class="pd-info-val"></span></div>
             <div class="pd-info-row"><span class="pd-info-key">施主</span><span id="pd-owner" class="pd-info-val"></span></div>
@@ -204,24 +207,67 @@
             <div class="pd-info-row"><span class="pd-info-key">戸数</span><span id="pd-units" class="pd-info-val"></span></div>
             <div class="pd-info-row"><span class="pd-info-key">延床面積</span><span id="pd-floor-area" class="pd-info-val"></span></div>
           </div>
+          <div class="pd-card-expand" id="pd-expand-building" style="display:none">
+            <div class="pd-expand-section">
+              <div class="pd-expand-title">敷地・建蔽条件</div>
+              <div class="pd-info-row"><span class="pd-info-key">敷地面積</span><span class="pd-info-val">2,180 m²</span></div>
+              <div class="pd-info-row"><span class="pd-info-key">建蔽率</span><span class="pd-info-val">60% (許容80%)</span></div>
+              <div class="pd-info-row"><span class="pd-info-key">容積率</span><span class="pd-info-val">185% (許容200%)</span></div>
+              <div class="pd-info-row"><span class="pd-info-key">用途地域</span><span class="pd-info-val">第一種住居地域</span></div>
+            </div>
+            <div class="pd-expand-section">
+              <div class="pd-expand-title">設計コンセプト</div>
+              <p class="pd-expand-text">単身者・DINKS向け1LDK中心構成。エントランスホール、コミュニティラウンジ、宅配ボックス完備。耐震等級2、断熱等級5。ZEH-M認定取得予定。</p>
+            </div>
+          </div>
         </div>
         <div class="pd-info-card">
-          <div class="pd-info-card-label">工程・予算</div>
+          <div class="pd-info-card-header">
+            <div class="pd-info-card-label">工程・予算</div>
+            <button class="pd-card-expand-btn" onclick="togglePdCard('schedule')">＋ 詳細</button>
+          </div>
           <div class="pd-info-list">
             <div class="pd-info-row"><span class="pd-info-key">着工予定</span><span id="pd-start" class="pd-info-val"></span></div>
             <div class="pd-info-row"><span class="pd-info-key">竣工予定</span><span id="pd-end" class="pd-info-val"></span></div>
             <div class="pd-info-row"><span class="pd-info-key">想定工期</span><span id="pd-duration" class="pd-info-val"></span></div>
             <div class="pd-info-row"><span class="pd-info-key">想定予算</span><span id="pd-budget" class="pd-info-val"></span></div>
           </div>
+          <div class="pd-card-expand" id="pd-expand-schedule" style="display:none">
+            <div class="pd-expand-section">
+              <div class="pd-expand-title">工程ガントチャート</div>
+              <div class="pd-gantt" id="pd-gantt-chart"></div>
+            </div>
+            <div class="pd-expand-section">
+              <div class="pd-expand-title">月別予算消化</div>
+              <div class="pd-budget-chart" id="pd-budget-chart"></div>
+            </div>
+          </div>
         </div>
         <div class="pd-info-card">
-          <div class="pd-info-card-label">必要リソース概要</div>
+          <div class="pd-info-card-header">
+            <div class="pd-info-card-label">必要リソース概要</div>
+            <button class="pd-card-expand-btn" onclick="togglePdCard('resource')">＋ 詳細</button>
+          </div>
           <div class="pd-info-list">
-            <div class="pd-info-row"><span class="pd-info-key">職人(延べ人工)</span><span class="pd-info-val">約 1,840 人工</span></div>
+            <div class="pd-info-row"><span class="pd-info-key">職人（延べ人工）</span><span class="pd-info-val">約 1,840 人工</span></div>
             <div class="pd-info-row"><span class="pd-info-key">主要重機</span><span class="pd-info-val">クレーン、杭打ち機ほか</span></div>
             <div class="pd-info-row"><span class="pd-info-key">主要資材</span><span class="pd-info-val">生コン420m³、鉄骨38t</span></div>
           </div>
           <div class="pd-info-note">※ BIMデータから自動算出</div>
+          <div class="pd-card-expand" id="pd-expand-resource" style="display:none">
+            <div class="pd-expand-section">
+              <div class="pd-expand-title">職種別必要人工（積算）</div>
+              <div class="pd-resource-bars" id="pd-resource-bars"></div>
+            </div>
+            <div class="pd-expand-section">
+              <div class="pd-expand-title">主要資材数量</div>
+              <div class="pd-info-row"><span class="pd-info-key">生コン（24-21-20N）</span><span class="pd-info-val">420 m³</span></div>
+              <div class="pd-info-row"><span class="pd-info-key">異形鉄筋（D13-D25）</span><span class="pd-info-val">68 t</span></div>
+              <div class="pd-info-row"><span class="pd-info-key">H形鋼</span><span class="pd-info-val">38 t</span></div>
+              <div class="pd-info-row"><span class="pd-info-key">サッシ（複層ガラス）</span><span class="pd-info-val">142 枚</span></div>
+              <div class="pd-info-row"><span class="pd-info-key">石膏ボード（12.5mm）</span><span class="pd-info-val">1,840 m²</span></div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="pd-bim-section">
@@ -278,12 +324,47 @@
           <div class="sd-legend-row" id="sd-legend-cansupply" style="border-top:1px solid #ececec;padding-top:6px;margin-top:4px;font-size:10px;color:#666">緑枠：本案件から調達可能</div>
         </div>
         <div class="sd-layer-controls">
-          <div class="sd-layer-controls-title">分析対象レイヤー</div>
-          <label class="sd-layer-toggle active" data-layer="craftsmen"><input type="radio" name="layer" checked onchange="switchLayerType('craftsmen')"> 職人需給 <span class="sd-layer-range">東北100km圏</span></label>
-          <label class="sd-layer-toggle" data-layer="equipment"><input type="radio" name="layer" onchange="switchLayerType('equipment')"> 重機需給 <span class="sd-layer-range">30km圏</span></label>
-          <label class="sd-layer-toggle" data-layer="concrete"><input type="radio" name="layer" onchange="switchLayerType('concrete')"> 生コン供給 <span class="sd-layer-range">20km圏</span></label>
-          <label class="sd-layer-toggle" data-layer="steel"><input type="radio" name="layer" onchange="switchLayerType('steel')"> 鋼材調達 <span class="sd-layer-range">関東圏</span></label>
-          <label class="sd-layer-toggle" data-layer="competing"><input type="radio" name="layer" onchange="switchLayerType('competing')"> 競合案件 <span class="sd-layer-range">東北100km圏</span></label>
+          <div class="sd-layer-controls-header">
+            <div class="sd-layer-controls-title">主な調達対象</div>
+            <button class="sd-layer-add-btn" title="デモでは分析対象が制限されています">+</button>
+          </div>
+          <div class="sd-layer-toggle-list">
+            <label class="sd-layer-toggle active" data-layer="craftsmen">
+              <input type="radio" name="layer" checked onchange="switchLayerType('craftsmen')">
+              <div class="sd-layer-info">
+                <div class="sd-layer-name">職人需給 <span class="sd-layer-range">東北100km圏</span></div>
+                <div class="sd-layer-desc">現場作業従事者（型枠工・鉄筋工・電工等）の需給状況</div>
+              </div>
+            </label>
+            <label class="sd-layer-toggle" data-layer="equipment">
+              <input type="radio" name="layer" onchange="switchLayerType('equipment')">
+              <div class="sd-layer-info">
+                <div class="sd-layer-name">重機需給 <span class="sd-layer-range">30km圏</span></div>
+                <div class="sd-layer-desc">クレーン・杭打機等の建設機械稼働状況</div>
+              </div>
+            </label>
+            <label class="sd-layer-toggle" data-layer="concrete">
+              <input type="radio" name="layer" onchange="switchLayerType('concrete')">
+              <div class="sd-layer-info">
+                <div class="sd-layer-name">生コン供給 <span class="sd-layer-range">20km圏</span></div>
+                <div class="sd-layer-desc">生コンクリート工場の供給枠（90分運搬制約）</div>
+              </div>
+            </label>
+            <label class="sd-layer-toggle" data-layer="steel">
+              <input type="radio" name="layer" onchange="switchLayerType('steel')">
+              <div class="sd-layer-info">
+                <div class="sd-layer-name">鋼材調達 <span class="sd-layer-range">関東圏</span></div>
+                <div class="sd-layer-desc">H形鋼・異形鉄筋等の鋼材在庫・調達可能性</div>
+              </div>
+            </label>
+            <label class="sd-layer-toggle" data-layer="competing">
+              <input type="radio" name="layer" onchange="switchLayerType('competing')">
+              <div class="sd-layer-info">
+                <div class="sd-layer-name">競合案件 <span class="sd-layer-range">東北100km圏</span></div>
+                <div class="sd-layer-desc">本案件と需要が競合する周辺工事の動向</div>
+              </div>
+            </label>
+          </div>
         </div>
         <div class="sd-timeline-controls">
           <div class="sd-timeline-label">工期スライダー</div>
