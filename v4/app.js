@@ -2216,18 +2216,18 @@ var layerMunicipalityData = {
 // ===== V4 Vendor Pin Data (番地レベル) =====
 var vendorPinsData = {
   craftsmen: [
-    { name: '●●建設株式会社', addr: '山形県山形市あこや町2-12-15', coords: [38.236, 140.358], status: 'available', capacity: '鉄筋工チーム6名 / 月96人工' },
+    { name: '山形北鉄筋工業株式会社', addr: '山形県山形市あこや町2-12-15', coords: [38.236, 140.358], status: 'available', capacity: '鉄筋工チーム6名 / 月96人工' },
     { name: '東北建設工業', addr: '宮城県多賀城市中央2-8-3', coords: [38.301, 141.005], status: 'available', capacity: '型枠工5名・鉄筋工4名 / 月72人工' },
     { name: '北上鉄筋工業', addr: '岩手県北上市相去町3-21-8', coords: [39.281, 141.135], status: 'available', capacity: '鉄筋工8名 / 月128人工' },
     { name: '米沢建設', addr: '山形県米沢市中央4-3-21', coords: [37.918, 140.119], status: 'limited', capacity: '鉄筋工3名 / 月48人工（一部期間）' }
   ],
   equipment: [
-    { name: '××重機株式会社', addr: '福島県郡山市待池台3-21-8', coords: [37.412, 140.391], status: 'available', capacity: '50tクローラークレーン 1台、杭打ち機 2台' },
+    { name: '郡山クレーンサービス株式会社', addr: '福島県郡山市待池台3-21-8', coords: [37.412, 140.391], status: 'available', capacity: '50tクローラークレーン 1台、杭打ち機 2台' },
     { name: '東北建機リース', addr: '宮城県塩竈市港町2-15-4', coords: [38.317, 141.022], status: 'limited', capacity: '25tクレーン 1台（5月以降）' },
     { name: '仙台クレーン工業', addr: '宮城県多賀城市八幡4-2-9', coords: [38.297, 141.005], status: 'available', capacity: '30tクレーン・高所作業車各1台' }
   ],
   concrete: [
-    { name: '△△商社株式会社', addr: '宮城県仙台市青葉区中央4-3-1', coords: [38.269, 140.872], status: 'limited', capacity: '優先枠 420m³（要早期確保）' },
+    { name: '仙台青葉生コン工業株式会社', addr: '宮城県仙台市青葉区中央4-3-1', coords: [38.269, 140.872], status: 'limited', capacity: '優先枠 420m³（要早期確保）' },
     { name: '名取生コン工業', addr: '宮城県名取市増田字幾世橋8-5', coords: [38.169, 140.892], status: 'available', capacity: '日量 180m³ / 工期内累計 450m³' },
     { name: '多賀城レミコン', addr: '宮城県多賀城市町前3-7-12', coords: [38.292, 141.005], status: 'available', capacity: '日量 150m³ / 工期内累計 380m³' }
   ],
@@ -2451,9 +2451,9 @@ function clearSupplyAreaLayers() {
 }
 
 var vendorLocationsData = [
-  { coords: [38.2406, 140.3633], name: '●●建設（山形）', category: 'craftsmen' },
-  { coords: [37.4007, 140.3886], name: '××重機（郡山）', category: 'equipment' },
-  { coords: [38.2682, 140.8694], name: '△△商社（仙台青葉）', category: 'materials' }
+  { coords: [38.2406, 140.3633], name: '山形北鉄筋工業（山形）', category: 'craftsmen' },
+  { coords: [37.4007, 140.3886], name: '郡山クレーンサービス（郡山）', category: 'equipment' },
+  { coords: [38.2682, 140.8694], name: '仙台青葉生コン工業（仙台青葉）', category: 'materials' }
 ];
 
 var projectPhases = [
@@ -2839,7 +2839,7 @@ var optimizationPlansData = [
   {
     id: 'planA', recommended: true, name: '広域調達型', tagline: '東北全域から最適なリソースを業界横断PF経由で確保。AI推奨。',
     metrics: { duration: '12ヶ月（予定通り）', cost: '+3.8%', risk: '低' },
-    detail: '<strong>鉄筋工：</strong>山形県●●建設から確保<br><strong>クレーン：</strong>福島県××重機から手配<br><strong>生コン：</strong>仙台市内△△商社の優先枠<br><strong>設備：</strong>過去BIM実績の▲▲設備工業'
+    detail: '<strong>鉄筋工：</strong>山形県山形北鉄筋工業から確保<br><strong>クレーン：</strong>福島県郡山クレーンサービスから手配<br><strong>生コン：</strong>仙台市内仙台青葉生コン工業の優先枠<br><strong>設備：</strong>過去BIM実績の名取総合設備株式会社'
   },
   {
     id: 'planB', recommended: false, name: '工期調整型', tagline: '着工時期を5週間後ろ倒し。地元協力会社のみで完結。',
@@ -2855,25 +2855,25 @@ var optimizationPlansData = [
 
 var vendorRecommendationsData = [
   {
-    id: 'vendor1', category: '鉄筋工', name: '●●建設株式会社', location: '山形県山形市',
+    id: 'vendor1', category: '鉄筋工', name: '山形北鉄筋工業株式会社', location: '山形県山形市',
     distance: '45km / 車60分', period: '2026/12/15 - 2027/02/15', unit: '人工単価 19,800円',
     capacity: '6人工 / 当該期間', evaluation: '4.8 / 5.0', secured: false,
     tags: [{label: '業界横断PF経由', type: 'normal'}, {label: '過去BIM実績 3件', type: 'bim'}]
   },
   {
-    id: 'vendor2', category: 'クレーン', name: '××重機株式会社', location: '福島県郡山市',
+    id: 'vendor2', category: 'クレーン', name: '郡山クレーンサービス株式会社', location: '福島県郡山市',
     distance: '68km / 車90分', period: '2027/03/01 - 2027/05/30', unit: '日額 158,000円',
     capacity: '50tクローラー 空きあり', evaluation: '4.7 / 5.0', secured: false,
     tags: [{label: '業界横断PF経由', type: 'normal'}, {label: '稼働実績 12件', type: 'normal'}]
   },
   {
-    id: 'vendor3', category: '生コン', name: '△△商社株式会社', location: '仙台市青葉区',
+    id: 'vendor3', category: '生コン', name: '仙台青葉生コン工業株式会社', location: '仙台市青葉区',
     distance: '5km / 車15分', period: '2026/11/01 - 2027/03/31', unit: 'm³単価 18,500円',
     capacity: '420m³ 優先枠確保可能', evaluation: '4.9 / 5.0', secured: false,
     tags: [{label: '業界横断PF経由', type: 'normal'}, {label: '即時手配可能', type: 'normal'}]
   },
   {
-    id: 'vendor4', category: '設備', name: '▲▲設備工業', location: '宮城県名取市',
+    id: 'vendor4', category: '設備', name: '名取総合設備株式会社', location: '宮城県名取市',
     distance: '18km / 車30分', period: '2027/04/15 - 2027/07/15', unit: '一式 28,000,000円',
     capacity: '空調・給排水・電気一式', evaluation: '4.6 / 5.0', secured: false,
     tags: [{label: '過去BIM実績 5件', type: 'bim'}, {label: '同型空調機対応可', type: 'bim'}]
@@ -3037,10 +3037,10 @@ function updateFinalizeButton() {
 
 function finalizeAllVendors() {
   var confirmMsg = '【取引確定書を発行しました】\n\n' +
-    '・鉄筋工 ●●建設\n' +
-    '・クレーン ××重機\n' +
-    '・生コン △△商社\n' +
-    '・設備 ▲▲設備工業\n\n' +
+    '・鉄筋工 山形北鉄筋工業\n' +
+    '・クレーン 郡山クレーンサービス\n' +
+    '・生コン 仙台青葉生コン工業\n' +
+    '・設備 名取総合設備\n\n' +
     '【社内決裁ワークフローに連携】\n' +
     '本発注（合計約 6,200万円）を社内決裁システムに登録します。\n' +
     '決裁ルート：建設管理部長 → 事業本部長\n\n' +
