@@ -2502,3 +2502,7 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
 .vendor-popup-key { color: #888; }
 .vendor-popup-val { color: #333; font-weight: 500; text-align: right; flex: 1; margin-left: 12px; }
 .vendor-popup-note { font-size: 10px; color: #5a7593; background: #f0f6fd; padding: 6px 10px; border-radius: 4px; margin: 10px 0 0; line-height: 1.5; }
+
+/* ===== V4 Vendor Secured Button (Toggle) ===== */
+.vr-vendor-secure-btn-secured { background: #5a8a3c !important; }
+.vr-vendor-secure-btn-secured:hover { background: #c44a4a !important; }

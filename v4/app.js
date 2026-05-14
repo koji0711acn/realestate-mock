@@ -2089,24 +2089,42 @@ async function loadJapanGeoJSON() {
 
   try {
     var allGeoJSONs = await Promise.all(fetchPromises);
+    var pendingAggregation = {};
     allGeoJSONs.forEach(function(geojson) {
       if (!geojson || !geojson.features) return;
       geojson.features.forEach(function(feature) {
         var props = feature.properties || {};
-        // 市区町村名を取得（N03_004は市区町村名フィールド）
         var muniName = props.N03_004 || props.name || '';
-        // 政令指定都市の区は N03_003=政令市名, N03_004=区名 で区別
         var cityName = props.N03_003;
         var fullName;
-        if (cityName && cityName.endsWith('市') && muniName.endsWith('区')) {
-          fullName = cityName + muniName;
+        if (cityName && cityName.endsWith('市') && muniName && muniName.endsWith('区')) {
+          if (cityName === '仙台市') {
+            fullName = cityName + muniName;
+            if (TARGET_MUNICIPALITIES.indexOf(fullName) >= 0) {
+              municipalityPolygons[fullName] = feature;
+            }
+          } else {
+            if (TARGET_MUNICIPALITIES.indexOf(cityName) >= 0) {
+              if (!pendingAggregation[cityName]) {
+                pendingAggregation[cityName] = [];
+              }
+              pendingAggregation[cityName].push(feature);
+            }
+          }
         } else {
           fullName = muniName;
-        }
-        if (TARGET_MUNICIPALITIES.indexOf(fullName) >= 0) {
-          municipalityPolygons[fullName] = feature;
+          if (TARGET_MUNICIPALITIES.indexOf(fullName) >= 0) {
+            municipalityPolygons[fullName] = feature;
+          }
         }
       });
+    });
+    Object.keys(pendingAggregation).forEach(function(cityName) {
+      var features = pendingAggregation[cityName];
+      municipalityPolygons[cityName] = {
+        type: 'FeatureCollection',
+        features: features
+      };
     });
     console.log('GeoJSON loaded:', Object.keys(municipalityPolygons).length, 'municipalities');
     return municipalityPolygons;
@@ -2938,7 +2956,7 @@ function renderVendorCards() {
     var cardClass = 'vr-vendor-card' + (secured ? ' secured' : '');
     var statusHtml = secured ? '<span class="vr-vendor-status vr-vendor-status-secured">✓ 確保済</span>' : '<span class="vr-vendor-status vr-vendor-status-available">空きあり</span>';
     var btnHtml = secured
-      ? '<button class="vr-vendor-secure-btn" disabled>✓ 確保完了</button>'
+      ? '<button class="vr-vendor-secure-btn vr-vendor-secure-btn-secured" onclick="secureVendor(\'' + v.id + '\')">✓ 確保済（クリックで解除）</button>'
       : '<button class="vr-vendor-secure-btn" onclick="secureVendor(\'' + v.id + '\')">このリソースを確保する</button>';
     var tagsHtml = v.tags.map(function(t) {
       var tc = t.type === 'bim' ? 'vr-vendor-tag vr-vendor-tag-bim' : 'vr-vendor-tag';
@@ -2963,17 +2981,31 @@ function renderVendorCards() {
 }
 
 function secureVendor(vendorId) {
-  securedVendors[vendorId] = true;
+  if (securedVendors[vendorId]) {
+    delete securedVendors[vendorId];
+  } else {
+    securedVendors[vendorId] = true;
+  }
   renderVendorCards();
   updateFinalizeButton();
 }
 
 function updateFinalizeButton() {
   var allSecured = vendorRecommendationsData.every(function(v) { return securedVendors[v.id]; });
+  var anySecured = vendorRecommendationsData.some(function(v) { return securedVendors[v.id]; });
   var btn = document.getElementById('vr-finalize-btn');
   var note = document.querySelector('.vr-cta-note');
-  if (btn) btn.disabled = !allSecured;
-  if (note) note.textContent = allSecured ? '全リソース確保完了。取引確定書の発行と社内決裁ワークフロー連携が可能です。' : '全リソースを確保後、本ボタンが有効になります';
+  if (btn) btn.disabled = false;
+  if (note) {
+    if (allSecured) {
+      note.textContent = '全リソース確保完了。取引確定書の発行と社内決裁ワークフロー連携が可能です。';
+    } else if (anySecured) {
+      var count = Object.keys(securedVendors).length;
+      note.textContent = '現在 ' + count + ' / ' + vendorRecommendationsData.length + ' リソース確保済み。確保済み分のみで発行可能です。';
+    } else {
+      note.textContent = 'リソースを確保すると発行されます。リソース未選択でも進行可能です。';
+    }
+  }
 }
 
 function finalizeAllVendors() {
