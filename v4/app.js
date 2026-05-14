@@ -2756,7 +2756,18 @@ function showSupplyDemandView() {
   }
 
   initSDMap();
-  renderAlerts();
+  // アラート描画はシミュレーション完了後に実行
+  simulationCompleted = false;
+  var simSec = document.getElementById('sd-simulation-section');
+  var progSec = document.getElementById('sd-sim-progress-section');
+  var alertSec = document.getElementById('sd-alerts-section');
+  var extSec = document.getElementById('sd-extended-section');
+  var ctaSec = document.getElementById('sd-panel-cta');
+  if (simSec) simSec.style.display = 'block';
+  if (progSec) progSec.style.display = 'none';
+  if (alertSec) alertSec.style.display = 'none';
+  if (extSec) extSec.style.display = 'none';
+  if (ctaSec) ctaSec.style.display = 'none';
   updateTimeline(0);
 }
 
@@ -2884,6 +2895,122 @@ function createLayerGroups() {}
 function toggleLayer(checkbox) {
   var layer = checkbox.dataset.layer;
   if (layer) switchLayerType(layer);
+}
+
+// ===== V4 Timeline Simulation =====
+var simSteps = [
+  { id: 'monthly', text: '月別需給バランスを計算中', duration: 1200, result: '✓ 12ヶ月分の需給推移を算出' },
+  { id: 'public', text: '公共工事の進行スケジュールを反映中', duration: 1100, result: '✓ 仙台地下鉄延伸、地下鉄関連3案件を反映' },
+  { id: 'disaster', text: '災害復旧需要との競合を分析中', duration: 1300, result: '✓ 石巻復旧、福島継続案件等の影響を計算' },
+  { id: 'cascade', text: '隣接エリアの連鎖逼迫を計算中', duration: 1200, result: '✓ 6市区町村の連鎖逼迫を反映' },
+  { id: 'peak', text: 'ピーク需給時期を特定中', duration: 1100, result: '✓ 工期4-6ヶ月目に最大逼迫（鉄筋工 -22%）' },
+  { id: 'impact', text: 'コスト・工期影響を推定中', duration: 1100, result: '✓ 工期+1.5ヶ月、コスト+14%の見込み' }
+];
+
+var simulationCompleted = false;
+
+function startTimelineSimulation() {
+  document.getElementById('sd-simulation-section').style.display = 'none';
+
+  var progressSection = document.getElementById('sd-sim-progress-section');
+  progressSection.style.display = 'block';
+
+  var stepsContainer = document.getElementById('sd-sim-steps');
+  var html = '';
+  simSteps.forEach(function(s) {
+    html += '<div class="sd-sim-step pending" id="sd-sim-step-' + s.id + '">';
+    html += '<div class="sd-sim-step-row">';
+    html += '<div class="sd-sim-step-icon">';
+    html += '<span class="sd-sim-step-dot"></span>';
+    html += '<div class="sd-sim-step-spinner"></div>';
+    html += '<div class="sd-sim-step-check">✓</div>';
+    html += '</div>';
+    html += '<div class="sd-sim-step-text">' + s.text + '</div>';
+    html += '</div>';
+    html += '<div class="sd-sim-step-result">' + s.result + '</div>';
+    html += '</div>';
+  });
+  stepsContainer.innerHTML = html;
+
+  var offsets = [0, 200, 400, 600, 800, 1000];
+  simSteps.forEach(function(step, i) {
+    var stepEl = document.getElementById('sd-sim-step-' + step.id);
+    setTimeout(function() {
+      stepEl.classList.remove('pending');
+      stepEl.classList.add('processing');
+    }, offsets[i]);
+    setTimeout(function() {
+      stepEl.classList.remove('processing');
+      stepEl.classList.add('done');
+    }, offsets[i] + step.duration);
+  });
+
+  startTimelineAutoScroll();
+
+  var totalDuration = Math.max.apply(null, simSteps.map(function(s, i) { return offsets[i] + s.duration; }));
+  setTimeout(function() {
+    completeSimulation();
+  }, totalDuration + 500);
+}
+
+function startTimelineAutoScroll() {
+  var slider = document.getElementById('sd-timeline-slider');
+  if (!slider) return;
+
+  var startVal = 0;
+  var endVal = 11;
+  var duration = 6000;
+  var startTime = performance.now();
+
+  function animate(currentTime) {
+    var elapsed = currentTime - startTime;
+    var progress = Math.min(elapsed / duration, 1);
+    var currentMonth = Math.round(startVal + (endVal - startVal) * progress);
+
+    if (slider.value != currentMonth) {
+      slider.value = currentMonth;
+      updateTimeline(currentMonth);
+    }
+
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      setTimeout(function() {
+        slider.value = 5;
+        updateTimeline(5);
+      }, 300);
+    }
+  }
+  requestAnimationFrame(animate);
+}
+
+function completeSimulation() {
+  simulationCompleted = true;
+
+  document.getElementById('sd-sim-progress-section').style.display = 'none';
+
+  document.getElementById('sd-alerts-section').style.display = 'block';
+  document.getElementById('sd-extended-section').style.display = 'block';
+
+  renderAlerts();
+}
+
+function startExtendedSearch() {
+  document.getElementById('sd-extended-section').style.display = 'none';
+
+  var extSection = document.createElement('div');
+  extSection.id = 'sd-ext-searching';
+  extSection.className = 'sd-panel-section';
+  extSection.innerHTML = '<div class="sd-panel-section-title">業界横断PFから候補を検索中</div><div class="sd-ext-searching-msg"><div class="sd-sim-step-spinner" style="display:block"></div><div>協力企業ネットワークを横断検索中...</div></div>';
+  document.getElementById('sd-alerts-section').parentNode.insertBefore(extSection, document.getElementById('sd-alerts-section').nextSibling);
+
+  setTimeout(function() {
+    extSection.remove();
+    document.getElementById('sd-panel-cta').style.display = 'block';
+    if (typeof drawSupplyAreaLayer === 'function' && currentLayerType) {
+      drawSupplyAreaLayer(currentLayerType);
+    }
+  }, 2500);
 }
 
 function renderAlerts() {

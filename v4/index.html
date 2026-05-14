@@ -389,12 +389,29 @@
           <div class="sd-panel-row"><span class="sd-panel-key">必要職人</span><span class="sd-panel-val">約1,840人工</span></div>
         </div>
 
-        <div class="sd-panel-section">
-          <div class="sd-panel-section-title">調達リスクアラート <span class="sd-alert-count" id="sd-alert-count">4件</span></div>
+        <div class="sd-panel-section sd-simulation-section" id="sd-simulation-section">
+          <div class="sd-panel-section-title">時系列分析</div>
+          <p class="sd-sim-description">工事開始時の需給状況をスナップショットで表示中。工期全体の推移を見るにはシミュレーションを実行してください。</p>
+          <button id="sd-sim-start-btn" class="sd-sim-start-btn" onclick="startTimelineSimulation()">▶ AIによる工期全体の需給シミュレーションを開始</button>
+        </div>
+
+        <div class="sd-panel-section sd-sim-progress-section" id="sd-sim-progress-section" style="display:none">
+          <div class="sd-panel-section-title">シミュレーション実行中</div>
+          <div class="sd-sim-steps" id="sd-sim-steps"></div>
+        </div>
+
+        <div class="sd-panel-section sd-alerts-section" id="sd-alerts-section" style="display:none">
+          <div class="sd-panel-section-title">工期全体のリスク分析結果 <span class="sd-alert-count" id="sd-alert-count">4件</span></div>
           <div id="sd-alerts-container" class="sd-alerts-list"></div>
         </div>
 
-        <div class="sd-panel-cta">
+        <div class="sd-panel-section sd-extended-section" id="sd-extended-section" style="display:none">
+          <div class="sd-panel-section-title">追加調達候補の検索</div>
+          <p class="sd-sim-description">通常範囲内のリソースだけでは工期遅延・コスト超過のリスクがあります。業界横断PFのデータベースから、本案件の条件に合う追加候補を検索できます。</p>
+          <button id="sd-extend-btn" class="sd-extend-btn" onclick="startExtendedSearch()">🔍 業界横断PFから追加候補を検索する</button>
+        </div>
+
+        <div class="sd-panel-cta" id="sd-panel-cta" style="display:none">
           <button id="sd-optimize-btn" class="sd-optimize-btn" onclick="showOptimizationPlans()">AI推奨：全体最適化プランを確認 →</button>
         </div>
       </div>
