@@ -2362,9 +2362,238 @@ function showVendorPopup(vendor) {
   L.popup({ maxWidth: 320, minWidth: 260 }).setLatLng(vendor.coords).setContent(html).openOn(sdMap);
 }
 
+// ===== V4 Competing Projects Pin Data =====
+var competingProjectsPinData = [
+  {
+    id: 'CP01',
+    name: '仙台地下鉄延伸工事',
+    owner: '仙台市交通局',
+    coords: [38.272, 140.882],
+    location: '仙台市青葉区中央',
+    type: '公共インフラ',
+    scale: '事業費 約450億円',
+    period: '2025-2028（継続中）',
+    competingResources: ['鉄筋工', '型枠工', 'クレーン', '生コン'],
+    impactLevel: 'high',
+    influence: '本案件のピーク工期（4-6ヶ月目）に職人需要が直接競合。仙台市内・青葉区中心で鉄筋工逼迫の主因。'
+  },
+  {
+    id: 'CP02',
+    name: '仙台駅東口再開発',
+    owner: '東日本旅客鉄道',
+    coords: [38.260, 140.882],
+    location: '仙台市宮城野区',
+    type: '民間複合施設',
+    scale: '延床35,000m²',
+    period: '2026-2029',
+    competingResources: ['鉄筋工', '生コン', '鋼材'],
+    impactLevel: 'high',
+    influence: '生コンの供給枠を仙台市内で大量確保。本案件の打設タイミング調整が必要。'
+  },
+  {
+    id: 'CP03',
+    name: '青葉通り商業ビル建替計画',
+    owner: '東北エステート株式会社',
+    coords: [38.265, 140.876],
+    location: '仙台市青葉区一番町',
+    type: '民間商業施設',
+    scale: '延床12,000m²',
+    period: '2026-2028',
+    competingResources: ['鉄筋工', 'クレーン'],
+    impactLevel: 'medium',
+    influence: '同時期の躯体工事フェーズで重機（クレーン）需要が競合。'
+  },
+  {
+    id: 'CP04',
+    name: '泉中央サイト再開発',
+    owner: '泉中央開発組合',
+    coords: [38.310, 140.876],
+    location: '仙台市泉区泉中央',
+    type: '民間住宅',
+    scale: '延床18,000m²',
+    period: '2026-2028',
+    competingResources: ['鉄筋工', '型枠工'],
+    impactLevel: 'high',
+    influence: '本案件と同じ泉区内で進行。地元協力会社の職人が分散され、本案件の確保が困難に。'
+  },
+  {
+    id: 'CP05',
+    name: '富谷リテール物流センター',
+    owner: '東北リテール株式会社',
+    coords: [38.412, 140.875],
+    location: '宮城県富谷市',
+    type: '物流施設',
+    scale: '延床22,000m²',
+    period: '2026-2027',
+    competingResources: ['鋼材', '重機'],
+    impactLevel: 'medium',
+    influence: '鋼材調達で関東圏在庫との競合発生。重機（クレーン）は隣接エリアでの取り合い。'
+  },
+  {
+    id: 'CP06',
+    name: '仙台港コンテナターミナル増設',
+    owner: '宮城県港湾整備公社',
+    coords: [38.262, 141.002],
+    location: '仙台市宮城野区港',
+    type: '公共インフラ',
+    scale: '事業費 約180億円',
+    period: '2025-2027',
+    competingResources: ['杭打ち機', '鋼材', '生コン'],
+    impactLevel: 'medium',
+    influence: '杭打ち機の稼働状況が完全に重複。本案件の杭打ち時期に手配困難リスク。'
+  },
+  {
+    id: 'CP07',
+    name: '石巻港湾施設災害復旧',
+    owner: '国土交通省東北地方整備局',
+    coords: [38.432, 141.298],
+    location: '宮城県石巻市',
+    type: '災害復旧',
+    scale: '事業費 約95億円',
+    period: '2024-2027（継続中）',
+    competingResources: ['鉄筋工', '型枠工'],
+    impactLevel: 'high',
+    influence: '石巻周辺の職人が完全に拘束。応援職人の調達経路として石巻方面は期待できず。'
+  },
+  {
+    id: 'CP08',
+    name: '東日本大震災メンテナンス工事',
+    owner: '宮城県',
+    coords: [38.412, 141.282],
+    location: '宮城県石巻市・東松島市',
+    type: '災害復旧',
+    scale: '複数案件、継続事業',
+    period: '常時継続',
+    competingResources: ['鉄筋工', '左官'],
+    impactLevel: 'low',
+    influence: '小規模な継続案件で個別影響は限定的だが、東北全体の職人プールに恒常的負荷。'
+  },
+  {
+    id: 'CP09',
+    name: '福島県庁更新工事',
+    owner: '福島県',
+    coords: [37.750, 140.467],
+    location: '福島県福島市',
+    type: '公共施設',
+    scale: '延床28,000m²',
+    period: '2026-2029',
+    competingResources: ['鉄筋工', '生コン', '鋼材'],
+    impactLevel: 'medium',
+    influence: '福島市の職人を吸収。応援職人を福島方面から呼ぶ経路に影響。'
+  },
+  {
+    id: 'CP10',
+    name: '福島駅前再開発',
+    owner: '福島都市開発',
+    coords: [37.755, 140.475],
+    location: '福島県福島市栄町',
+    type: '民間商業施設',
+    scale: '延床58,000m²',
+    period: '2026-2028',
+    competingResources: ['鉄筋工', 'クレーン', '生コン'],
+    impactLevel: 'medium',
+    influence: '福島市の建設リソース全般を圧迫。本案件への直接影響は限定的だが間接的に職人プールを縮小。'
+  },
+  {
+    id: 'CP11',
+    name: '原発廃炉関連工事',
+    owner: '東京電力ホールディングス',
+    coords: [37.422, 141.033],
+    location: '福島県双葉郡',
+    type: '特殊工事',
+    scale: '事業費 数千億円規模',
+    period: '長期継続',
+    competingResources: ['鉄筋工', '型枠工'],
+    impactLevel: 'medium',
+    influence: '福島県内の職人を長期的に拘束。本案件への直接影響は中程度。'
+  },
+  {
+    id: 'CP12',
+    name: '郡山駅前広場整備',
+    owner: '郡山市',
+    coords: [37.397, 140.388],
+    location: '福島県郡山市',
+    type: '公共インフラ',
+    scale: '事業費 約32億円',
+    period: '2026-2027',
+    competingResources: ['鉄筋工', '生コン'],
+    impactLevel: 'low',
+    influence: '小規模だが郡山市内の生コン枠を一部圧迫。'
+  },
+  {
+    id: 'CP13',
+    name: '郡山ロジスティクスセンター',
+    owner: '東北リテール株式会社',
+    coords: [37.408, 140.398],
+    location: '福島県郡山市',
+    type: '物流施設',
+    scale: '延床8,500m²',
+    period: '2026-2027',
+    competingResources: ['鋼材', '鉄筋工'],
+    impactLevel: 'low',
+    influence: '本デモ案件群の一つ。郡山周辺のリソースを一部使用。'
+  }
+];
+
+function drawCompetingProjectsPins() {
+  if (vendorPinsLayer) { sdMap.removeLayer(vendorPinsLayer); vendorPinsLayer = null; }
+  vendorPinsLayer = L.layerGroup();
+
+  competingProjectsPinData.forEach(function(p) {
+    var color, size;
+    if (p.impactLevel === 'high') { color = '#c44a4a'; size = 22; }
+    else if (p.impactLevel === 'medium') { color = '#f0a050'; size = 18; }
+    else { color = '#5a7593'; size = 14; }
+
+    var pin = L.marker(p.coords, {
+      icon: L.divIcon({
+        className: 'competing-pin-icon',
+        html: '<div style="width:' + size + 'px;height:' + size + 'px;background:' + color + ';border:2px solid #fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.35)"></div>',
+        iconSize: [size + 4, size + 4],
+        iconAnchor: [(size + 4) / 2, (size + 4) / 2]
+      })
+    });
+    pin.bindTooltip(p.name + '（影響度: ' + (p.impactLevel === 'high' ? '高' : p.impactLevel === 'medium' ? '中' : '低') + '）', { direction: 'top' });
+    pin.on('click', function() { showCompetingProjectPopup(p); });
+    vendorPinsLayer.addLayer(pin);
+  });
+
+  if (sdProjectMarker) {
+    sdProjectMarker.bringToFront();
+  }
+
+  vendorPinsLayer.addTo(sdMap);
+}
+
+function showCompetingProjectPopup(p) {
+  var impactColor = p.impactLevel === 'high' ? '#c44a4a' : (p.impactLevel === 'medium' ? '#d6841d' : '#5a7593');
+  var impactLabel = p.impactLevel === 'high' ? '影響度：高' : (p.impactLevel === 'medium' ? '影響度：中' : '影響度：低');
+
+  var html = '<div class="competing-popup-content">';
+  html += '<div class="competing-popup-header"><div class="competing-popup-name">' + p.name + '</div>';
+  html += '<div class="competing-popup-impact" style="background:' + impactColor + '">' + impactLabel + '</div></div>';
+  html += '<div class="competing-popup-meta">' + p.location + ' · ' + p.type + '</div>';
+  html += '<div class="competing-popup-details">';
+  html += '<div class="competing-popup-row"><span class="competing-popup-key">施主・発注者</span><span class="competing-popup-val">' + p.owner + '</span></div>';
+  html += '<div class="competing-popup-row"><span class="competing-popup-key">規模</span><span class="competing-popup-val">' + p.scale + '</span></div>';
+  html += '<div class="competing-popup-row"><span class="competing-popup-key">工期</span><span class="competing-popup-val">' + p.period + '</span></div>';
+  html += '<div class="competing-popup-row"><span class="competing-popup-key">競合リソース</span><span class="competing-popup-val">' + p.competingResources.join('、') + '</span></div>';
+  html += '</div>';
+  html += '<div class="competing-popup-influence"><div class="competing-popup-influence-title">本案件への影響</div>';
+  html += '<p>' + p.influence + '</p></div>';
+  html += '</div>';
+
+  L.popup({ maxWidth: 340, minWidth: 280 }).setLatLng(p.coords).setContent(html).openOn(sdMap);
+}
+
 function drawSupplyAreaLayer(layerType) {
   currentLayerType = layerType;
   clearSupplyAreaLayers();
+
+  if (layerType === 'competing') {
+    drawCompetingProjectsPins();
+    return;
+  }
 
   var data = layerMunicipalityData[layerType];
   if (!data) return;
