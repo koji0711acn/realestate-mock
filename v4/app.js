@@ -3284,17 +3284,74 @@ var optimizationPlansData = [
   {
     id: 'planA', recommended: true, name: '広域調達型', tagline: '東北全域から最適なリソースを業界横断PF経由で確保。AI推奨。',
     metrics: { duration: '12ヶ月（予定通り）', cost: '+3.8%', risk: '低' },
-    detail: '<strong>鉄筋工：</strong>山形県山形北鉄筋工業から確保<br><strong>クレーン：</strong>福島県郡山クレーンサービスから手配<br><strong>生コン：</strong>仙台市内仙台青葉生コン工業の優先枠<br><strong>設備：</strong>過去BIM実績の名取総合設備株式会社'
+    detail: '<strong>鉄筋工：</strong>山形北鉄筋工業（山形県山形市）<br><strong>クレーン：</strong>郡山クレーンサービス（福島県郡山市）<br><strong>生コン：</strong>仙台青葉生コン工業の優先枠<br><strong>設備：</strong>名取総合設備（過去BIM実績あり）',
+    detailExtended: {
+      summary: '通常範囲内の供給逼迫を踏まえ、業界横断PFで広域からリソースを補完する戦略。地元協力会社の不足分を、距離45-90km圏内の優良業者で確保することで、工期を予定通り維持。',
+      breakdown: [
+        { resource: '鉄筋工', vendor: '山形北鉄筋工業', distance: '45km', period: '4-7ヶ月目', cost: '人工単価19,800円' },
+        { resource: 'クレーン', vendor: '郡山クレーンサービス', distance: '88km', period: '7-9ヶ月目', cost: '日額158,000円' },
+        { resource: '生コン', vendor: '仙台青葉生コン工業', distance: '12km', period: '2-6ヶ月目', cost: '優先枠確保' },
+        { resource: '設備', vendor: '名取総合設備', distance: '18km', period: '9-12ヶ月目', cost: '過去BIM適合品' }
+      ],
+      gantt: [
+        { name: '準備', start: 0, duration: 1, vendor: '地元' },
+        { name: '基礎', start: 1, duration: 3, vendor: '山形北鉄筋工業（応援）' },
+        { name: '躯体', start: 3, duration: 4, vendor: '山形北鉄筋工業 + 地元' },
+        { name: '建方', start: 6, duration: 2, vendor: '郡山クレーンサービス' },
+        { name: '外装', start: 7, duration: 3, vendor: '地元 + 名取総合設備' },
+        { name: '内装・引渡', start: 9, duration: 3, vendor: '名取総合設備 + 地元' }
+      ],
+      risks: ['広域業者の品質管理に注力が必要', '移動コスト発生（既算入済み）'],
+      benefits: ['工期を完全に維持', '災害時の代替手段も同時確保', '取引履歴がPFに蓄積され将来活用可能']
+    }
   },
   {
     id: 'planB', recommended: false, name: '工期調整型', tagline: '着工時期を5週間後ろ倒し。地元協力会社のみで完結。',
     metrics: { duration: '13.2ヶ月（+5週）', cost: '+0.5%', risk: '低' },
-    detail: '<strong>着工日：</strong>当初予定から5週間遅延<br><strong>調達範囲：</strong>地元協力会社ネットワーク内<br><strong>メリット：</strong>取引慣行を維持<br><strong>デメリット：</strong>引渡しが1ヶ月遅延'
+    detail: '<strong>着工日：</strong>当初予定から5週間遅延<br><strong>調達範囲：</strong>地元協力会社ネットワーク内<br><strong>メリット：</strong>取引慣行を維持<br><strong>デメリット：</strong>引渡しが1ヶ月遅延',
+    detailExtended: {
+      summary: 'リソース逼迫のピーク時期を回避するため、着工を5週間後ろ倒しする戦略。職人需要のピークが過ぎた時期に基礎・躯体工事を実施。',
+      breakdown: [
+        { resource: '鉄筋工', vendor: '仙台市内協力会社', distance: '5-15km', period: '当初の5週後ろ倒し', cost: '地元単価' },
+        { resource: 'クレーン', vendor: '塩竈リース', distance: '18km', period: '4-6ヶ月目（遅延後）', cost: '地元単価' },
+        { resource: '生コン', vendor: '仙台青葉生コン工業', distance: '12km', period: '通常確保', cost: '地元単価' }
+      ],
+      gantt: [
+        { name: '着工待機', start: 0, duration: 1.5, vendor: '（着工遅延）' },
+        { name: '準備', start: 1.5, duration: 1, vendor: '地元' },
+        { name: '基礎', start: 2.5, duration: 3, vendor: '地元協力会社' },
+        { name: '躯体', start: 5.5, duration: 4, vendor: '地元協力会社' },
+        { name: '建方', start: 8.5, duration: 1.5, vendor: '塩竈リース' },
+        { name: '外装', start: 9.5, duration: 2, vendor: '地元' },
+        { name: '内装・引渡', start: 11, duration: 2.2, vendor: '地元' }
+      ],
+      risks: ['引渡しが1ヶ月遅延（地主・入居者への説明必要）', '遅延した期間中の地主の機会損失（家賃収入の遅れ）'],
+      benefits: ['取引慣行を完全に維持', '広域業者管理の手間なし', 'コスト追加が極小']
+    }
   },
   {
     id: 'planC', recommended: false, name: '工法転換型', tagline: '一部部材をプレキャスト化。現場職人工数を約30%削減。',
     metrics: { duration: '12ヶ月（予定通り）', cost: '+7.2%', risk: '中' },
-    detail: '<strong>工法変更：</strong>基礎・床版をプレキャスト化<br><strong>調達範囲：</strong>関東圏のPCa工場<br><strong>メリット：</strong>現場工数大幅削減<br><strong>デメリット：</strong>部材コスト・輸送リスク'
+    detail: '<strong>工法変更：</strong>基礎・床版をプレキャスト化<br><strong>調達範囲：</strong>関東圏のPCa工場<br><strong>メリット：</strong>現場工数大幅削減<br><strong>デメリット：</strong>部材コスト・輸送リスク',
+    detailExtended: {
+      summary: '基礎・床版を工場製作のプレキャスト部材に変更することで、現場での職人工数を約30%削減する戦略。職人需給逼迫の影響を構造的に回避。',
+      breakdown: [
+        { resource: 'プレキャスト部材', vendor: '関東PCa工場', distance: '380km', period: '3-7ヶ月目', cost: '部材費+8% / 輸送費含' },
+        { resource: '鉄筋工（現場）', vendor: '地元協力会社', distance: '5-15km', period: '工程削減', cost: '地元単価' },
+        { resource: 'クレーン', vendor: '仙台クレーン工業', distance: '8km', period: 'PCa設置時', cost: '地元単価' }
+      ],
+      gantt: [
+        { name: '準備', start: 0, duration: 1, vendor: '地元' },
+        { name: '基礎(PCa)', start: 1, duration: 2, vendor: '関東PCa工場' },
+        { name: '躯体(現場)', start: 3, duration: 3, vendor: '地元（削減）' },
+        { name: '床版(PCa)', start: 5, duration: 1, vendor: '関東PCa工場' },
+        { name: '建方', start: 6, duration: 2, vendor: '仙台クレーン工業' },
+        { name: '外装', start: 7, duration: 3, vendor: '地元' },
+        { name: '内装・引渡', start: 9, duration: 3, vendor: '地元' }
+      ],
+      risks: ['PCa部材の輸送ロス・破損リスク', '工場製作の納期管理', '設計変更が必要な可能性'],
+      benefits: ['現場の職人工数を約30%削減', '逼迫の影響を構造的に回避', '工期は予定通り']
+    }
   }
 ];
 
@@ -3372,7 +3429,8 @@ function renderOptimizationPlans() {
   optimizationPlansData.forEach(function(plan) {
     var cardClass = 'op-plan-card' + (plan.recommended ? ' recommended' : '');
     var badge = plan.recommended ? '<div class="op-plan-badge">AI推奨</div>' : '';
-    html += '<div class="' + cardClass + '" data-plan-id="' + plan.id + '" onclick="selectOptimizationPlan(\'' + plan.id + '\')">';
+    html += '<div class="' + cardClass + '" data-plan-id="' + plan.id + '">';
+    html += '<div onclick="selectOptimizationPlan(\'' + plan.id + '\')">';
     html += badge;
     html += '<div class="op-plan-name">' + plan.name + '</div>';
     html += '<div class="op-plan-tagline">' + plan.tagline + '</div>';
@@ -3383,8 +3441,79 @@ function renderOptimizationPlans() {
     html += '</div>';
     html += '<div class="op-plan-detail">' + plan.detail + '</div>';
     html += '</div>';
+    html += '<button class="op-plan-expand-btn" onclick="toggleOpPlanExpand(\'' + plan.id + '\', event)">＋ 詳細を見る</button>';
+    html += '<div class="op-plan-expand" id="op-expand-' + plan.id + '" style="display:none"></div>';
+    html += '</div>';
   });
   grid.innerHTML = html;
+}
+
+function toggleOpPlanExpand(planId, event) {
+  if (event) event.stopPropagation();
+  var el = document.getElementById('op-expand-' + planId);
+  if (!el) return;
+
+  if (el.style.display === 'none' || !el.style.display) {
+    var plan = optimizationPlansData.find(function(p) { return p.id === planId; });
+    if (!plan || !plan.detailExtended) return;
+    el.innerHTML = renderPlanExpandContent(plan);
+    el.style.display = 'block';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+function renderPlanExpandContent(plan) {
+  var ext = plan.detailExtended;
+  var html = '';
+
+  html += '<div class="op-expand-section">';
+  html += '<div class="op-expand-title">戦略概要</div>';
+  html += '<p class="op-expand-text">' + ext.summary + '</p>';
+  html += '</div>';
+
+  html += '<div class="op-expand-section">';
+  html += '<div class="op-expand-title">リソース調達内訳</div>';
+  html += '<table class="op-breakdown-table">';
+  html += '<thead><tr><th>リソース</th><th>調達先</th><th>距離</th><th>期間</th></tr></thead><tbody>';
+  ext.breakdown.forEach(function(b) {
+    html += '<tr><td>' + b.resource + '</td><td>' + b.vendor + '</td><td>' + b.distance + '</td><td>' + b.period + '</td></tr>';
+  });
+  html += '</tbody></table>';
+  html += '</div>';
+
+  html += '<div class="op-expand-section">';
+  html += '<div class="op-expand-title">工程ガントチャート</div>';
+  html += '<div class="op-gantt">';
+  var totalMonths = 13;
+  ext.gantt.forEach(function(g) {
+    var leftPct = (g.start / totalMonths) * 100;
+    var widthPct = (g.duration / totalMonths) * 100;
+    html += '<div class="op-gantt-row">';
+    html += '<div class="op-gantt-label">' + g.name + '</div>';
+    html += '<div class="op-gantt-bar-wrap"><div class="op-gantt-bar" style="left:' + leftPct + '%;width:' + widthPct + '%" title="' + g.vendor + '"></div></div>';
+    html += '<div class="op-gantt-vendor">' + g.vendor + '</div>';
+    html += '</div>';
+  });
+  html += '<div class="op-gantt-axis"><span>着工</span><span>3M</span><span>6M</span><span>9M</span><span>12M</span></div>';
+  html += '</div>';
+  html += '</div>';
+
+  html += '<div class="op-expand-rb">';
+  html += '<div class="op-expand-section op-expand-risks">';
+  html += '<div class="op-expand-title">想定リスク</div>';
+  html += '<ul class="op-expand-list">';
+  ext.risks.forEach(function(r) { html += '<li>' + r + '</li>'; });
+  html += '</ul></div>';
+
+  html += '<div class="op-expand-section op-expand-benefits">';
+  html += '<div class="op-expand-title">メリット</div>';
+  html += '<ul class="op-expand-list">';
+  ext.benefits.forEach(function(b) { html += '<li>' + b + '</li>'; });
+  html += '</ul></div>';
+  html += '</div>';
+
+  return html;
 }
 
 function selectOptimizationPlan(planId) {

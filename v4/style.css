@@ -2646,3 +2646,42 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
 .competing-popup-influence { background: #fef3eb; border-left: 3px solid #f0a050; padding: 8px 10px; border-radius: 0 4px 4px 0; }
 .competing-popup-influence-title { font-size: 10px; font-weight: 600; color: #d6841d; margin: 0 0 4px; text-transform: uppercase; letter-spacing: 0.3px; }
 .competing-popup-influence p { font-size: 11px; color: #555; line-height: 1.6; margin: 0; }
+
+/* ===== V4 Optimization Plan Expand ===== */
+.op-plan-expand-btn {
+  display: block; width: 100%;
+  background: #f7faf3; border: 1px solid #cfe0bd; color: #3d6b24;
+  padding: 8px; border-radius: 6px; font-size: 11px; cursor: pointer;
+  margin: 12px 0 0; font-family: inherit; transition: all 0.15s;
+}
+.op-plan-expand-btn:hover { background: #5a8a3c; color: #fff; border-color: #5a8a3c; }
+
+.op-plan-expand {
+  margin: 12px 0 0; padding: 16px; background: #fafafa; border-radius: 8px;
+  border: 1px solid #ececec;
+}
+.op-expand-section { margin: 0 0 14px; }
+.op-expand-section:last-child { margin-bottom: 0; }
+.op-expand-title { font-size: 11px; font-weight: 600; color: #5a7593; margin: 0 0 6px; }
+.op-expand-text { font-size: 11px; color: #555; line-height: 1.7; margin: 0; }
+
+.op-breakdown-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+.op-breakdown-table thead { background: #f0f3f7; }
+.op-breakdown-table th, .op-breakdown-table td { padding: 6px 8px; text-align: left; border-bottom: 1px solid #ececec; }
+.op-breakdown-table th { font-weight: 600; color: #5a7593; font-size: 9px; text-transform: uppercase; letter-spacing: 0.3px; }
+.op-breakdown-table tbody tr:hover { background: rgba(90,138,60,0.05); }
+
+.op-gantt { display: flex; flex-direction: column; gap: 3px; padding: 4px 0; }
+.op-gantt-row { display: flex; align-items: center; gap: 6px; font-size: 9px; }
+.op-gantt-label { width: 70px; color: #666; text-align: right; flex-shrink: 0; }
+.op-gantt-bar-wrap { flex: 1; height: 10px; background: #f4f4f4; border-radius: 2px; position: relative; }
+.op-gantt-bar { position: absolute; top: 0; bottom: 0; background: linear-gradient(to bottom, #5a8a3c, #3d6b24); border-radius: 2px; }
+.op-gantt-vendor { width: 130px; color: #999; font-size: 9px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.op-gantt-axis { display: flex; justify-content: space-between; margin: 4px 0 0 78px; padding-right: 134px; font-size: 8px; color: #999; }
+
+.op-expand-rb { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.op-expand-list { list-style: none; padding: 0; margin: 0; }
+.op-expand-list li { font-size: 10px; color: #555; padding: 4px 0 4px 12px; position: relative; line-height: 1.5; }
+.op-expand-list li::before { content: '・'; position: absolute; left: 0; }
+.op-expand-risks .op-expand-title { color: #d6841d; }
+.op-expand-benefits .op-expand-title { color: #3d6b24; }
