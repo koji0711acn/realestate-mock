@@ -471,9 +471,47 @@
 
       <div class="vr-vendors-grid" id="vr-vendors-grid"></div>
 
-      <div class="vr-cta-section">
-        <button class="vr-finalize-btn" id="vr-finalize-btn" disabled onclick="finalizeAllVendors()">取引確定書を一括発行 → 社内決裁ワークフロー連携</button>
-        <p class="vr-cta-note">全リソースを確保後、本ボタンが有効になります</p>
+      <div class="vr-cta-section" id="vr-cta-section">
+        <div id="vr-cta-initial" class="vr-cta-stage">
+          <button id="vr-verify-btn" class="vr-cta-btn" onclick="verifyVendors()">この内容で取引できるかを確認</button>
+          <p class="vr-cta-note">業界横断PFを通じて、各業者の最終空き状況・条件・スケジュールを照会します</p>
+        </div>
+
+        <div id="vr-cta-verifying" class="vr-cta-stage" style="display:none">
+          <div class="vr-cta-verifying-msg">
+            <div class="vr-cta-spinner"></div>
+            <div class="vr-cta-verifying-text">業界横断PF経由で各業者の最終空き状況を照会中...</div>
+          </div>
+        </div>
+
+        <div id="vr-cta-verified" class="vr-cta-stage" style="display:none">
+          <div class="vr-cta-verified-msg">
+            <div class="vr-cta-check">✓</div>
+            <div>
+              <div class="vr-cta-verified-title">全ての業者の確保が完了しました</div>
+              <div class="vr-cta-verified-desc">業界横断PF経由で、4業者全ての対応可能性が確認されました</div>
+            </div>
+          </div>
+          <button id="vr-finalize-btn" class="vr-cta-btn vr-cta-btn-finalize" onclick="finalizeVendors()">この内容で条件を確定する</button>
+          <p class="vr-cta-note">確定すると、契約が完了します</p>
+        </div>
+
+        <div id="vr-cta-finalizing" class="vr-cta-stage" style="display:none">
+          <div class="vr-cta-verifying-msg">
+            <div class="vr-cta-spinner"></div>
+            <div class="vr-cta-verifying-text">契約処理中...</div>
+          </div>
+        </div>
+
+        <div id="vr-cta-finalized" class="vr-cta-stage" style="display:none">
+          <div class="vr-cta-verified-msg vr-cta-verified-msg-finalized">
+            <div class="vr-cta-check">✓</div>
+            <div>
+              <div class="vr-cta-verified-title">契約が完了しました</div>
+              <div class="vr-cta-verified-desc">調達最適化サマリーへ自動的に遷移します...</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -531,8 +569,7 @@
       </div>
 
       <div class="sm-actions">
-        <button class="sm-action-btn" onclick="restartDemo()">案件一覧に戻る</button>
-        <button class="sm-action-btn sm-action-btn-secondary" onclick="switchAppTab('hearing')">ヒアリングを開始</button>
+        <button class="sm-action-btn sm-action-btn-secondary" onclick="returnToProjectList()">← 案件一覧に戻る</button>
       </div>
     </div>
   </div>
@@ -552,48 +589,6 @@
     <div id="reset-float-btn" onclick="resetDemo()" style="position:fixed;bottom:80px;left:20px;width:48px;height:48px;background:#666;border-radius:50%;display:none;align-items:center;justify-content:center;cursor:pointer;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,0.2);transition:all 0.2s" onmouseover="this.querySelector('.float-tooltip').style.opacity=1;this.querySelector('.float-tooltip').style.transform='translateX(0)'" onmouseout="this.querySelector('.float-tooltip').style.opacity=0;this.querySelector('.float-tooltip').style.transform='translateX(-8px)'">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
       <div class="float-tooltip" style="position:absolute;left:56px;background:#333;color:#fff;font-size:11px;padding:4px 10px;border-radius:4px;white-space:nowrap;opacity:0;transform:translateX(-8px);transition:all 0.2s;pointer-events:none">デモの最初に戻る</div>
-    </div>
-    <div id="hearing-float-btn" onclick="switchAppTab('hearing')" style="position:fixed;bottom:20px;left:20px;width:48px;height:48px;background:#0067B3;border-radius:50%;display:none;align-items:center;justify-content:center;cursor:pointer;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,0.2);transition:all 0.2s" onmouseover="this.querySelector('.float-tooltip').style.opacity=1;this.querySelector('.float-tooltip').style.transform='translateX(0)'" onmouseout="this.querySelector('.float-tooltip').style.opacity=0;this.querySelector('.float-tooltip').style.transform='translateX(-8px)'">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-      <div class="float-tooltip" style="position:absolute;left:56px;background:#333;color:#fff;font-size:11px;padding:4px 10px;border-radius:4px;white-space:nowrap;opacity:0;transform:translateX(-8px);transition:all 0.2s;pointer-events:none">ヒアリング</div>
-    </div>
-  </div>
-
-  <!-- ===== Hearing View ===== -->
-  <div id="hearing-view" style="display:none">
-    <div class="hearing-header">
-      <div>
-        <h1 style="font-size:16px;font-weight:500;margin:0">Real World AI — ヒアリングシート</h1>
-        <div style="font-size:12px;opacity:0.8">不動産デベロッパー向け 有識者インタビュー</div>
-      </div>
-      <div style="font-size:11px;opacity:0.7" id="hearing-session-info"></div>
-    </div>
-    <div class="hearing-container">
-      <div id="hearing-session-setup" class="hearing-session-form" style="display:none">
-        <h2 style="font-size:14px;font-weight:500;margin:0 0 12px;color:#333">セッション情報</h2>
-        <div class="hearing-form-row">
-          <input type="text" id="hearing-interviewer" placeholder="実施者名">
-          <input type="text" id="hearing-interviewee" placeholder="回答者名">
-        </div>
-        <div class="hearing-form-row">
-          <input type="text" id="hearing-company" placeholder="所属企業名">
-        </div>
-        <button class="hearing-btn-start" onclick="startHearingSession()">ヒアリングを開始する</button>
-      </div>
-      <div id="hearing-questions-area">
-        <div class="hearing-loading" id="hearing-loading-msg">質問を読み込み中...</div>
-        <div id="hearing-questions-list"></div>
-      </div>
-    </div>
-    <div id="hearing-export-bar" class="hearing-export-bar hidden">
-      <div style="font-size:12px;color:#888" id="hearing-memo-count">メモ: 0件</div>
-      <div style="display:flex;gap:8px">
-        <button class="hearing-btn-export" onclick="exportHearingCSV()">CSV出力</button>
-        <button class="hearing-btn-export" onclick="endHearingSession()" style="background:#0067B3;color:#fff">ヒアリング終了</button>
-      </div>
-    </div>
-    <div onclick="switchAppTab('map')" style="position:fixed;bottom:20px;left:20px;width:48px;height:48px;background:#0067B3;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,0.2)">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
     </div>
   </div>
 

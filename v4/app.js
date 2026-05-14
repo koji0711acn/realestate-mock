@@ -3385,6 +3385,9 @@ var vendorRecommendationsData = [
 var selectedPlanId = null;
 var securedVendors = {};
 
+// ===== V4 Vendor Flow State =====
+var vendorFlowState = 'initial';
+
 // ===== V4 Scene 3: Optimization Logic =====
 
 function showOptimizationPlans() {
@@ -3546,6 +3549,7 @@ function showVendorRecommendationView() {
   securedVendors = {};
   renderVendorCards();
   updateFinalizeButton();
+  resetVendorFlow();
 }
 
 function renderVendorCards() {
@@ -3609,19 +3613,52 @@ function updateFinalizeButton() {
   }
 }
 
-function finalizeAllVendors() {
-  var confirmMsg = '【取引確定書を発行しました】\n\n' +
-    '・鉄筋工 山形北鉄筋工業\n' +
-    '・クレーン 郡山クレーンサービス\n' +
-    '・生コン 仙台青葉生コン工業\n' +
-    '・設備 名取総合設備\n\n' +
-    '【社内決裁ワークフローに連携】\n' +
-    '本発注（合計約 6,200万円）を社内決裁システムに登録します。\n' +
-    '決裁ルート：建設管理部長 → 事業本部長\n\n' +
-    'OKを押すと最終サマリーに進みます。';
-  alert(confirmMsg);
-  document.getElementById('vendor-recommendation-view').style.display = 'none';
-  showSummaryView();
+function verifyVendors() {
+  vendorFlowState = 'verifying';
+  document.getElementById('vr-cta-initial').style.display = 'none';
+  document.getElementById('vr-cta-verifying').style.display = 'block';
+
+  setTimeout(function() {
+    vendorFlowState = 'verified';
+    document.getElementById('vr-cta-verifying').style.display = 'none';
+    document.getElementById('vr-cta-verified').style.display = 'block';
+
+    vendorRecommendationsData.forEach(function(v) {
+      securedVendors[v.id] = true;
+    });
+    renderVendorCards();
+  }, 1200);
+}
+
+function finalizeVendors() {
+  vendorFlowState = 'finalizing';
+  document.getElementById('vr-cta-verified').style.display = 'none';
+  document.getElementById('vr-cta-finalizing').style.display = 'block';
+
+  setTimeout(function() {
+    vendorFlowState = 'finalized';
+    document.getElementById('vr-cta-finalizing').style.display = 'none';
+    document.getElementById('vr-cta-finalized').style.display = 'block';
+
+    setTimeout(function() {
+      document.getElementById('vendor-recommendation-view').style.display = 'none';
+      showSummaryView();
+    }, 1500);
+  }, 1000);
+}
+
+function resetVendorFlow() {
+  vendorFlowState = 'initial';
+  var stages = ['initial', 'verifying', 'verified', 'finalizing', 'finalized'];
+  stages.forEach(function(s) {
+    var el = document.getElementById('vr-cta-' + s);
+    if (el) el.style.display = s === 'initial' ? 'block' : 'none';
+  });
+  securedVendors = {};
+}
+
+function returnToProjectList() {
+  restartDemo();
 }
 
 function showSummaryView() {
