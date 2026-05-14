@@ -317,11 +317,13 @@
         </div>
         <div class="sd-legend">
           <div class="sd-legend-title" id="sd-legend-title">職人需給バランス凡例</div>
-          <div class="sd-legend-row"><span class="sd-legend-color" style="background:#e85a5a;opacity:0.6"></span><span id="sd-legend-label-1">深刻に逼迫（-15%以下）</span></div>
-          <div class="sd-legend-row"><span class="sd-legend-color" style="background:#f0a050;opacity:0.6"></span><span id="sd-legend-label-2">逼迫（-5〜-15%）</span></div>
-          <div class="sd-legend-row"><span class="sd-legend-color" style="background:#efd333;opacity:0.6"></span><span id="sd-legend-label-3">均衡（±5%）</span></div>
-          <div class="sd-legend-row"><span class="sd-legend-color" style="background:#88b562;opacity:0.6"></span><span id="sd-legend-label-4">供給余力あり（+5%以上）</span></div>
-          <div class="sd-legend-row" id="sd-legend-cansupply" style="border-top:1px solid #ececec;padding-top:6px;margin-top:4px;font-size:10px;color:#666">緑枠：本案件から調達可能</div>
+          <div class="sd-legend-gradient">
+            <div class="sd-legend-gradient-bar"></div>
+            <div class="sd-legend-gradient-labels">
+              <span>余力</span><span>均衡</span><span>逼迫</span><span>深刻</span>
+            </div>
+          </div>
+          <div class="sd-legend-row" id="sd-legend-cansupply" style="border-top:1px solid #ececec;padding-top:8px;margin-top:8px;font-size:10px;color:#666">緑枠：本案件から調達可能</div>
         </div>
         <div class="sd-layer-controls">
           <div class="sd-layer-controls-header">
@@ -367,11 +369,12 @@
           </div>
         </div>
         <div class="sd-timeline-controls">
-          <div class="sd-timeline-label">工期スライダー</div>
+          <div class="sd-timeline-label">分析時点：</div>
+          <div class="sd-timeline-snapshot" id="sd-timeline-snapshot">工事開始時（着工日）</div>
           <div class="sd-timeline-slider-wrap">
             <input type="range" id="sd-timeline-slider" min="0" max="11" value="0" class="sd-timeline-slider" oninput="updateTimeline(this.value)">
             <div class="sd-timeline-marks">
-              <span>1ヶ月目</span><span>3ヶ月目</span><span>6ヶ月目</span><span>9ヶ月目</span><span>12ヶ月目</span>
+              <span>着工</span><span>3M</span><span>6M</span><span>9M</span><span>竣工</span>
             </div>
           </div>
           <div class="sd-timeline-info"><span id="sd-timeline-month">1ヶ月目</span> <span id="sd-timeline-phase" class="sd-timeline-phase">準備工事</span></div>

@@ -2223,25 +2223,25 @@ async function loadJapanGeoJSON() {
 // レイヤー別市区町村データ。各レイヤーで表示する市区町村と、その需給状況を定義。
 var layerMunicipalityData = {
   craftsmen: {
-    '仙台市青葉区':  { status: 'tight-high', balance: -22, supply: 18, demand: 23 },
-    '仙台市泉区':    { status: 'tight-high', balance: -18, supply: 14, demand: 17, isProject: true },
-    '仙台市太白区':  { status: 'tight-medium', balance: -10, supply: 24, demand: 27 },
-    '仙台市若林区':  { status: 'tight-medium', balance: -9, supply: 21, demand: 23 },
-    '仙台市宮城野区':{ status: 'tight-high', balance: -16, supply: 16, demand: 19 },
-    '多賀城市':      { status: 'balanced', balance: -3, supply: 9, demand: 9 },
-    '塩竈市':        { status: 'balanced', balance: -2, supply: 7, demand: 7 },
-    '名取市':        { status: 'tight-medium', balance: -8, supply: 12, demand: 13 },
-    '富谷市':        { status: 'balanced', balance: 4, supply: 11, demand: 10 },
-    '利府町':        { status: 'balanced', balance: 1, supply: 6, demand: 6 },
-    '岩沼市':        { status: 'balanced', balance: -1, supply: 8, demand: 8 },
-    '山形市':        { status: 'surplus', balance: 14, supply: 32, demand: 28, canSupply: true },
-    '米沢市':        { status: 'surplus', balance: 22, supply: 28, demand: 22, canSupply: true },
-    '福島市':        { status: 'tight-high', balance: -19, supply: 26, demand: 32 },
-    '郡山市':        { status: 'tight-medium', balance: -7, supply: 35, demand: 38 },
-    '石巻市':        { status: 'tight-high', balance: -25, supply: 11, demand: 15 },
-    '大崎市':        { status: 'balanced', balance: -4, supply: 22, demand: 23 },
-    '北上市':        { status: 'surplus', balance: 8, supply: 25, demand: 23, canSupply: true },
-    '気仙沼市':      { status: 'tight-medium', balance: -11, supply: 9, demand: 10 }
+    '仙台市青葉区':  { status: 'tight-high', balance: -28, supply: 18, demand: 25, hotspot: '仙台地下鉄延伸工事' },
+    '仙台市泉区':    { status: 'tight-high', balance: -22, supply: 14, demand: 18, isProject: true },
+    '仙台市太白区':  { status: 'tight-medium', balance: -14, supply: 24, demand: 28 },
+    '仙台市若林区':  { status: 'tight-medium', balance: -12, supply: 21, demand: 24 },
+    '仙台市宮城野区':{ status: 'tight-high', balance: -20, supply: 16, demand: 20 },
+    '多賀城市':      { status: 'tight-medium', balance: -8, supply: 9, demand: 10 },
+    '塩竈市':        { status: 'balanced', balance: -4, supply: 7, demand: 7 },
+    '名取市':        { status: 'tight-medium', balance: -10, supply: 12, demand: 14 },
+    '富谷市':        { status: 'balanced', balance: -2, supply: 11, demand: 11 },
+    '利府町':        { status: 'balanced', balance: -3, supply: 6, demand: 6 },
+    '岩沼市':        { status: 'balanced', balance: -4, supply: 8, demand: 9 },
+    '山形市':        { status: 'surplus', balance: 12, supply: 32, demand: 28, canSupply: true },
+    '米沢市':        { status: 'surplus', balance: 20, supply: 28, demand: 22, canSupply: true },
+    '福島市':        { status: 'tight-high', balance: -24, supply: 26, demand: 34, hotspot: '福島県庁更新工事' },
+    '郡山市':        { status: 'tight-medium', balance: -10, supply: 35, demand: 39 },
+    '石巻市':        { status: 'tight-high', balance: -28, supply: 11, demand: 16, hotspot: '石巻港湾施設災害復旧' },
+    '大崎市':        { status: 'balanced', balance: -5, supply: 22, demand: 23 },
+    '北上市':        { status: 'surplus', balance: 10, supply: 25, demand: 22, canSupply: true },
+    '気仙沼市':      { status: 'tight-medium', balance: -13, supply: 9, demand: 10 }
   },
   equipment: {
     '仙台市青葉区':  { status: 'tight-high', balance: -28, supply: 8, demand: 11 },
@@ -2387,7 +2387,7 @@ function drawSupplyAreaLayer(layerType) {
     else if (adjustedBalance <= 5) adjustedStatus = 'balanced';
     else adjustedStatus = 'surplus';
 
-    var color = getMuniStatusColor(adjustedStatus);
+    var color = getMuniStatusColor(adjustedStatus, adjustedBalance);
     var strokeColor = info.canSupply ? '#3d6b24' : '#888';
     var strokeWidth = info.canSupply ? 2.5 : 1;
 
@@ -2433,12 +2433,17 @@ function drawSupplyAreaLayer(layerType) {
   drawVendorPins(layerType);
 }
 
-function getMuniStatusColor(status) {
-  if (status === 'tight-high') return { fill: '#e85a5a', opacity: 0.55 };
-  if (status === 'tight-medium') return { fill: '#f0a050', opacity: 0.5 };
-  if (status === 'balanced') return { fill: '#efd333', opacity: 0.45 };
-  if (status === 'surplus') return { fill: '#88b562', opacity: 0.5 };
-  return { fill: '#cccccc', opacity: 0.3 };
+function getMuniStatusColor(status, balance) {
+  var b = (typeof balance === 'number') ? balance : 0;
+  var t = Math.max(0, Math.min(1, (20 - b) / 50));
+  var r1 = 253, g1 = 229, b1 = 229;
+  var r2 = 176, g2 = 48, b2 = 48;
+  var r = Math.round(r1 + (r2 - r1) * t);
+  var g = Math.round(g1 + (g2 - g1) * t);
+  var bl = Math.round(b1 + (b2 - b1) * t);
+  var fillColor = 'rgb(' + r + ',' + g + ',' + bl + ')';
+  var opacity = 0.45 + t * 0.25;
+  return { fill: fillColor, opacity: opacity };
 }
 
 function getMuniStatusLabel(status) {
@@ -2788,26 +2793,18 @@ function initSDMap() {
 
 function updateLegendForLayer(layerType) {
   var titleEl = document.getElementById('sd-legend-title');
-  var l1 = document.getElementById('sd-legend-label-1');
-  var l2 = document.getElementById('sd-legend-label-2');
-  var l3 = document.getElementById('sd-legend-label-3');
-  var l4 = document.getElementById('sd-legend-label-4');
   var cansupplyEl = document.getElementById('sd-legend-cansupply');
 
   var legends = {
-    craftsmen: { title: '職人需給バランス凡例', l1: '深刻に逼迫（-15%以下）', l2: '逼迫（-5〜-15%）', l3: '均衡（±5%）', l4: '供給余力あり（+5%以上）', cansupply: '緑枠：本案件から調達可能なエリア' },
-    equipment: { title: '重機需給バランス凡例', l1: '深刻に逼迫（-15%以下）', l2: '逼迫（-5〜-15%）', l3: '均衡（±5%）', l4: '供給余力あり（+5%以上）', cansupply: '緑枠：30km圏内・本案件への重機輸送可能エリア' },
-    concrete: { title: '生コン供給バランス凡例', l1: '供給枠ほぼ無し（-15%以下）', l2: '逼迫（-5〜-15%）', l3: '均衡（±5%）', l4: '供給余力あり（+5%以上）', cansupply: '緑枠：20km圏内・90分運搬可能エリア' },
-    steel: { title: '鋼材供給バランス凡例', l1: '在庫逼迫（-15%以下）', l2: '在庫やや少（-5〜-15%）', l3: '均衡（±5%）', l4: '在庫豊富（+5%以上）', cansupply: '緑枠：陸送可能な調達拠点エリア' },
-    competing: { title: '競合案件密度凡例', l1: '競合多数（密度高）', l2: '競合あり（密度中）', l3: '競合少（密度低）', l4: '競合ほぼなし', cansupply: '緑枠：競合影響の小さいエリア' }
+    craftsmen: { title: '職人需給バランス凡例', cansupply: '緑枠：本案件から調達可能なエリア' },
+    equipment: { title: '重機需給バランス凡例', cansupply: '緑枠：30km圏内・重機輸送可能エリア' },
+    concrete:  { title: '生コン供給バランス凡例', cansupply: '緑枠：20km圏内・90分運搬可能エリア' },
+    steel:     { title: '鋼材供給バランス凡例', cansupply: '緑枠：陸送可能な調達拠点エリア' },
+    competing: { title: '競合案件密度凡例', cansupply: '緑枠：競合影響の小さいエリア' }
   };
 
   var leg = legends[layerType] || legends.craftsmen;
   if (titleEl) titleEl.textContent = leg.title;
-  if (l1) l1.textContent = leg.l1;
-  if (l2) l2.textContent = leg.l2;
-  if (l3) l3.textContent = leg.l3;
-  if (l4) l4.textContent = leg.l4;
   if (cansupplyEl) cansupplyEl.innerHTML = leg.cansupply;
 }
 
@@ -2867,6 +2864,12 @@ function hideLayerSwitchOverlay() {
 
 function updateTimeline(monthIdx) {
   monthIdx = parseInt(monthIdx);
+  var snapshotEl = document.getElementById('sd-timeline-snapshot');
+  if (snapshotEl) {
+    if (monthIdx === 0) snapshotEl.textContent = '工事開始時（着工日）';
+    else if (monthIdx === 11) snapshotEl.textContent = '竣工時';
+    else snapshotEl.textContent = '着工から ' + monthIdx + 'ヶ月後';
+  }
   document.getElementById('sd-timeline-month').textContent = (monthIdx + 1) + 'ヶ月目';
   var phase = projectPhases[monthIdx];
   var phaseEl = document.getElementById('sd-timeline-phase');

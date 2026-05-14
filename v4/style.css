@@ -2559,3 +2559,31 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
 .pd-resource-bar-wrap { flex: 1; height: 14px; background: #f4f4f4; border-radius: 3px; position: relative; }
 .pd-resource-bar { height: 100%; background: linear-gradient(to right, #5a8a3c, #88b562); border-radius: 3px; }
 .pd-resource-bar-value { font-size: 10px; color: #333; width: 60px; text-align: right; }
+
+/* ===== V4 Legend Gradient ===== */
+.sd-legend-gradient { padding: 4px 0; }
+.sd-legend-gradient-bar {
+  height: 12px;
+  border-radius: 3px;
+  background: linear-gradient(to right, rgb(253,229,229), rgb(232,140,140), rgb(200,80,80), rgb(176,48,48));
+  border: 1px solid #e0e0e0;
+}
+.sd-legend-gradient-labels {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 2px 0;
+  font-size: 10px;
+  color: #666;
+}
+
+/* ===== V4 Timeline Snapshot ===== */
+.sd-timeline-snapshot {
+  font-size: 11px;
+  font-weight: 600;
+  color: #1a3658;
+  background: #f0f6fd;
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 1px solid #c5d9ee;
+  flex-shrink: 0;
+}
