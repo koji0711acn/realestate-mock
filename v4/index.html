@@ -269,20 +269,20 @@
           <div class="sd-project-label" id="sd-project-label"></div>
         </div>
         <div class="sd-legend">
-          <div class="sd-legend-title">需給バランス凡例</div>
-          <div class="sd-legend-row"><span class="sd-legend-color" style="background:#e85a5a;opacity:0.6"></span>深刻に逼迫（-15%以下）</div>
-          <div class="sd-legend-row"><span class="sd-legend-color" style="background:#f0a050;opacity:0.6"></span>逼迫（-5〜-15%）</div>
-          <div class="sd-legend-row"><span class="sd-legend-color" style="background:#efd333;opacity:0.6"></span>均衡（±5%）</div>
-          <div class="sd-legend-row"><span class="sd-legend-color" style="background:#88b562;opacity:0.6"></span>供給余力あり（+5%以上）</div>
-          <div class="sd-legend-row" style="border-top:1px solid #ececec;padding-top:6px;margin-top:4px;font-size:10px;color:#666">緑枠：本案件から調達可能</div>
+          <div class="sd-legend-title" id="sd-legend-title">職人需給バランス凡例</div>
+          <div class="sd-legend-row"><span class="sd-legend-color" style="background:#e85a5a;opacity:0.6"></span><span id="sd-legend-label-1">深刻に逼迫（-15%以下）</span></div>
+          <div class="sd-legend-row"><span class="sd-legend-color" style="background:#f0a050;opacity:0.6"></span><span id="sd-legend-label-2">逼迫（-5〜-15%）</span></div>
+          <div class="sd-legend-row"><span class="sd-legend-color" style="background:#efd333;opacity:0.6"></span><span id="sd-legend-label-3">均衡（±5%）</span></div>
+          <div class="sd-legend-row"><span class="sd-legend-color" style="background:#88b562;opacity:0.6"></span><span id="sd-legend-label-4">供給余力あり（+5%以上）</span></div>
+          <div class="sd-legend-row" id="sd-legend-cansupply" style="border-top:1px solid #ececec;padding-top:6px;margin-top:4px;font-size:10px;color:#666">緑枠：本案件から調達可能</div>
         </div>
         <div class="sd-layer-controls">
           <div class="sd-layer-controls-title">分析対象レイヤー</div>
-          <label class="sd-layer-toggle active" data-layer="craftsmen"><input type="radio" name="layer" checked onchange="switchLayerType('craftsmen')"> <span class="sd-layer-color" style="background:#e85a5a"></span>職人需給 <span class="sd-layer-range">東北100km圏</span></label>
-          <label class="sd-layer-toggle" data-layer="equipment"><input type="radio" name="layer" onchange="switchLayerType('equipment')"> <span class="sd-layer-color" style="background:#f0a050"></span>重機需給 <span class="sd-layer-range">30km圏</span></label>
-          <label class="sd-layer-toggle" data-layer="concrete"><input type="radio" name="layer" onchange="switchLayerType('concrete')"> <span class="sd-layer-color" style="background:#5a8a3c"></span>生コン供給 <span class="sd-layer-range">20km圏</span></label>
-          <label class="sd-layer-toggle" data-layer="steel"><input type="radio" name="layer" onchange="switchLayerType('steel')"> <span class="sd-layer-color" style="background:#3a7a5c"></span>鋼材調達 <span class="sd-layer-range">関東圏</span></label>
-          <label class="sd-layer-toggle" data-layer="competing"><input type="radio" name="layer" onchange="switchLayerType('competing')"> <span class="sd-layer-color" style="background:#2c5d8f"></span>競合案件 <span class="sd-layer-range">東北100km圏</span></label>
+          <label class="sd-layer-toggle active" data-layer="craftsmen"><input type="radio" name="layer" checked onchange="switchLayerType('craftsmen')"> 職人需給 <span class="sd-layer-range">東北100km圏</span></label>
+          <label class="sd-layer-toggle" data-layer="equipment"><input type="radio" name="layer" onchange="switchLayerType('equipment')"> 重機需給 <span class="sd-layer-range">30km圏</span></label>
+          <label class="sd-layer-toggle" data-layer="concrete"><input type="radio" name="layer" onchange="switchLayerType('concrete')"> 生コン供給 <span class="sd-layer-range">20km圏</span></label>
+          <label class="sd-layer-toggle" data-layer="steel"><input type="radio" name="layer" onchange="switchLayerType('steel')"> 鋼材調達 <span class="sd-layer-range">関東圏</span></label>
+          <label class="sd-layer-toggle" data-layer="competing"><input type="radio" name="layer" onchange="switchLayerType('competing')"> 競合案件 <span class="sd-layer-range">東北100km圏</span></label>
         </div>
         <div class="sd-timeline-controls">
           <div class="sd-timeline-label">工期スライダー</div>

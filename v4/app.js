@@ -2696,7 +2696,33 @@ function initSDMap() {
   // GeoJSONをロード後、初期レイヤー（職人需給）を描画
   loadJapanGeoJSON().then(function() {
     drawSupplyAreaLayer('craftsmen');
+    updateLegendForLayer('craftsmen');
   });
+}
+
+function updateLegendForLayer(layerType) {
+  var titleEl = document.getElementById('sd-legend-title');
+  var l1 = document.getElementById('sd-legend-label-1');
+  var l2 = document.getElementById('sd-legend-label-2');
+  var l3 = document.getElementById('sd-legend-label-3');
+  var l4 = document.getElementById('sd-legend-label-4');
+  var cansupplyEl = document.getElementById('sd-legend-cansupply');
+
+  var legends = {
+    craftsmen: { title: '職人需給バランス凡例', l1: '深刻に逼迫（-15%以下）', l2: '逼迫（-5〜-15%）', l3: '均衡（±5%）', l4: '供給余力あり（+5%以上）', cansupply: '緑枠：本案件から調達可能なエリア' },
+    equipment: { title: '重機需給バランス凡例', l1: '深刻に逼迫（-15%以下）', l2: '逼迫（-5〜-15%）', l3: '均衡（±5%）', l4: '供給余力あり（+5%以上）', cansupply: '緑枠：30km圏内・本案件への重機輸送可能エリア' },
+    concrete: { title: '生コン供給バランス凡例', l1: '供給枠ほぼ無し（-15%以下）', l2: '逼迫（-5〜-15%）', l3: '均衡（±5%）', l4: '供給余力あり（+5%以上）', cansupply: '緑枠：20km圏内・90分運搬可能エリア' },
+    steel: { title: '鋼材供給バランス凡例', l1: '在庫逼迫（-15%以下）', l2: '在庫やや少（-5〜-15%）', l3: '均衡（±5%）', l4: '在庫豊富（+5%以上）', cansupply: '緑枠：陸送可能な調達拠点エリア' },
+    competing: { title: '競合案件密度凡例', l1: '競合多数（密度高）', l2: '競合あり（密度中）', l3: '競合少（密度低）', l4: '競合ほぼなし', cansupply: '緑枠：競合影響の小さいエリア' }
+  };
+
+  var leg = legends[layerType] || legends.craftsmen;
+  if (titleEl) titleEl.textContent = leg.title;
+  if (l1) l1.textContent = leg.l1;
+  if (l2) l2.textContent = leg.l2;
+  if (l3) l3.textContent = leg.l3;
+  if (l4) l4.textContent = leg.l4;
+  if (cansupplyEl) cansupplyEl.innerHTML = leg.cansupply;
 }
 
 function switchLayerType(layerType) {
@@ -2704,6 +2730,7 @@ function switchLayerType(layerType) {
   document.querySelectorAll('.sd-layer-toggle').forEach(function(el) { el.classList.remove('active'); });
   var activeLabel = document.querySelector('.sd-layer-toggle[data-layer="' + layerType + '"]');
   if (activeLabel) activeLabel.classList.add('active');
+  updateLegendForLayer(layerType);
 
   var setting = layerViewSettings[layerType];
   if (!setting || !sdMap) return;
