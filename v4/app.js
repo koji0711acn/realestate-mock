@@ -3558,3 +3558,120 @@ async function endHearingSession() {
   hearingSessionId = null;
   hearingMemoData = {};
 }
+
+// ===== V4 Summary Downloads =====
+function downloadVendorListCSV() {
+  var projectName = window.selectedProject ? window.selectedProject.name : 'D-room泉区紫山新築計画';
+  var today = new Date();
+  var dateStr = today.getFullYear() + '-' + ('0' + (today.getMonth() + 1)).slice(-2) + '-' + ('0' + today.getDate()).slice(-2);
+
+  var hasSecured = Object.keys(securedVendors).length > 0;
+  var targetVendors = hasSecured
+    ? vendorRecommendationsData.filter(function(v) { return securedVendors[v.id]; })
+    : vendorRecommendationsData;
+
+  var header = ['業者ID', '業種', '業者名', '所在地', '距離', '対応期間', '単価', '提供可能量', 'PF評価', '取引区分'];
+
+  var rows = targetVendors.map(function(v) {
+    var status = securedVendors[v.id] ? '確保済み' : '提案中';
+    return [v.id, v.category, v.name, v.location, v.distance, v.period, v.unit, v.capacity, v.evaluation, status];
+  });
+
+  var csv = '﻿';
+  csv += '案件名,' + projectName + '\n';
+  csv += '発行日,' + dateStr + '\n';
+  csv += '\n';
+  csv += header.join(',') + '\n';
+  rows.forEach(function(r) {
+    csv += r.map(function(c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(',') + '\n';
+  });
+
+  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  var url = URL.createObjectURL(blob);
+  var link = document.createElement('a');
+  link.href = url;
+  link.download = '業者リスト_' + projectName + '_' + dateStr + '.csv';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+function downloadOrderConfirmationPDF() {
+  if (typeof window.jspdf === 'undefined' || !window.jspdf.jsPDF) {
+    alert('PDFライブラリが読み込まれていません。ページを再読み込みしてください。');
+    return;
+  }
+
+  var projectName = window.selectedProject ? window.selectedProject.name : 'D-room泉区紫山新築計画';
+  var ownerName = window.selectedProject && window.selectedProject.owner ? window.selectedProject.owner + '様' : '田中様';
+  var location = window.selectedProject ? window.selectedProject.location : '仙台市泉区紫山';
+  var today = new Date();
+  var dateStr = today.getFullYear() + '年' + (today.getMonth() + 1) + '月' + today.getDate() + '日';
+
+  var hasSecured = Object.keys(securedVendors).length > 0;
+  var targetVendors = hasSecured
+    ? vendorRecommendationsData.filter(function(v) { return securedVendors[v.id]; })
+    : vendorRecommendationsData;
+
+  if (targetVendors.length === 0) {
+    alert('発行対象の業者が選択されていません。');
+    return;
+  }
+
+  var doc = new window.jspdf.jsPDF({ format: 'a4', unit: 'mm' });
+
+  doc.setFontSize(20);
+  doc.text('Resource Procurement Confirmation', 105, 40, { align: 'center' });
+  doc.setFontSize(14);
+  doc.text('(Construction Resource Order)', 105, 50, { align: 'center' });
+
+  doc.setFontSize(11);
+  doc.text('Project: ' + projectName, 20, 80);
+  doc.text('Client: ' + ownerName, 20, 90);
+  doc.text('Location: ' + location, 20, 100);
+  doc.text('Issue Date: ' + dateStr, 20, 110);
+  doc.text('Contractor: Daiwa House Industry Co., Ltd.', 20, 120);
+  doc.text('Total Vendors: ' + targetVendors.length, 20, 130);
+
+  doc.setFontSize(9);
+  doc.text('This document confirms the resource procurement contracts arranged via the', 20, 160);
+  doc.text('Cross-Industry Social Capital Visualization Platform (RWAI).', 20, 167);
+  doc.text('All vendor agreements below have been standardized through the platform.', 20, 174);
+
+  targetVendors.forEach(function(v, idx) {
+    doc.addPage();
+
+    doc.setFontSize(16);
+    doc.text('Vendor Order Detail #' + (idx + 1), 105, 25, { align: 'center' });
+
+    doc.setFontSize(11);
+    var y = 50;
+    var rows = [
+      ['Vendor ID', v.id],
+      ['Category', v.category],
+      ['Vendor Name', v.name],
+      ['Location', v.location],
+      ['Distance from Site', v.distance],
+      ['Service Period', v.period],
+      ['Unit Price', v.unit],
+      ['Capacity Provided', v.capacity],
+      ['PF Evaluation', v.evaluation],
+      ['Status', securedVendors[v.id] ? 'Confirmed' : 'Proposed']
+    ];
+
+    rows.forEach(function(r) {
+      doc.text(r[0] + ':', 25, y);
+      doc.text(String(r[1]), 80, y);
+      y += 10;
+    });
+
+    doc.setFontSize(9);
+    doc.text('This order has been processed through the standardized contract template', 25, y + 15);
+    doc.text('of the Cross-Industry Social Capital Visualization Platform.', 25, y + 22);
+    doc.text('Signature/Seal (Vendor): _________________', 25, y + 40);
+    doc.text('Signature/Seal (Contractor): _________________', 25, y + 50);
+  });
+
+  doc.save('Order_Confirmation_' + projectName.replace(/[^a-zA-Z0-9]/g, '_') + '.pdf');
+}

@@ -2506,3 +2506,11 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
 /* ===== V4 Vendor Secured Button (Toggle) ===== */
 .vr-vendor-secure-btn-secured { background: #5a8a3c !important; }
 .vr-vendor-secure-btn-secured:hover { background: #c44a4a !important; }
+
+/* ===== V4 Summary Download Section ===== */
+.sm-download-section { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px 24px; margin: 0 0 24px; }
+.sm-download-title { font-size: 14px; font-weight: 600; color: #1a3658; margin: 0 0 6px; }
+.sm-download-desc { font-size: 12px; color: #666; line-height: 1.6; margin: 0 0 14px; }
+.sm-download-buttons { display: flex; gap: 12px; flex-wrap: wrap; }
+.sm-download-btn { background: #fff; color: #1a3658; border: 1px solid #1a3658; padding: 10px 18px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+.sm-download-btn:hover { background: #f0f3f7; }

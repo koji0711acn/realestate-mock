@@ -13,6 +13,8 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <!-- Leaflet Draw CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+  <!-- jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <link rel="stylesheet" href="style.css?v=20260514v4">
 </head>
@@ -416,6 +418,15 @@
         <div class="sm-future-text">
           <div class="sm-future-title">本案件のデータも、将来の地域全体のリソース最適化に蓄積されます</div>
           <div class="sm-future-desc">業界全体の社会資本を一つのインフラとして可視化・整理し、全国に最適配分していく構想の一部です</div>
+        </div>
+      </div>
+
+      <div class="sm-download-section">
+        <div class="sm-download-title">調達計画のドキュメント</div>
+        <p class="sm-download-desc">本案件の調達計画書面と業者リストをダウンロードできます。社内決裁・記録用にご活用ください。</p>
+        <div class="sm-download-buttons">
+          <button class="sm-download-btn" onclick="downloadVendorListCSV()">📄 業者リスト（CSV）をダウンロード</button>
+          <button class="sm-download-btn" onclick="downloadOrderConfirmationPDF()">📑 取引確定書（PDF）をダウンロード</button>
         </div>
       </div>
 
