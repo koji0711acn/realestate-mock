@@ -2292,27 +2292,33 @@ var layerMunicipalityData = {
     '陸前高田市':    { status: 'tight-medium', balance: -8, supply: 4, demand: 5, canSupply: true }
   },
   equipment: {
-    '仙台市青葉区':  { status: 'tight-high', balance: -28, supply: 8, demand: 11 },
-    '仙台市泉区':    { status: 'tight-high', balance: -20, supply: 6, demand: 8, isProject: true },
-    '仙台市太白区':  { status: 'tight-medium', balance: -10, supply: 10, demand: 11 },
-    '仙台市若林区':  { status: 'tight-medium', balance: -8, supply: 11, demand: 12 },
-    '仙台市宮城野区':{ status: 'tight-high', balance: -18, supply: 7, demand: 9 },
+    '仙台市青葉区':  { status: 'tight-high', balance: -28, supply: 8, demand: 11, canSupply: true },
+    '仙台市泉区':    { status: 'tight-high', balance: -20, supply: 6, demand: 8, isProject: true, canSupply: true },
+    '仙台市太白区':  { status: 'tight-medium', balance: -10, supply: 10, demand: 11, canSupply: true },
+    '仙台市若林区':  { status: 'tight-medium', balance: -8, supply: 11, demand: 12, canSupply: true },
+    '仙台市宮城野区':{ status: 'tight-high', balance: -18, supply: 7, demand: 9, canSupply: true },
     '多賀城市':      { status: 'surplus', balance: 8, supply: 14, demand: 13, canSupply: true },
     '塩竈市':        { status: 'balanced', balance: 2, supply: 6, demand: 6, canSupply: true },
     '名取市':        { status: 'balanced', balance: -3, supply: 12, demand: 12, canSupply: true },
     '富谷市':        { status: 'surplus', balance: 15, supply: 10, demand: 8, canSupply: true },
     '利府町':        { status: 'surplus', balance: 12, supply: 8, demand: 7, canSupply: true },
-    '岩沼市':        { status: 'balanced', balance: -1, supply: 9, demand: 9, canSupply: true }
+    '岩沼市':        { status: 'balanced', balance: -1, supply: 9, demand: 9, canSupply: true },
+    '七ヶ浜町':      { status: 'balanced', balance: 4, supply: 5, demand: 5, canSupply: true },
+    '松島町':        { status: 'surplus', balance: 10, supply: 6, demand: 5, canSupply: true },
+    '大和町':        { status: 'balanced', balance: 5, supply: 7, demand: 7, canSupply: true },
+    '柴田町':        { status: 'balanced', balance: 2, supply: 6, demand: 6, canSupply: true }
   },
   concrete: {
-    '仙台市青葉区':  { status: 'tight-high', balance: -32, supply: 2, demand: 5 },
-    '仙台市泉区':    { status: 'tight-high', balance: -25, supply: 1, demand: 2, isProject: true },
-    '仙台市太白区':  { status: 'tight-medium', balance: -12, supply: 3, demand: 4 },
+    '仙台市青葉区':  { status: 'tight-high', balance: -32, supply: 2, demand: 5, canSupply: true },
+    '仙台市泉区':    { status: 'tight-high', balance: -25, supply: 1, demand: 2, isProject: true, canSupply: true },
+    '仙台市太白区':  { status: 'tight-medium', balance: -12, supply: 3, demand: 4, canSupply: true },
     '仙台市若林区':  { status: 'balanced', balance: -2, supply: 4, demand: 4, canSupply: true },
     '仙台市宮城野区':{ status: 'balanced', balance: -3, supply: 4, demand: 4, canSupply: true },
     '多賀城市':      { status: 'surplus', balance: 10, supply: 5, demand: 4, canSupply: true },
     '塩竈市':        { status: 'surplus', balance: 12, supply: 4, demand: 3, canSupply: true },
-    '名取市':        { status: 'surplus', balance: 12, supply: 4, demand: 3, canSupply: true }
+    '名取市':        { status: 'surplus', balance: 12, supply: 4, demand: 3, canSupply: true },
+    '七ヶ浜町':      { status: 'surplus', balance: 8, supply: 3, demand: 3, canSupply: true },
+    '利府町':        { status: 'surplus', balance: 9, supply: 3, demand: 3, canSupply: true }
   },
   steel: {
     '仙台市青葉区':  { status: 'tight-medium', balance: -10, supply: 3, demand: 4, isProject: true },
@@ -3045,6 +3051,8 @@ function showSupplyDemandView() {
   if (alertSec) alertSec.style.display = 'none';
   if (extSec) extSec.style.display = 'none';
   if (ctaSec) ctaSec.style.display = 'none';
+  var pfMsg = document.getElementById('sd-pf-msg');
+  if (pfMsg) pfMsg.remove();
   updateTimeline(0);
 }
 
@@ -3109,28 +3117,24 @@ function showLayerMoreInfo() {
 }
 
 function switchLayerType(layerType) {
-  // ラジオボタンのactive切替
   document.querySelectorAll('.sd-layer-toggle').forEach(function(el) { el.classList.remove('active'); });
   var activeLabel = document.querySelector('.sd-layer-toggle[data-layer="' + layerType + '"]');
   if (activeLabel) activeLabel.classList.add('active');
+
   updateLegendForLayer(layerType);
 
   var setting = layerViewSettings[layerType];
   if (!setting || !sdMap) return;
 
-  // 切替演出オーバーレイを表示（300ms）
   showLayerSwitchOverlay(layerType);
 
-  // 200ms後にレイヤーをクリアし、地図移動
   setTimeout(function() {
     clearSupplyAreaLayers();
     sdMap.invalidateSize();
     sdMap.setView(setting.center, setting.zoom, { animate: false });
   }, 200);
 
-  // 500ms後に新レイヤーを再描画（オーバーレイ消えるタイミングと合わせる）
   setTimeout(function() {
-    clearSupplyAreaLayers();
     drawSupplyAreaLayer(layerType);
     hideLayerSwitchOverlay();
   }, 500);
@@ -3199,6 +3203,17 @@ var simSteps = [
 var simulationCompleted = false;
 
 function startTimelineSimulation() {
+  var layerNames = {
+    craftsmen: '職人需給（東北100km圏）',
+    equipment: '重機需給（30km圏）',
+    concrete: '生コン供給（20km圏）',
+    competing: '競合案件動向'
+  };
+  var targetEl = document.getElementById('sd-sim-target');
+  if (targetEl) {
+    targetEl.textContent = '対象レイヤー：' + (layerNames[currentLayerType] || currentLayerType);
+  }
+
   document.getElementById('sd-simulation-section').style.display = 'none';
 
   var progressSection = document.getElementById('sd-sim-progress-section');
@@ -3279,7 +3294,20 @@ function completeSimulation() {
   document.getElementById('sd-sim-progress-section').style.display = 'none';
 
   document.getElementById('sd-alerts-section').style.display = 'block';
-  document.getElementById('sd-extended-section').style.display = 'block';
+
+  var extSec = document.getElementById('sd-extended-section');
+  if (extSec) extSec.style.display = 'none';
+
+  document.getElementById('sd-panel-cta').style.display = 'block';
+
+  var alertsSec = document.getElementById('sd-alerts-section');
+  if (alertsSec && !document.getElementById('sd-pf-msg')) {
+    var msgDiv = document.createElement('div');
+    msgDiv.id = 'sd-pf-msg';
+    msgDiv.className = 'sd-pf-msg';
+    msgDiv.innerHTML = '<div class="sd-pf-msg-icon">🔍</div><div class="sd-pf-msg-text"><strong>業界横断PFから追加候補を発見</strong><br>本案件の条件に合う調達候補が他の市区町村にも存在します。最適化プランで具体的に確認できます。</div>';
+    alertsSec.parentNode.insertBefore(msgDiv, alertsSec);
+  }
 
   renderAlerts();
 }
