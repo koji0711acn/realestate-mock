@@ -21,8 +21,12 @@
 <body>
 
   <!-- ===== App Tabs ===== -->
-  <div id="app-tabs" style="display:none;position:fixed;top:0;left:0;right:0;height:40px;background:#f2f7ee;border-bottom:1px solid #d4e4c8;z-index:10000;align-items:center;padding:0 16px">
-    <div id="tab-map" class="app-tab active" onclick="switchAppTab('map')" style="padding:8px 20px;font-size:13px;cursor:pointer;border-bottom:2px solid #5a8a3c;color:#3d6b24;font-weight:500">マップ</div>
+  <div id="app-tabs" class="app-scenario-guide" style="display:none">
+    <div class="asg-step" id="asg-step-indicator">
+      <span class="asg-step-label">STEP <span id="asg-step-num">1</span> / 4</span>
+      <span class="asg-step-title" id="asg-step-title">ようこそ</span>
+    </div>
+    <div class="asg-step-desc" id="asg-step-desc">本デモへようこそ</div>
   </div>
 
   <!-- ===== Login Screen (Task 11) ===== -->
@@ -310,6 +314,20 @@
   <div id="supply-demand-view" style="display:none;position:fixed;top:40px;bottom:0;left:0;right:0;background:#fafafa">
     <div class="sd-layout">
       <div class="sd-map-container">
+        <div class="sd-map-banner" id="sd-map-banner">
+          <div class="sd-map-banner-row">
+            <span class="sd-map-banner-key">緑枠</span>
+            <span class="sd-map-banner-val">本案件から調達可能なエリア（<span id="sd-banner-range">100km圏内</span>の自治体）</span>
+          </div>
+          <div class="sd-map-banner-row">
+            <span class="sd-map-banner-key">色の濃淡</span>
+            <span class="sd-map-banner-val">エリア内の需給バランス（薄い＝余力あり、濃い＝逼迫）</span>
+          </div>
+          <div class="sd-map-banner-row sd-map-banner-action">
+            <span class="sd-map-banner-action-icon">👆</span>
+            <span>左の「主な調達対象」でレイヤー切替、市区町村クリックで詳細表示</span>
+          </div>
+        </div>
         <div id="sd-map"></div>
         <div class="sd-map-overlay-top">
           <button class="sd-back-btn" onclick="backToProjectDetail()">← 案件詳細に戻る</button>

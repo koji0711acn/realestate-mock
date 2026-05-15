@@ -2796,3 +2796,101 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
 }
 .vr-cta-verified-title { font-size: 14px; font-weight: 600; color: #1a3658; margin: 0 0 2px; }
 .vr-cta-verified-desc { font-size: 11px; color: #666; line-height: 1.5; }
+
+/* ===== V4 Scenario Guide ===== */
+.app-scenario-guide {
+  position: fixed;
+  top: 40px;
+  left: 0; right: 0;
+  background: #1a3658;
+  color: #fff;
+  padding: 10px 24px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.asg-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.asg-step-label {
+  background: rgba(255,255,255,0.15);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.asg-step-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+.asg-step-desc {
+  flex: 1;
+  font-size: 13px;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.5;
+}
+
+.app-scenario-guide ~ #project-list-view,
+.app-scenario-guide ~ #project-detail-view,
+.app-scenario-guide ~ #supply-demand-view,
+.app-scenario-guide ~ #optimization-view,
+.app-scenario-guide ~ #vendor-recommendations-view,
+.app-scenario-guide ~ #summary-view {
+  padding-top: 56px;
+}
+
+/* ===== V4 Map Banner ===== */
+.sd-map-banner {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  padding: 12px 18px;
+  z-index: 500;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  font-size: 12px;
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sd-map-banner-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.sd-map-banner-key {
+  font-weight: 600;
+  color: #1a3658;
+  background: #f0f6fd;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  flex-shrink: 0;
+  min-width: 60px;
+  text-align: center;
+}
+.sd-map-banner-val {
+  color: #555;
+  line-height: 1.5;
+}
+.sd-map-banner-action {
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px dashed #ececec;
+  color: #5a8a3c;
+  font-weight: 500;
+}
+.sd-map-banner-action-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+}

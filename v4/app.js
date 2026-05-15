@@ -2028,6 +2028,7 @@ function showProjectDetailView(projectId) {
   window.selectedProject = project;
   document.getElementById('project-list-view').style.display = 'none';
   document.getElementById('project-detail-view').style.display = 'block';
+  updateScenarioGuide(1, '案件詳細の確認', '建物概要・工程予算・必要リソースを確認後、「調達計画の分析を開始」で次のステップへ進みます。');
   document.getElementById('pd-id').textContent = project.id;
   document.getElementById('pd-project-name').textContent = project.name;
   document.getElementById('pd-project-location').textContent = project.location;
@@ -2082,6 +2083,22 @@ function startResourceAnalysis() {
   startAnalysisLoadingAnimation();
 }
 
+function updateScenarioGuide(stepNum, title, desc) {
+  var guide = document.getElementById('app-tabs');
+  if (!guide) return;
+  guide.style.display = 'flex';
+  guide.className = 'app-scenario-guide';
+  document.getElementById('asg-step-num').textContent = stepNum;
+  document.getElementById('asg-step-title').textContent = title;
+  document.getElementById('asg-step-desc').textContent = desc;
+}
+
+function hideScenarioGuide() {
+  var guide = document.getElementById('app-tabs');
+  if (!guide) return;
+  guide.style.display = 'none';
+}
+
 function showProjectListView() {
   var landingScreen = document.getElementById('landing-screen') || document.getElementById('screen-0') || document.getElementById('screen0');
   if (landingScreen) landingScreen.style.display = 'none';
@@ -2095,11 +2112,7 @@ function showProjectListView() {
   var plView = document.getElementById('project-list-view');
   if (plView) plView.style.display = 'block';
 
-  var appTabs = document.getElementById('app-tabs');
-  if (appTabs) appTabs.style.display = 'flex';
-
-  var tabMap = document.getElementById('tab-map');
-  if (tabMap) tabMap.textContent = '案件一覧';
+  updateScenarioGuide(1, '案件選択', '本デモで分析する案件を選択します。デモ対象はPRJ002（D-room泉区紫山新築計画）です。');
 }
 
 // ===== V4 Scene 2: Supply Demand Data =====
@@ -3018,6 +3031,7 @@ function startAnalysisLoadingAnimation() {
 // ===== V4 Scene 2: Supply Demand View =====
 function showSupplyDemandView() {
   document.getElementById('supply-demand-view').style.display = 'block';
+  updateScenarioGuide(2, '需給可視化', '左の「主な調達対象」でレイヤーを切替、右の「AIシミュレーションを開始」で工期全体のリスクを分析します。');
 
   var p = window.selectedProject;
   if (p) {
@@ -3089,6 +3103,15 @@ function updateLegendForLayer(layerType) {
   var leg = legends[layerType] || legends.craftsmen;
   if (titleEl) titleEl.textContent = leg.title;
   if (cansupplyEl) cansupplyEl.innerHTML = leg.cansupply;
+
+  var rangeEl = document.getElementById('sd-banner-range');
+  if (rangeEl) {
+    var rangeMap = {
+      craftsmen: '100km圏内', equipment: '30km圏内', concrete: '20km圏内',
+      steel: '関東圏まで', competing: '東北100km圏内'
+    };
+    rangeEl.textContent = rangeMap[layerType] || '100km圏内';
+  }
 }
 
 function switchLayerTypeDisabled(layerType, layerName) {
@@ -3534,6 +3557,7 @@ function startOptimizationLoading() {
 
 function showOptimizationPlansView() {
   document.getElementById('optimization-plans-view').style.display = 'block';
+  updateScenarioGuide(3, '最適化プランの選択', 'AI推奨プランを比較し、最適な調達戦略を選択します。各プランの「+詳細を見る」で内訳を確認できます。');
   renderOptimizationPlans();
   selectedPlanId = null;
   document.getElementById('op-confirm-btn').style.display = 'none';
@@ -3660,6 +3684,7 @@ function backToSupplyDemandView() {
 
 function showVendorRecommendationView() {
   document.getElementById('vendor-recommendation-view').style.display = 'block';
+  updateScenarioGuide(3, '業者の確定', 'AIが推奨する業者一覧を確認し、業界横断PF経由で取引を確定します。');
   securedVendors = {};
   renderVendorCards();
   updateFinalizeButton();
@@ -3777,6 +3802,7 @@ function returnToProjectList() {
 
 function showSummaryView() {
   document.getElementById('summary-view').style.display = 'block';
+  updateScenarioGuide(4, '契約完了とドキュメント発行', '調達計画が確定しました。業者リストと取引確定書をダウンロードできます。');
 }
 
 function restartDemo() {
