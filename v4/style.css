@@ -2934,7 +2934,8 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
   gap: 12px;
 }
 .lc-col {
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
   background: #fff;
   border: 1px solid #e0e0e0;
   border-radius: 10px;
@@ -3020,6 +3021,8 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
 .lc-scroll-wrapper {
   position: relative;
   margin-top: 12px;
+  max-width: 100%;
+  overflow: hidden;
 }
 .lc-scroll-hint {
   font-size: 10px;
@@ -3028,12 +3031,18 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
   margin: 0 0 6px;
 }
 .lc-scroll-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 11px;
   display: block;
   overflow-x: auto;
+  max-width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
   white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+}
+.lc-scroll-table thead, .lc-scroll-table tbody, .lc-scroll-table tr {
+  display: table;
+  width: max-content;
+  table-layout: fixed;
 }
 .lc-scroll-table thead {
   background: #f0f3f7;
@@ -3128,4 +3137,28 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
   position: absolute;
   left: 0;
   color: #2c5d8f;
+}
+
+/* ===== V4 Landing Comparison Scroll Refinement ===== */
+.lc-scroll-table::-webkit-scrollbar {
+  height: 8px;
+}
+.lc-scroll-table::-webkit-scrollbar-track {
+  background: #f0f3f7;
+  border-radius: 4px;
+}
+.lc-scroll-table::-webkit-scrollbar-thumb {
+  background: #b8c5d4;
+  border-radius: 4px;
+}
+.lc-scroll-table::-webkit-scrollbar-thumb:hover {
+  background: #8fa3bc;
+}
+.lc-scroll-hint {
+  font-size: 10px;
+  color: #2c5d8f;
+  text-align: center;
+  margin: 0 0 6px;
+  font-weight: 500;
+  user-select: none;
 }
