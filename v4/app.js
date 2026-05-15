@@ -2842,53 +2842,40 @@ var monthlyIntensityMultiplier = [
 
 var alertsData = [
   {
-    id: 'alert1',
+    id: 'ALT01',
     severity: 'high',
-    title: '鉄筋工の調達リスク',
-    detail: {
-      period: '基礎・躯体工事のピーク時期（着工4〜6か月目）',
-      area: '東北全域、特に仙台市内および石巻・福島方面',
-      cause: '仙台地下鉄延伸工事、石巻災害復旧工事、近隣民間案件3件との競合',
-      impact: '地元協力会社のみでは6人工不足。工期1.5か月延長の可能性',
-      bimNote: '過去類似案件のBIM実績データから、本案件は鉄筋工48人工が必要と算出（業界標準値より6%多い）',
-      dataSource: '建設労働需給調査（東北地方、令和6年9月）'
-    }
+    title: '職人需給の深刻な逼迫（工期4-6ヶ月目）',
+    description: '仙台市内中心部の鉄筋工が深刻に逼迫（-22%）。地元協力会社のみでは工期1.5ヶ月の遅延見込み。',
+    impact: '工期+1.5ヶ月、コスト+14%',
+    relatedMunicipality: '仙台市青葉区',
+    icon: '⚠'
   },
   {
-    id: 'alert2',
+    id: 'ALT02',
+    severity: 'high',
+    title: '生コン供給枠の確保困難（工期5-7ヶ月目）',
+    description: '仙台市内の生コン工場が公共工事案件で先約済み。本案件の打設タイミング調整が必要。',
+    impact: '打設スケジュール再調整',
+    relatedMunicipality: '仙台市青葉区',
+    icon: '⚠'
+  },
+  {
+    id: 'ALT03',
     severity: 'medium',
-    title: '重機（クレーン・杭打ち機）の競合需要',
-    detail: {
-      period: '鉄骨建方時期（着工7〜9か月目）',
-      area: '仙台市内および隣接県',
-      cause: '仙台市地下鉄延伸工事と稼働期間が重複',
-      impact: '自社協力会社ネットワーク内の手配可能性：低。広域からの調達が必要',
-      dataSource: '建設機械器具リース業等の動態調査'
-    }
+    title: '重機（クレーン）の予約困難（工期7-9ヶ月目）',
+    description: '仙台地下鉄工事との競合で50tクレーンの稼働枠が限定的。近隣市から手配する必要あり。',
+    impact: 'リース費+8%、調整工数発生',
+    relatedMunicipality: '仙台市泉区',
+    icon: '⚠'
   },
   {
-    id: 'alert3',
+    id: 'ALT04',
     severity: 'medium',
-    title: '生コンの供給枠制約',
-    detail: {
-      period: '基礎工事および躯体工事の打設タイミング',
-      area: '仙台市内',
-      cause: '仙台市内の生コン工場2社が、東北自動車道補修工事と公共建築物更新需要で受注上限',
-      impact: '打設タイミングの調整、または広域からの調達が必要',
-      dataSource: '主要建設資材需給・価格動向調査'
-    }
-  },
-  {
-    id: 'alert4',
-    severity: 'info',
-    title: '周辺案件の動向',
-    detail: {
-      period: '工期全体',
-      area: '半径10km圏内',
-      cause: '他社民間案件が3件進行中',
-      impact: '職人・重機の争奪可能性あり。事前のリソース確保推奨',
-      dataSource: '案件パイプライン統合データ'
-    }
+    title: '災害復旧需要との競合（東北全域）',
+    description: '石巻港湾施設災害復旧、福島県庁更新等の継続案件で東北の職人プールが拘束されている。',
+    impact: '応援職人の調達経路に制約',
+    relatedMunicipality: '石巻市',
+    icon: '⚠'
   }
 ];
 
@@ -3334,27 +3321,66 @@ function renderAlerts() {
   var container = document.getElementById('sd-alerts-container');
   if (!container) return;
   var html = '';
-  alertsData.forEach(function(a, i) {
-    var severityClass = 'sd-alert-severity-' + a.severity;
-    html += '<div class="sd-alert" data-alert-id="' + a.id + '" onclick="toggleAlert(this)" style="opacity:0;animation:fadeInUp 0.4s ease-out ' + (i * 0.15) + 's forwards">';
-    html += '<div class="sd-alert-header"><div class="sd-alert-severity ' + severityClass + '"></div><div class="sd-alert-title">' + a.title + '</div><div class="sd-alert-toggle">▶</div></div>';
-    html += '<div class="sd-alert-detail">';
-    html += '<div class="sd-alert-detail-row"><span class="sd-alert-detail-key">期間</span><span class="sd-alert-detail-val">' + a.detail.period + '</span></div>';
-    html += '<div class="sd-alert-detail-row"><span class="sd-alert-detail-key">エリア</span><span class="sd-alert-detail-val">' + a.detail.area + '</span></div>';
-    html += '<div class="sd-alert-detail-row"><span class="sd-alert-detail-key">原因</span><span class="sd-alert-detail-val">' + a.detail.cause + '</span></div>';
-    html += '<div class="sd-alert-detail-row"><span class="sd-alert-detail-key">影響</span><span class="sd-alert-detail-val">' + a.detail.impact + '</span></div>';
-    if (a.detail.bimNote) html += '<div class="sd-alert-bim-note">📐 ' + a.detail.bimNote + '</div>';
-    html += '<div class="sd-alert-detail-row" style="margin-top:6px;padding-top:6px;border-top:1px dashed #ececec"><span class="sd-alert-detail-key">データソース</span><span class="sd-alert-detail-val" style="font-size:10px;color:#999">' + a.detail.dataSource + '</span></div>';
-    html += '</div></div>';
+  alertsData.forEach(function(a) {
+    var sevClass = 'sd-alert-' + a.severity;
+    var clickable = a.relatedMunicipality ? ' onclick="focusOnAlertMunicipality(\'' + a.relatedMunicipality + '\', \'' + a.id + '\')"' : '';
+    var clickHint = a.relatedMunicipality ? '<div class="sd-alert-click-hint">📍 地図で確認 →</div>' : '';
+    html += '<div class="sd-alert-item ' + sevClass + (a.relatedMunicipality ? ' sd-alert-clickable' : '') + '"' + clickable + '>';
+    html += '<div class="sd-alert-icon">' + (a.icon || '⚠') + '</div>';
+    html += '<div class="sd-alert-body">';
+    html += '<div class="sd-alert-title">' + a.title + '</div>';
+    html += '<div class="sd-alert-desc">' + a.description + '</div>';
+    html += '<div class="sd-alert-impact">影響: ' + a.impact + '</div>';
+    html += clickHint;
+    html += '</div>';
+    html += '</div>';
   });
   container.innerHTML = html;
+}
 
-  if (!document.getElementById('sd-fadeIn-keyframes')) {
-    var style = document.createElement('style');
-    style.id = 'sd-fadeIn-keyframes';
-    style.innerHTML = '@keyframes fadeInUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }';
-    document.head.appendChild(style);
+function focusOnAlertMunicipality(muniName, alertId) {
+  if (currentLayerType === 'competing') {
+    var craftsmenRadio = document.querySelector('.sd-layer-toggle[data-layer="craftsmen"] input');
+    if (craftsmenRadio) craftsmenRadio.checked = true;
+    switchLayerType('craftsmen');
+    setTimeout(function() { openMunicipalityFocus(muniName); }, 900);
+    return;
   }
+  openMunicipalityFocus(muniName);
+}
+
+function openMunicipalityFocus(muniName) {
+  var feature = municipalityPolygons[muniName];
+  if (!feature) return;
+
+  var tempLayer = L.geoJSON(feature);
+  var bounds = tempLayer.getBounds();
+  var center = bounds.getCenter();
+
+  sdMap.setView([center.lat, center.lng], 11, { animate: true, duration: 0.8 });
+
+  setTimeout(function() {
+    var data = layerMunicipalityData[currentLayerType];
+    if (data && data[muniName]) {
+      var info = data[muniName];
+      var monthIdx = parseInt((document.getElementById('sd-timeline-slider') || {}).value || 0);
+      var multipliers = monthlyIntensityMultiplier || phaseMultipliers || [0.5,0.7,0.9,1.1,1.2,1.3,1.2,1.4,1.0,0.8,0.6,0.4];
+      var multiplier = multipliers[monthIdx] || 1;
+      var adjustedBalance = Math.round(info.balance * (info.balance < 0 ? multiplier : 1));
+      var adjustedStatus = info.status;
+      if (adjustedBalance <= -15) adjustedStatus = 'tight-high';
+      else if (adjustedBalance <= -5) adjustedStatus = 'tight-medium';
+      else if (adjustedBalance <= 5) adjustedStatus = 'balanced';
+      else adjustedStatus = 'surplus';
+
+      var currentInfo = Object.assign({}, info, {
+        name: muniName,
+        currentBalance: adjustedBalance,
+        currentStatus: adjustedStatus
+      });
+      showMunicipalityPopup(currentInfo);
+    }
+  }, 600);
 }
 
 function toggleAlert(el) {
