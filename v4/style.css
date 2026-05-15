@@ -3033,16 +3033,18 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
 .lc-scroll-table {
   display: block;
   overflow-x: auto;
+  overflow-y: hidden;
   max-width: 100%;
   border-collapse: collapse;
   font-size: 11px;
   white-space: nowrap;
   -webkit-overflow-scrolling: touch;
 }
-.lc-scroll-table thead, .lc-scroll-table tbody, .lc-scroll-table tr {
+.lc-scroll-table-inner {
   display: table;
+  border-collapse: collapse;
   width: max-content;
-  table-layout: fixed;
+  table-layout: auto;
 }
 .lc-scroll-table thead {
   background: #f0f3f7;
