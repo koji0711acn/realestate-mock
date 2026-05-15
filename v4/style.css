@@ -2529,6 +2529,20 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
 .sd-layer-desc { font-size: 10px; color: #888; line-height: 1.5; margin: 3px 0 0; }
 .sd-layer-toggle input { margin-top: 2px; }
 
+/* ===== V4 Layer Disabled ===== */
+.sd-layer-toggle.sd-layer-disabled { opacity: 0.55; cursor: pointer; }
+.sd-layer-toggle.sd-layer-disabled:hover { opacity: 0.75; }
+.sd-layer-toggle.sd-layer-disabled .sd-layer-name { color: #888; }
+.sd-layer-disabled-tag { font-size: 9px; color: #d6841d; background: #fef3eb; border: 1px solid #f4d9b8; padding: 1px 6px; border-radius: 8px; margin-left: 6px; font-weight: 500; }
+
+.sd-layer-more-btn {
+  width: 100%; background: #f7faf3; border: 1px dashed #cfe0bd;
+  color: #5a8a3c; padding: 8px 10px; border-radius: 6px;
+  font-size: 11px; cursor: pointer; font-family: inherit;
+  margin-top: 10px; transition: all 0.15s;
+}
+.sd-layer-more-btn:hover { background: #5a8a3c; color: #fff; border-style: solid; border-color: #5a8a3c; }
+
 /* ===== V4 Project Detail Expand ===== */
 .pd-info-card-header { display: flex; justify-content: space-between; align-items: center; margin: 0 0 12px; padding-bottom: 8px; border-bottom: 1px solid #e8ece2; }
 .pd-info-card-header .pd-info-card-label { margin: 0; padding: 0; border: none; }

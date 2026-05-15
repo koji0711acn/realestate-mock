@@ -2153,11 +2153,16 @@ var GEOJSON_PREFS = [
 // デモで使う市区町村名のホワイトリスト
 var TARGET_MUNICIPALITIES = [
   '仙台市青葉区', '仙台市泉区', '仙台市太白区', '仙台市若林区', '仙台市宮城野区',
-  '多賀城市', '塩竈市', '名取市', '富谷市', '利府町', '岩沼市',
-  '山形市', '米沢市', '福島市', '郡山市', 'いわき市',
-  '石巻市', '大崎市', '気仙沼市', '北上市',
-  '水戸市', 'つくば市', '日立市',
-  '川口市', 'さいたま市', '千葉市', '市川市', '高崎市'
+  '多賀城市', '塩竈市', '名取市', '富谷市', '利府町', '岩沼市', '七ヶ浜町', '松島町',
+  '大和町', '大郷町', '大衡村', '色麻町', '加美町', '大崎市', '美里町', '涌谷町',
+  '蔵王町', '川崎町', '村田町', '柴田町', '大河原町', '角田市', '白石市',
+  '亘理町', '山元町', '東松島市', '石巻市', '女川町', '南三陸町', '気仙沼市',
+  '登米市', '栗原市',
+  '山形市', '上山市', '天童市', '東根市', '寒河江市', '米沢市', '南陽市',
+  '高畠町', '川西町', '尾花沢市', '村山市', '新庄市',
+  '福島市', '二本松市', '伊達市', '本宮市', '郡山市', '須賀川市',
+  '相馬市', '南相馬市',
+  '一関市', '奥州市', '北上市', '花巻市', '陸前高田市'
 ];
 
 // 市区町村ポリゴンデータ（GeoJSONから動的にロード）
@@ -2223,25 +2228,68 @@ async function loadJapanGeoJSON() {
 // レイヤー別市区町村データ。各レイヤーで表示する市区町村と、その需給状況を定義。
 var layerMunicipalityData = {
   craftsmen: {
-    '仙台市青葉区':  { status: 'tight-high', balance: -28, supply: 18, demand: 25, hotspot: '仙台地下鉄延伸工事' },
-    '仙台市泉区':    { status: 'tight-high', balance: -22, supply: 14, demand: 18, isProject: true },
-    '仙台市太白区':  { status: 'tight-medium', balance: -14, supply: 24, demand: 28 },
-    '仙台市若林区':  { status: 'tight-medium', balance: -12, supply: 21, demand: 24 },
-    '仙台市宮城野区':{ status: 'tight-high', balance: -20, supply: 16, demand: 20 },
-    '多賀城市':      { status: 'tight-medium', balance: -8, supply: 9, demand: 10 },
-    '塩竈市':        { status: 'balanced', balance: -4, supply: 7, demand: 7 },
-    '名取市':        { status: 'tight-medium', balance: -10, supply: 12, demand: 14 },
-    '富谷市':        { status: 'balanced', balance: -2, supply: 11, demand: 11 },
-    '利府町':        { status: 'balanced', balance: -3, supply: 6, demand: 6 },
-    '岩沼市':        { status: 'balanced', balance: -4, supply: 8, demand: 9 },
+    '仙台市青葉区':  { status: 'tight-high', balance: -28, supply: 18, demand: 25, hotspot: '仙台地下鉄延伸工事', canSupply: true },
+    '仙台市泉区':    { status: 'tight-high', balance: -22, supply: 14, demand: 18, isProject: true, canSupply: true },
+    '仙台市太白区':  { status: 'tight-medium', balance: -14, supply: 24, demand: 28, canSupply: true },
+    '仙台市若林区':  { status: 'tight-medium', balance: -12, supply: 21, demand: 24, canSupply: true },
+    '仙台市宮城野区':{ status: 'tight-high', balance: -20, supply: 16, demand: 20, canSupply: true },
+    '多賀城市':      { status: 'tight-medium', balance: -8, supply: 9, demand: 10, canSupply: true },
+    '塩竈市':        { status: 'balanced', balance: -4, supply: 7, demand: 7, canSupply: true },
+    '名取市':        { status: 'tight-medium', balance: -10, supply: 12, demand: 14, canSupply: true },
+    '富谷市':        { status: 'balanced', balance: -2, supply: 11, demand: 11, canSupply: true },
+    '利府町':        { status: 'balanced', balance: -3, supply: 6, demand: 6, canSupply: true },
+    '岩沼市':        { status: 'balanced', balance: -4, supply: 8, demand: 9, canSupply: true },
+    '七ヶ浜町':      { status: 'balanced', balance: -2, supply: 4, demand: 4, canSupply: true },
+    '松島町':        { status: 'balanced', balance: 0, supply: 5, demand: 5, canSupply: true },
+    '大和町':        { status: 'balanced', balance: -3, supply: 7, demand: 7, canSupply: true },
+    '大郷町':        { status: 'balanced', balance: 1, supply: 4, demand: 4, canSupply: true },
+    '大衡村':        { status: 'balanced', balance: 2, supply: 3, demand: 3, canSupply: true },
+    '色麻町':        { status: 'balanced', balance: 1, supply: 3, demand: 3, canSupply: true },
+    '加美町':        { status: 'balanced', balance: -2, supply: 5, demand: 5, canSupply: true },
+    '大崎市':        { status: 'balanced', balance: -5, supply: 22, demand: 23, canSupply: true },
+    '美里町':        { status: 'balanced', balance: 0, supply: 5, demand: 5, canSupply: true },
+    '涌谷町':        { status: 'balanced', balance: -1, supply: 4, demand: 4, canSupply: true },
+    '蔵王町':        { status: 'balanced', balance: 0, supply: 4, demand: 4, canSupply: true },
+    '川崎町':        { status: 'balanced', balance: -1, supply: 3, demand: 3, canSupply: true },
+    '村田町':        { status: 'balanced', balance: 0, supply: 4, demand: 4, canSupply: true },
+    '柴田町':        { status: 'balanced', balance: -2, supply: 6, demand: 6, canSupply: true },
+    '大河原町':      { status: 'balanced', balance: -1, supply: 5, demand: 5, canSupply: true },
+    '角田市':        { status: 'balanced', balance: -3, supply: 6, demand: 6, canSupply: true },
+    '白石市':        { status: 'balanced', balance: -2, supply: 7, demand: 7, canSupply: true },
+    '亘理町':        { status: 'balanced', balance: -2, supply: 5, demand: 5, canSupply: true },
+    '山元町':        { status: 'balanced', balance: 0, supply: 3, demand: 3, canSupply: true },
+    '東松島市':      { status: 'tight-medium', balance: -8, supply: 7, demand: 8, canSupply: true },
+    '石巻市':        { status: 'tight-high', balance: -28, supply: 11, demand: 16, hotspot: '石巻港湾施設災害復旧', canSupply: true },
+    '女川町':        { status: 'tight-medium', balance: -10, supply: 3, demand: 3, canSupply: true },
+    '南三陸町':      { status: 'tight-medium', balance: -9, supply: 4, demand: 4, canSupply: true },
+    '気仙沼市':      { status: 'tight-medium', balance: -13, supply: 9, demand: 10, canSupply: true },
+    '登米市':        { status: 'balanced', balance: -3, supply: 11, demand: 11, canSupply: true },
+    '栗原市':        { status: 'balanced', balance: -2, supply: 10, demand: 10, canSupply: true },
     '山形市':        { status: 'surplus', balance: 12, supply: 32, demand: 28, canSupply: true },
+    '上山市':        { status: 'surplus', balance: 8, supply: 14, demand: 13, canSupply: true },
+    '天童市':        { status: 'surplus', balance: 9, supply: 12, demand: 11, canSupply: true },
+    '東根市':        { status: 'surplus', balance: 7, supply: 10, demand: 9, canSupply: true },
+    '寒河江市':      { status: 'balanced', balance: 4, supply: 8, demand: 8, canSupply: true },
     '米沢市':        { status: 'surplus', balance: 20, supply: 28, demand: 22, canSupply: true },
-    '福島市':        { status: 'tight-high', balance: -24, supply: 26, demand: 34, hotspot: '福島県庁更新工事' },
-    '郡山市':        { status: 'tight-medium', balance: -10, supply: 35, demand: 39 },
-    '石巻市':        { status: 'tight-high', balance: -28, supply: 11, demand: 16, hotspot: '石巻港湾施設災害復旧' },
-    '大崎市':        { status: 'balanced', balance: -5, supply: 22, demand: 23 },
+    '南陽市':        { status: 'surplus', balance: 14, supply: 11, demand: 9, canSupply: true },
+    '高畠町':        { status: 'surplus', balance: 8, supply: 6, demand: 5, canSupply: true },
+    '川西町':        { status: 'balanced', balance: 5, supply: 5, demand: 5, canSupply: true },
+    '尾花沢市':      { status: 'balanced', balance: 3, supply: 6, demand: 6, canSupply: true },
+    '村山市':        { status: 'balanced', balance: 2, supply: 7, demand: 7, canSupply: true },
+    '新庄市':        { status: 'balanced', balance: 1, supply: 9, demand: 9, canSupply: true },
+    '福島市':        { status: 'tight-high', balance: -24, supply: 26, demand: 34, hotspot: '福島県庁更新工事', canSupply: true },
+    '二本松市':      { status: 'tight-medium', balance: -8, supply: 13, demand: 14, canSupply: true },
+    '伊達市':        { status: 'tight-medium', balance: -7, supply: 11, demand: 12, canSupply: true },
+    '本宮市':        { status: 'balanced', balance: -4, supply: 8, demand: 8, canSupply: true },
+    '郡山市':        { status: 'tight-medium', balance: -10, supply: 35, demand: 39, canSupply: true },
+    '須賀川市':      { status: 'tight-medium', balance: -7, supply: 13, demand: 14, canSupply: true },
+    '相馬市':        { status: 'tight-medium', balance: -6, supply: 8, demand: 9, canSupply: true },
+    '南相馬市':      { status: 'tight-medium', balance: -8, supply: 10, demand: 11, canSupply: true },
+    '一関市':        { status: 'balanced', balance: -3, supply: 14, demand: 15, canSupply: true },
+    '奥州市':        { status: 'balanced', balance: -2, supply: 13, demand: 13, canSupply: true },
     '北上市':        { status: 'surplus', balance: 10, supply: 25, demand: 22, canSupply: true },
-    '気仙沼市':      { status: 'tight-medium', balance: -13, supply: 9, demand: 10 }
+    '花巻市':        { status: 'balanced', balance: 4, supply: 16, demand: 15, canSupply: true },
+    '陸前高田市':    { status: 'tight-medium', balance: -8, supply: 4, demand: 5, canSupply: true }
   },
   equipment: {
     '仙台市青葉区':  { status: 'tight-high', balance: -28, supply: 8, demand: 11 },
@@ -3046,6 +3094,18 @@ function updateLegendForLayer(layerType) {
   var leg = legends[layerType] || legends.craftsmen;
   if (titleEl) titleEl.textContent = leg.title;
   if (cansupplyEl) cansupplyEl.innerHTML = leg.cansupply;
+}
+
+function switchLayerTypeDisabled(layerType, layerName) {
+  alert('「' + layerName + '」はこのデモでは未設定です。\n\n職人需給・重機需給・生コン供給・競合案件の各レイヤーをご確認ください。\n\n本番環境では当該リソースの需給状況も同様の地理空間AI分析で可視化されます。');
+  var craftsmenRadio = document.querySelector('.sd-layer-toggle[data-layer="craftsmen"] input');
+  if (craftsmenRadio) craftsmenRadio.checked = true;
+  var disabledRadio = document.querySelector('.sd-layer-toggle.sd-layer-disabled input');
+  if (disabledRadio) disabledRadio.checked = false;
+}
+
+function showLayerMoreInfo() {
+  alert('このデモでは分析対象が制限されています。\n\n本番環境では以下のリソースも同様の分析対象となります：\n・足場（仮設工事）\n・内装材（フローリング・建具・クロス）\n・設備機器（給湯器・空調・キッチン）\n・外構工事リソース\n・塗料・防水材\n・電気工事業者\n\nその他、案件特性に応じて分析対象を拡張可能です。');
 }
 
 function switchLayerType(layerType) {

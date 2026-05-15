@@ -328,7 +328,6 @@
         <div class="sd-layer-controls">
           <div class="sd-layer-controls-header">
             <div class="sd-layer-controls-title">主な調達対象</div>
-            <button class="sd-layer-add-btn" title="デモでは分析対象が制限されています">+</button>
           </div>
           <div class="sd-layer-toggle-list">
             <label class="sd-layer-toggle active" data-layer="craftsmen">
@@ -352,13 +351,6 @@
                 <div class="sd-layer-desc">生コンクリート工場の供給枠（90分運搬制約）</div>
               </div>
             </label>
-            <label class="sd-layer-toggle" data-layer="steel">
-              <input type="radio" name="layer" onchange="switchLayerType('steel')">
-              <div class="sd-layer-info">
-                <div class="sd-layer-name">鋼材調達 <span class="sd-layer-range">関東圏</span></div>
-                <div class="sd-layer-desc">H形鋼・異形鉄筋等の鋼材在庫・調達可能性</div>
-              </div>
-            </label>
             <label class="sd-layer-toggle" data-layer="competing">
               <input type="radio" name="layer" onchange="switchLayerType('competing')">
               <div class="sd-layer-info">
@@ -366,7 +358,15 @@
                 <div class="sd-layer-desc">本案件と需要が競合する周辺工事の動向</div>
               </div>
             </label>
+            <label class="sd-layer-toggle sd-layer-disabled" data-layer="steel">
+              <input type="radio" name="layer" onchange="switchLayerTypeDisabled('steel', '鋼材調達')">
+              <div class="sd-layer-info">
+                <div class="sd-layer-name">鋼材調達 <span class="sd-layer-disabled-tag">未設定</span></div>
+                <div class="sd-layer-desc">H形鋼・異形鉄筋等の鋼材在庫・調達可能性</div>
+              </div>
+            </label>
           </div>
+          <button class="sd-layer-more-btn" onclick="showLayerMoreInfo()">＋ さらに見る（足場・内装材・設備機器等）</button>
         </div>
         <div class="sd-timeline-controls">
           <div class="sd-timeline-label">分析時点：</div>
