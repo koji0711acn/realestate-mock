@@ -3054,6 +3054,8 @@ function showSupplyDemandView() {
   if (ctaSec) ctaSec.style.display = 'none';
   var pfMsg = document.getElementById('sd-pf-msg');
   if (pfMsg) pfMsg.remove();
+  var pfSpacer = document.getElementById('sd-pf-msg-spacer');
+  if (pfSpacer) pfSpacer.remove();
   updateTimeline(0);
 }
 
@@ -3317,6 +3319,10 @@ function completeSimulation() {
     msgDiv.className = 'sd-pf-msg';
     msgDiv.innerHTML = '<div class="sd-pf-msg-icon">🔍</div><div class="sd-pf-msg-text"><strong>業界横断PFから追加候補を発見</strong><br>本案件の条件に合う調達候補が他の市区町村にも存在します。最適化プランで具体的に確認できます。</div>';
     alertsSec.parentNode.insertBefore(msgDiv, alertsSec);
+    var spacer = document.createElement('div');
+    spacer.id = 'sd-pf-msg-spacer';
+    spacer.style.cssText = 'height: 20px; clear: both;';
+    alertsSec.parentNode.insertBefore(spacer, alertsSec);
   }
 
   renderAlerts();
@@ -3601,7 +3607,7 @@ function toggleOpPlanExpand(planId, event) {
     el.style.display = 'block';
     setTimeout(function() {
       var rect = el.getBoundingClientRect();
-      var offset = window.pageYOffset + rect.top - 80;
+      var offset = window.pageYOffset + rect.top - 100;
       window.scrollTo({ top: offset, behavior: 'smooth' });
     }, 100);
   } else {

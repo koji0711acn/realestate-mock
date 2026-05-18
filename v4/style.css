@@ -3226,29 +3226,35 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
   border-radius: 0 6px 6px 0;
 }
 
-/* ===== V4 Plan Expand Layout Adjustment ===== */
-.op-expand-content {
-  margin-top: 32px;
-  padding-top: 24px;
-  border-top: 2px solid #e0e7f0;
-  position: relative;
-}
-.op-expand-content::before {
-  content: '';
-  display: block;
-  height: 20px;
-  margin-top: -20px;
-}
+/* ===== V4 Plan Expand Layout (revised) ===== */
 .op-expand-section:first-child {
-  margin-top: 16px;
+  margin-top: 12px;
 }
 .op-expand-title {
-  padding-top: 8px;
+  padding-top: 4px;
 }
 
+/* 青メッセージ自体に十分な内部余白と下方向余白 */
 .sd-pf-msg {
-  margin-bottom: 24px !important;
+  margin: 16px 0 32px 0 !important;
+  padding: 16px 18px !important;
+  position: relative;
+}
+.sd-pf-msg + * {
+  margin-top: 24px !important;
 }
 .sd-map-banner {
-  margin-bottom: 20px !important;
+  margin-bottom: 28px !important;
+}
+/* 青メッセージ直後にあるアラートセクションを物理的に下にずらす */
+#sd-alerts-section {
+  margin-top: 16px;
+}
+/* AI推奨ボタンなど、青メッセージと並んで表示される要素も下にずらす */
+#sd-panel-cta {
+  margin-top: 24px !important;
+}
+/* 青メッセージの後の最初の要素には大きめの上余白 */
+.sd-pf-msg ~ #sd-alerts-section {
+  margin-top: 32px;
 }
