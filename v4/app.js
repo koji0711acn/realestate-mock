@@ -2118,6 +2118,7 @@ function showProjectListView() {
 // ===== V4 Scene 2: Supply Demand Data =====
 
 var V4_PROJECT_CENTER = [38.315, 140.88]; // 仙台市泉区紫山周辺
+var currentRouteLayer = null;
 
 // ===== V4 Map v2: Geo-based Supply Area Visualization =====
 
@@ -2430,38 +2431,107 @@ var vendorPinsData = {
 
 function drawVendorPins(layerType) {
   if (vendorPinsLayer) { sdMap.removeLayer(vendorPinsLayer); vendorPinsLayer = null; }
+  if (currentRouteLayer) { sdMap.removeLayer(currentRouteLayer); currentRouteLayer = null; }
   var vendors = vendorPinsData[layerType];
   if (!vendors || vendors.length === 0) return;
 
   vendorPinsLayer = L.layerGroup();
   vendors.forEach(function(v) {
-    var color = v.status === 'available' ? '#3d6b24' : '#d6841d';
+    var distColor;
+    if (v.status === 'limited') {
+      distColor = '#d6841d';
+    } else if (v.distance <= 10) {
+      distColor = '#2d5a1a';
+    } else if (v.distance <= 30) {
+      distColor = '#5a8a3c';
+    } else {
+      distColor = '#9bb87a';
+    }
+    var size = v.distance <= 10 ? 18 : v.distance <= 30 ? 15 : 12;
     var pin = L.marker(v.coords, {
       icon: L.divIcon({
         className: 'vendor-pin-icon',
-        html: '<div style="width:14px;height:14px;background:' + color + ';border:2px solid #fff;border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,0.3)"></div>',
-        iconSize: [18, 18],
-        iconAnchor: [9, 9]
+        html: '<div style="width:' + size + 'px;height:' + size + 'px;background:' + distColor + ';border:2px solid #fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.4);position:relative"><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:8px;font-weight:bold;line-height:1">' + Math.round(v.distance) + '</div></div>',
+        iconSize: [size + 4, size + 4],
+        iconAnchor: [(size + 4) / 2, (size + 4) / 2]
       })
     });
-    pin.bindTooltip(v.name, { direction: 'top' });
-    pin.on('click', function() { showVendorPopup(v); });
+    pin.bindTooltip(v.name + '（' + v.distance + 'km）', { direction: 'top' });
+    pin.on('click', function() {
+      showVendorPopup(v, layerType);
+      drawRouteToVendor(v);
+    });
     vendorPinsLayer.addLayer(pin);
   });
   vendorPinsLayer.addTo(sdMap);
 }
 
-function showVendorPopup(vendor) {
+function showVendorPopup(vendor, layerType) {
   var statusLabel = vendor.status === 'available' ? '<span style="color:#3d6b24;font-weight:600">✓ 空きあり</span>' : '<span style="color:#d6841d;font-weight:600">△ 限定的</span>';
+  var unitMap = { craftsmen: '', equipment: '円/日', concrete: '円/m³' };
+  var unit = unitMap[layerType] || '';
+  var distanceInfo = '<span class="vendor-popup-val"><strong>' + vendor.distance + ' km</strong></span>';
+  var utilBarColor = vendor.utilization >= 85 ? '#c44a4a' : vendor.utilization >= 70 ? '#d6841d' : '#5a8a3c';
+  var utilBar = '<div style="background:#e8e8e8;height:8px;border-radius:4px;overflow:hidden;margin-top:4px"><div style="width:' + vendor.utilization + '%;height:100%;background:' + utilBarColor + '"></div></div>';
+
+  var costRow = '';
+  if (vendor.cost && vendor.cost > 0) {
+    var costFormatted = vendor.cost.toLocaleString();
+    costRow = '<div class="vendor-popup-row"><span class="vendor-popup-key">配送コスト</span><span class="vendor-popup-val"><strong>¥' + costFormatted + '</strong> ' + unit + '</span></div>';
+  }
+
+  var aiComment = '';
+  if (layerType === 'equipment' && vendor.distance > 30) {
+    aiComment = '<div class="vendor-popup-ai"><span class="vendor-popup-ai-icon">🤖</span>距離' + vendor.distance + 'kmは50t重機の長距離輸送費が約' + Math.round(vendor.distance * 1.5) + '万円割増。近隣拠点との比較を推奨。</div>';
+  } else if (layerType === 'concrete' && vendor.distance > 15) {
+    aiComment = '<div class="vendor-popup-ai"><span class="vendor-popup-ai-icon">🤖</span>距離' + vendor.distance + 'kmは生コン90分制約のリスク領域。打設タイミング・運搬経路の事前調整が必要。</div>';
+  } else if (vendor.utilization >= 85) {
+    aiComment = '<div class="vendor-popup-ai"><span class="vendor-popup-ai-icon">🤖</span>稼働率' + vendor.utilization + '%は逼迫水準。代替候補の事前確保を推奨。</div>';
+  } else if (vendor.distance <= 10) {
+    aiComment = '<div class="vendor-popup-ai"><span class="vendor-popup-ai-icon">🤖</span>10km圏内・稼働率' + vendor.utilization + '%。輸送効率・即応性ともに最適候補。</div>';
+  }
+
   var html = '<div class="vendor-popup-content">';
   html += '<div class="vendor-popup-name">' + vendor.name + '</div>';
   html += '<div class="vendor-popup-addr">📍 ' + vendor.addr + '</div>';
-  html += '<div class="vendor-popup-row"><span class="vendor-popup-key">稼働状況</span>' + statusLabel + '</div>';
+  html += '<div class="vendor-popup-row"><span class="vendor-popup-key">現場までの距離</span>' + distanceInfo + '</div>';
+  html += costRow;
+  html += '<div class="vendor-popup-row"><span class="vendor-popup-key">稼働率</span><span class="vendor-popup-val">' + vendor.utilization + '%</span></div>';
+  html += utilBar;
+  html += '<div class="vendor-popup-row" style="margin-top:8px"><span class="vendor-popup-key">稼働状況</span>' + statusLabel + '</div>';
   html += '<div class="vendor-popup-row"><span class="vendor-popup-key">提供可能</span><span class="vendor-popup-val">' + vendor.capacity + '</span></div>';
-  html += '<div class="vendor-popup-note">業界横断PF経由で即時手配可能。シーン3の業者レコメンドにも表示されます。</div>';
+  html += aiComment;
+  html += '<div class="vendor-popup-note">業界横断PF経由で即時手配可能。クリックで現場までのルートを地図上に表示中。</div>';
   html += '</div>';
 
-  L.popup({ maxWidth: 320, minWidth: 260 }).setLatLng(vendor.coords).setContent(html).openOn(sdMap);
+  L.popup({ maxWidth: 340, minWidth: 280 }).setLatLng(vendor.coords).setContent(html).openOn(sdMap);
+}
+
+function drawRouteToVendor(vendor) {
+  if (currentRouteLayer) { sdMap.removeLayer(currentRouteLayer); currentRouteLayer = null; }
+  var siteCoords = V4_PROJECT_CENTER;
+  var vendorCoords = vendor.coords;
+  var midLat1 = siteCoords[0] + (vendorCoords[0] - siteCoords[0]) * 0.35 + (vendorCoords[1] - siteCoords[1]) * 0.04;
+  var midLng1 = siteCoords[1] + (vendorCoords[1] - siteCoords[1]) * 0.35 - (vendorCoords[0] - siteCoords[0]) * 0.04;
+  var midLat2 = siteCoords[0] + (vendorCoords[0] - siteCoords[0]) * 0.7 + (vendorCoords[1] - siteCoords[1]) * 0.02;
+  var midLng2 = siteCoords[1] + (vendorCoords[1] - siteCoords[1]) * 0.7 - (vendorCoords[0] - siteCoords[0]) * 0.02;
+  var routePoints = [siteCoords, [midLat1, midLng1], [midLat2, midLng2], vendorCoords];
+  var routeColor = vendor.status === 'limited' ? '#d6841d' : '#2c5d8f';
+  var mainLine = L.polyline(routePoints, {
+    color: routeColor,
+    weight: 4,
+    opacity: 0.7,
+    smoothFactor: 1.5,
+    dashArray: vendor.status === 'limited' ? '8, 6' : null
+  });
+  var shadowLine = L.polyline(routePoints, {
+    color: '#000',
+    weight: 7,
+    opacity: 0.15,
+    smoothFactor: 1.5
+  });
+  currentRouteLayer = L.layerGroup([shadowLine, mainLine]);
+  currentRouteLayer.addTo(sdMap);
 }
 
 // ===== V4 Competing Projects Pin Data =====
@@ -2870,6 +2940,7 @@ function clearSupplyAreaLayers() {
   if (municipalityLayer) { sdMap.removeLayer(municipalityLayer); municipalityLayer = null; }
   if (supplyAreaCircle) { sdMap.removeLayer(supplyAreaCircle); supplyAreaCircle = null; }
   if (vendorPinsLayer) { sdMap.removeLayer(vendorPinsLayer); vendorPinsLayer = null; }
+  if (currentRouteLayer) { sdMap.removeLayer(currentRouteLayer); currentRouteLayer = null; }
 }
 
 var vendorLocationsData = [
