@@ -3281,9 +3281,12 @@ function switchLayerType(layerType) {
 
     var vendors = vendorPinsData[currentLayerType];
     if (vendors && vendors.length > 0) {
+      hideElementsForRouteOptimization();
       setTimeout(function() {
         performRouteOptimizationAnalysis();
       }, 300);
+    } else {
+      showElementsAfterRouteOptimization();
     }
   }
 }
@@ -3444,8 +3447,6 @@ function startTimelineAutoScroll() {
 function completeSimulation() {
   simulationCompleted = true;
 
-  performRouteOptimizationAnalysis();
-
   document.getElementById('sd-sim-progress-section').style.display = 'none';
 
   document.getElementById('sd-alerts-section').style.display = 'block';
@@ -3469,6 +3470,46 @@ function completeSimulation() {
   }
 
   renderAlerts();
+
+  hideElementsForRouteOptimization();
+  setTimeout(function() {
+    performRouteOptimizationAnalysis();
+  }, 600);
+}
+
+function hideElementsForRouteOptimization() {
+  var pfMsg = document.getElementById('sd-pf-msg');
+  if (pfMsg) pfMsg.style.display = 'none';
+  var pfMsgSpacer = document.getElementById('sd-pf-msg-spacer');
+  if (pfMsgSpacer) pfMsgSpacer.style.display = 'none';
+  var alertsSection = document.getElementById('sd-alerts-section');
+  if (alertsSection) alertsSection.style.display = 'none';
+  var panelCta = document.getElementById('sd-panel-cta');
+  if (panelCta) panelCta.style.display = 'none';
+}
+
+function showElementsAfterRouteOptimization() {
+  var pfMsg = document.getElementById('sd-pf-msg');
+  if (pfMsg) {
+    pfMsg.style.display = '';
+    pfMsg.style.animation = 'fadeInUp 0.5s ease-out';
+  }
+  var pfMsgSpacer = document.getElementById('sd-pf-msg-spacer');
+  if (pfMsgSpacer) pfMsgSpacer.style.display = '';
+  setTimeout(function() {
+    var alertsSection = document.getElementById('sd-alerts-section');
+    if (alertsSection) {
+      alertsSection.style.display = '';
+      alertsSection.style.animation = 'fadeInUp 0.5s ease-out 0.2s both';
+    }
+  }, 250);
+  setTimeout(function() {
+    var panelCta = document.getElementById('sd-panel-cta');
+    if (panelCta) {
+      panelCta.style.display = '';
+      panelCta.style.animation = 'fadeInUp 0.5s ease-out 0.4s both';
+    }
+  }, 500);
 }
 
 function performRouteOptimizationAnalysis() {
@@ -3635,6 +3676,10 @@ function showRouteOptimizationResultButton() {
   var layerNames = { craftsmen: '職人需給', equipment: '重機需給', concrete: '生コン供給', competing: '競合案件' };
   var nameSpan = document.getElementById('sd-route-result-layer-name');
   if (nameSpan) nameSpan.textContent = layerNames[currentLayerType] || currentLayerType;
+
+  setTimeout(function() {
+    showElementsAfterRouteOptimization();
+  }, 500);
 }
 
 function showRouteOptimizationResults() {
