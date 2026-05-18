@@ -3533,73 +3533,84 @@ var optimizationPlansData = [
   {
     id: 'planA', recommended: true, name: '広域調達型', tagline: '東北全域から最適なリソースを業界横断PF経由で確保。AI推奨。',
     metrics: { duration: '12ヶ月（予定通り）', cost: '+3.8%', risk: '低' },
-    detail: '<strong>鉄筋工：</strong>山形北鉄筋工業（山形県山形市）<br><strong>クレーン：</strong>郡山クレーンサービス（福島県郡山市）<br><strong>生コン：</strong>仙台青葉生コン工業の優先枠<br><strong>設備：</strong>名取総合設備（過去BIM実績あり）',
+    detail: '<strong>鉄筋工：</strong>山形北鉄筋工業（山形県山形市・47.5km）<br><strong>クレーン：</strong>福島重機（福島県福島市・73km）<br><strong>生コン：</strong>泉区生コン（仙台市泉区・2.1km）<br><strong>内装：</strong>富谷建築サービス（宮城県富谷市・10.4km）',
+    relatedVendors: { craftsmen: ['山形北鉄筋工業', '一関建設工業', '福島建工'], equipment: ['福島重機', '山形建機'], concrete: ['泉区生コン', '富谷生コン'] },
     detailExtended: {
-      summary: '通常範囲内の供給逼迫を踏まえ、業界横断PFで広域からリソースを補完する戦略。地元協力会社の不足分を、距離45-90km圏内の優良業者で確保することで、工期を予定通り維持。',
+      summary: '通常範囲内の供給逼迫を踏まえ、業界横断PFで広域からリソースを補完する戦略。地元協力会社の不足分を、距離45-90km圏内の優良業者で確保することで、工期を予定通り維持。地理空間AIによる「距離×稼働率×時期」の最適化で輸送コストを最小化。',
       breakdown: [
-        { resource: '鉄筋工', vendor: '山形北鉄筋工業', distance: '45km', period: '4-7ヶ月目', cost: '人工単価19,800円' },
-        { resource: 'クレーン', vendor: '郡山クレーンサービス', distance: '88km', period: '7-9ヶ月目', cost: '日額158,000円' },
-        { resource: '生コン', vendor: '仙台青葉生コン工業', distance: '12km', period: '2-6ヶ月目', cost: '優先枠確保' },
-        { resource: '設備', vendor: '名取総合設備', distance: '18km', period: '9-12ヶ月目', cost: '過去BIM適合品' }
+        { resource: '鉄筋工（応援）', vendor: '山形北鉄筋工業', distance: '47.5km', period: '4-7ヶ月目', cost: '人工単価19,800円' },
+        { resource: '鉄筋工（応援）', vendor: '一関建設工業', distance: '73.9km', period: '5-8ヶ月目', cost: '人工単価18,500円' },
+        { resource: 'クレーン（50t）', vendor: '福島重機', distance: '73km', period: '7-9ヶ月目', cost: '日額1,120,000円（輸送費込）' },
+        { resource: '生コン', vendor: '泉区生コン', distance: '2.1km', period: '2-6ヶ月目', cost: '17,800円/m³' },
+        { resource: '生コン（追加）', vendor: '富谷生コン', distance: '10.4km', period: '4-5ヶ月目', cost: '18,400円/m³' },
+        { resource: '内装', vendor: '富谷建築サービス', distance: '10.4km', period: '9-12ヶ月目', cost: '地元単価' }
       ],
       gantt: [
         { name: '準備', start: 0, duration: 1, vendor: '地元' },
         { name: '基礎', start: 1, duration: 3, vendor: '山形北鉄筋工業（応援）' },
-        { name: '躯体', start: 3, duration: 4, vendor: '山形北鉄筋工業 + 地元' },
-        { name: '建方', start: 6, duration: 2, vendor: '郡山クレーンサービス' },
-        { name: '外装', start: 7, duration: 3, vendor: '地元 + 名取総合設備' },
-        { name: '内装・引渡', start: 9, duration: 3, vendor: '名取総合設備 + 地元' }
+        { name: '躯体', start: 3, duration: 4, vendor: '一関建設工業 + 地元' },
+        { name: '建方', start: 6, duration: 2, vendor: '福島重機' },
+        { name: '外装', start: 7, duration: 3, vendor: '地元 + 富谷建築サービス' },
+        { name: '内装・引渡', start: 9, duration: 3, vendor: '富谷建築サービス + 地元' }
       ],
-      risks: ['広域業者の品質管理に注力が必要', '移動コスト発生（既算入済み）'],
-      benefits: ['工期を完全に維持', '災害時の代替手段も同時確保', '取引履歴がPFに蓄積され将来活用可能']
+      risks: ['広域業者の品質管理に注力が必要', '50t重機の長距離輸送コストが発生（既算入済み）'],
+      benefits: ['工期を完全に維持', '災害時の代替手段も同時確保', '取引履歴がPFに蓄積され将来活用可能', '近距離生コン拠点で90分制約リスクを最小化']
     }
   },
   {
     id: 'planB', recommended: false, name: '工期調整型', tagline: '着工時期を5週間後ろ倒し。地元協力会社のみで完結。',
     metrics: { duration: '13.2ヶ月（+5週）', cost: '+0.5%', risk: '低' },
-    detail: '<strong>着工日：</strong>当初予定から5週間遅延<br><strong>調達範囲：</strong>地元協力会社ネットワーク内<br><strong>メリット：</strong>取引慣行を維持<br><strong>デメリット：</strong>引渡しが1ヶ月遅延',
+    detail: '<strong>着工日：</strong>当初予定から5週間遅延<br><strong>調達範囲：</strong>仙台市内・近隣のみ（30km圏内）<br><strong>メリット：</strong>取引慣行を維持<br><strong>デメリット：</strong>引渡しが1ヶ月遅延',
+    relatedVendors: { craftsmen: ['仙台中央建設', '泉区建設工業', '東北建設工業'], equipment: ['仙台クレーン工業', '泉区建機センター'], concrete: ['泉区生コン', '宮城野生コン工業'] },
     detailExtended: {
-      summary: 'リソース逼迫のピーク時期を回避するため、着工を5週間後ろ倒しする戦略。職人需要のピークが過ぎた時期に基礎・躯体工事を実施。',
+      summary: 'リソース逼迫のピーク時期を回避するため、着工を5週間後ろ倒しする戦略。職人需要のピークが過ぎた時期に基礎・躯体工事を実施。地理空間AI予測で月別・エリア別の需給変動を分析し、最適な着工時期を導出。',
       breakdown: [
-        { resource: '鉄筋工', vendor: '仙台市内協力会社', distance: '5-15km', period: '当初の5週後ろ倒し', cost: '地元単価' },
-        { resource: 'クレーン', vendor: '塩竈リース', distance: '18km', period: '4-6ヶ月目（遅延後）', cost: '地元単価' },
-        { resource: '生コン', vendor: '仙台青葉生コン工業', distance: '12km', period: '通常確保', cost: '地元単価' }
+        { resource: '鉄筋工', vendor: '仙台中央建設', distance: '6.1km', period: '5週後ろ倒し', cost: '地元単価' },
+        { resource: '鉄筋工', vendor: '泉区建設工業', distance: '1.9km', period: '基礎・躯体', cost: '地元単価' },
+        { resource: '型枠工', vendor: '東北建設工業', distance: '11km', period: '5-9ヶ月目', cost: '地元単価' },
+        { resource: 'クレーン', vendor: '仙台クレーン工業', distance: '5.7km', period: '4-6ヶ月目（遅延後）', cost: '地元単価' },
+        { resource: 'クレーン（補完）', vendor: '泉区建機センター', distance: '5.6km', period: '6-7ヶ月目', cost: '地元単価' },
+        { resource: '生コン', vendor: '泉区生コン', distance: '2.1km', period: '通常確保', cost: '17,800円/m³' }
       ],
       gantt: [
         { name: '着工待機', start: 0, duration: 1.5, vendor: '（着工遅延）' },
         { name: '準備', start: 1.5, duration: 1, vendor: '地元' },
-        { name: '基礎', start: 2.5, duration: 3, vendor: '地元協力会社' },
-        { name: '躯体', start: 5.5, duration: 4, vendor: '地元協力会社' },
-        { name: '建方', start: 8.5, duration: 1.5, vendor: '塩竈リース' },
+        { name: '基礎', start: 2.5, duration: 3, vendor: '仙台中央建設・泉区建設工業' },
+        { name: '躯体', start: 5.5, duration: 4, vendor: '東北建設工業・地元' },
+        { name: '建方', start: 8.5, duration: 1.5, vendor: '仙台クレーン工業' },
         { name: '外装', start: 9.5, duration: 2, vendor: '地元' },
         { name: '内装・引渡', start: 11, duration: 2.2, vendor: '地元' }
       ],
       risks: ['引渡しが1ヶ月遅延（地主・入居者への説明必要）', '遅延した期間中の地主の機会損失（家賃収入の遅れ）'],
-      benefits: ['取引慣行を完全に維持', '広域業者管理の手間なし', 'コスト追加が極小']
+      benefits: ['取引慣行を完全に維持', '広域業者管理の手間なし', 'コスト追加が極小', '全拠点10km圏内で配送効率最大']
     }
   },
   {
     id: 'planC', recommended: false, name: '工法転換型', tagline: '一部部材をプレキャスト化。現場職人工数を約30%削減。',
     metrics: { duration: '12ヶ月（予定通り）', cost: '+7.2%', risk: '中' },
     detail: '<strong>工法変更：</strong>基礎・床版をプレキャスト化<br><strong>調達範囲：</strong>関東圏のPCa工場<br><strong>メリット：</strong>現場工数大幅削減<br><strong>デメリット：</strong>部材コスト・輸送リスク',
+    relatedVendors: { craftsmen: ['仙台中央建設', '泉区建設工業'], equipment: ['仙台クレーン工業', '泉区建機センター'], concrete: ['泉区生コン'] },
     detailExtended: {
-      summary: '基礎・床版を工場製作のプレキャスト部材に変更することで、現場での職人工数を約30%削減する戦略。職人需給逼迫の影響を構造的に回避。',
+      summary: '基礎・床版を工場製作のプレキャスト部材に変更することで、現場での職人工数を約30%削減する戦略。職人需給逼迫の影響を構造的に回避。地理空間AIで関東PCa工場からの輸送ルート・納入タイミングを最適化。',
       breakdown: [
         { resource: 'プレキャスト部材', vendor: '関東PCa工場', distance: '380km', period: '3-7ヶ月目', cost: '部材費+8% / 輸送費含' },
-        { resource: '鉄筋工（現場）', vendor: '地元協力会社', distance: '5-15km', period: '工程削減', cost: '地元単価' },
-        { resource: 'クレーン', vendor: '仙台クレーン工業', distance: '8km', period: 'PCa設置時', cost: '地元単価' }
+        { resource: '鉄筋工（現場）', vendor: '仙台中央建設', distance: '6.1km', period: '工程削減', cost: '地元単価' },
+        { resource: '鉄筋工（現場）', vendor: '泉区建設工業', distance: '1.9km', period: '工程削減', cost: '地元単価' },
+        { resource: 'クレーン', vendor: '仙台クレーン工業', distance: '5.7km', period: 'PCa設置時', cost: '地元単価' },
+        { resource: 'クレーン（補完）', vendor: '泉区建機センター', distance: '5.6km', period: 'PCa設置時', cost: '地元単価' },
+        { resource: '生コン（接続部）', vendor: '泉区生コン', distance: '2.1km', period: '4-6ヶ月目', cost: '17,800円/m³' }
       ],
       gantt: [
         { name: '準備', start: 0, duration: 1, vendor: '地元' },
         { name: '基礎(PCa)', start: 1, duration: 2, vendor: '関東PCa工場' },
-        { name: '躯体(現場)', start: 3, duration: 3, vendor: '地元（削減）' },
+        { name: '躯体(現場)', start: 3, duration: 3, vendor: '仙台中央建設（削減）' },
         { name: '床版(PCa)', start: 5, duration: 1, vendor: '関東PCa工場' },
         { name: '建方', start: 6, duration: 2, vendor: '仙台クレーン工業' },
         { name: '外装', start: 7, duration: 3, vendor: '地元' },
         { name: '内装・引渡', start: 9, duration: 3, vendor: '地元' }
       ],
-      risks: ['PCa部材の輸送ロス・破損リスク', '工場製作の納期管理', '設計変更が必要な可能性'],
-      benefits: ['現場の職人工数を約30%削減', '逼迫の影響を構造的に回避', '工期は予定通り']
+      risks: ['PCa部材の輸送ロス・破損リスク（380km輸送）', '工場製作の納期管理', '設計変更が必要な可能性'],
+      benefits: ['現場の職人工数を約30%削減', '逼迫の影響を構造的に回避', '工期は予定通り', '近距離拠点で現場作業の効率最大']
     }
   }
 ];
@@ -3771,7 +3782,84 @@ function renderPlanExpandContent(plan) {
   html += '</ul></div>';
   html += '</div>';
 
+  if (plan.relatedVendors) {
+    html += '<div class="op-expand-section">';
+    html += '<button class="op-expand-map-btn" onclick="focusMapOnPlan(\'' + plan.id + '\')">🗺 シーン2の地図でこのプランの拠点を確認 →</button>';
+    html += '</div>';
+  }
+
   return html;
+}
+
+function focusMapOnPlan(planId) {
+  var plan = optimizationPlansData.find(function(p) { return p.id === planId; });
+  if (!plan || !plan.relatedVendors) return;
+
+  document.getElementById('optimization-plans-view').style.display = 'none';
+  document.getElementById('supply-demand-view').style.display = 'block';
+
+  window.highlightedVendorsForPlan = plan.relatedVendors;
+
+  setTimeout(function() {
+    sdMap.invalidateSize();
+    highlightVendorsForCurrentLayer();
+    var existingBadge = document.getElementById('sd-plan-overlay-badge');
+    if (existingBadge) existingBadge.remove();
+    var badge = document.createElement('div');
+    badge.id = 'sd-plan-overlay-badge';
+    badge.className = 'sd-plan-overlay-badge';
+    badge.innerHTML = '🎯 <strong>' + plan.name + '</strong>で使用する拠点をハイライト中<button class="sd-plan-badge-close" onclick="clearPlanHighlight()">✕ 解除</button>';
+    var mapContainer = document.querySelector('.sd-map-container');
+    if (mapContainer) mapContainer.appendChild(badge);
+  }, 300);
+}
+
+function highlightVendorsForCurrentLayer() {
+  if (!window.highlightedVendorsForPlan) return;
+  var highlights = window.highlightedVendorsForPlan[currentLayerType] || [];
+  if (vendorPinsLayer) { sdMap.removeLayer(vendorPinsLayer); vendorPinsLayer = null; }
+  var vendors = vendorPinsData[currentLayerType];
+  if (!vendors || vendors.length === 0) return;
+
+  vendorPinsLayer = L.layerGroup();
+  vendors.forEach(function(v) {
+    var isHighlighted = highlights.indexOf(v.name) >= 0;
+    var distColor;
+    if (v.status === 'limited') distColor = '#d6841d';
+    else if (v.distance <= 10) distColor = '#2d5a1a';
+    else if (v.distance <= 30) distColor = '#5a8a3c';
+    else distColor = '#9bb87a';
+
+    var size = v.distance <= 10 ? 18 : v.distance <= 30 ? 15 : 12;
+    if (isHighlighted) size += 6;
+
+    var ring = isHighlighted ? 'box-shadow:0 0 0 4px #ffd54f, 0 2px 10px rgba(0,0,0,0.5);animation:pulseHighlight 1.5s ease-in-out infinite;' : 'box-shadow:0 2px 6px rgba(0,0,0,0.4);';
+    var opacity = (!isHighlighted && highlights.length > 0) ? '0.35' : '1';
+
+    var pin = L.marker(v.coords, {
+      icon: L.divIcon({
+        className: 'vendor-pin-icon',
+        html: '<div style="width:' + size + 'px;height:' + size + 'px;background:' + distColor + ';border:2px solid #fff;border-radius:50%;opacity:' + opacity + ';' + ring + 'position:relative"><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:8px;font-weight:bold;line-height:1">' + Math.round(v.distance) + '</div></div>',
+        iconSize: [size + 10, size + 10],
+        iconAnchor: [(size + 10) / 2, (size + 10) / 2]
+      })
+    });
+    pin.bindTooltip(v.name + '（' + v.distance + 'km）' + (isHighlighted ? ' ★採用' : ''), { direction: 'top' });
+    pin.on('click', function() {
+      showVendorPopup(v, currentLayerType);
+      drawRouteToVendor(v);
+    });
+    vendorPinsLayer.addLayer(pin);
+  });
+  vendorPinsLayer.addTo(sdMap);
+}
+
+function clearPlanHighlight() {
+  window.highlightedVendorsForPlan = null;
+  var badge = document.getElementById('sd-plan-overlay-badge');
+  if (badge) badge.remove();
+  drawVendorPins(currentLayerType);
+  if (currentRouteLayer) { sdMap.removeLayer(currentRouteLayer); currentRouteLayer = null; }
 }
 
 function selectOptimizationPlan(planId) {
