@@ -3162,6 +3162,12 @@ function showSupplyDemandView() {
   if (pfMsg) pfMsg.remove();
   var pfSpacer = document.getElementById('sd-pf-msg-spacer');
   if (pfSpacer) pfSpacer.remove();
+  var routeTile = document.getElementById('sd-route-result-tile');
+  if (routeTile) routeTile.remove();
+  if (window.optimizationRoutesLayer) {
+    sdMap.removeLayer(window.optimizationRoutesLayer);
+    window.optimizationRoutesLayer = null;
+  }
   updateTimeline(0);
 }
 
@@ -3256,6 +3262,16 @@ function switchLayerType(layerType) {
     drawSupplyAreaLayer(layerType);
     hideLayerSwitchOverlay();
   }, 500);
+
+  if (simulationCompleted) {
+    if (window.optimizationRoutesLayer) {
+      sdMap.removeLayer(window.optimizationRoutesLayer);
+      window.optimizationRoutesLayer = null;
+    }
+    setTimeout(function() {
+      performRouteOptimizationAnalysis();
+    }, 300);
+  }
 }
 
 function showLayerSwitchOverlay(layerType) {
@@ -3414,6 +3430,8 @@ function startTimelineAutoScroll() {
 function completeSimulation() {
   simulationCompleted = true;
 
+  performRouteOptimizationAnalysis();
+
   document.getElementById('sd-sim-progress-section').style.display = 'none';
 
   document.getElementById('sd-alerts-section').style.display = 'block';
@@ -3437,6 +3455,250 @@ function completeSimulation() {
   }
 
   renderAlerts();
+}
+
+function performRouteOptimizationAnalysis() {
+  showRouteOptimizationOverlay();
+
+  var vendors = vendorPinsData[currentLayerType];
+  if (!vendors || vendors.length === 0) {
+    setTimeout(hideRouteOptimizationOverlay, 1000);
+    return;
+  }
+
+  if (currentRouteLayer) { sdMap.removeLayer(currentRouteLayer); currentRouteLayer = null; }
+  if (window.optimizationRoutesLayer) { sdMap.removeLayer(window.optimizationRoutesLayer); window.optimizationRoutesLayer = null; }
+
+  window.optimizationRoutesLayer = L.layerGroup().addTo(sdMap);
+
+  var delay = 0;
+  var interval = 280;
+  vendors.forEach(function(vendor, idx) {
+    setTimeout(function() {
+      drawRoadLikeRoute(vendor, idx, vendors.length);
+    }, delay);
+    delay += interval;
+  });
+
+  setTimeout(function() {
+    finalizeRouteOptimizationOverlay();
+  }, delay + 800);
+
+  setTimeout(function() {
+    hideRouteOptimizationOverlay();
+    showRouteOptimizationResultButton();
+  }, delay + 2400);
+}
+
+function showRouteOptimizationOverlay() {
+  var existing = document.getElementById('sd-route-opt-overlay');
+  if (existing) existing.remove();
+
+  var overlay = document.createElement('div');
+  overlay.id = 'sd-route-opt-overlay';
+  overlay.className = 'sd-route-opt-overlay';
+  overlay.innerHTML =
+    '<div class="sd-route-opt-card">' +
+      '<div class="sd-route-opt-spinner"></div>' +
+      '<div class="sd-route-opt-title">🛰 地理空間AIによるルート最適化分析中</div>' +
+      '<div class="sd-route-opt-subtitle">道路接続・距離・拠点稼働率を統合解析しています</div>' +
+      '<div class="sd-route-opt-progress" id="sd-route-opt-progress">道路ネットワーク評価中...</div>' +
+    '</div>';
+
+  var mapContainer = document.querySelector('.sd-map-container');
+  if (mapContainer) {
+    mapContainer.style.position = 'relative';
+    mapContainer.appendChild(overlay);
+  }
+
+  var progressTexts = [
+    '道路ネットワーク評価中...',
+    '拠点間の道路接続を解析中...',
+    '配送距離×稼働率×時期を最適化中...',
+    '最適ルート候補を生成中...'
+  ];
+  var progressEl = document.getElementById('sd-route-opt-progress');
+  var idx = 0;
+  window.routeOptProgressTimer = setInterval(function() {
+    idx = (idx + 1) % progressTexts.length;
+    if (progressEl) progressEl.textContent = progressTexts[idx];
+  }, 700);
+}
+
+function finalizeRouteOptimizationOverlay() {
+  if (window.routeOptProgressTimer) {
+    clearInterval(window.routeOptProgressTimer);
+    window.routeOptProgressTimer = null;
+  }
+  var overlay = document.getElementById('sd-route-opt-overlay');
+  if (overlay) {
+    overlay.querySelector('.sd-route-opt-spinner').style.display = 'none';
+    overlay.querySelector('.sd-route-opt-title').innerHTML = '✓ ルート最適化分析が完了しました';
+    overlay.querySelector('.sd-route-opt-title').style.color = '#3d6b24';
+    overlay.querySelector('.sd-route-opt-subtitle').textContent = '右パネルから結果を確認できます';
+    overlay.querySelector('.sd-route-opt-progress').style.display = 'none';
+    overlay.classList.add('completed');
+  }
+}
+
+function hideRouteOptimizationOverlay() {
+  var overlay = document.getElementById('sd-route-opt-overlay');
+  if (overlay) {
+    overlay.style.opacity = '0';
+    setTimeout(function() {
+      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    }, 400);
+  }
+}
+
+function drawRoadLikeRoute(vendor, idx, total) {
+  if (!window.optimizationRoutesLayer) return;
+  var siteCoords = V4_PROJECT_CENTER;
+  var vendorCoords = vendor.coords;
+
+  var dLat = vendorCoords[0] - siteCoords[0];
+  var dLng = vendorCoords[1] - siteCoords[1];
+  var perpLat = -dLng * 0.06;
+  var perpLng = dLat * 0.06;
+
+  var routePoints = [
+    siteCoords,
+    [siteCoords[0] + dLat * 0.2 + perpLat * 0.3, siteCoords[1] + dLng * 0.2 + perpLng * 0.3],
+    [siteCoords[0] + dLat * 0.4 - perpLat * 0.2, siteCoords[1] + dLng * 0.4 - perpLng * 0.2],
+    [siteCoords[0] + dLat * 0.6 + perpLat * 0.4, siteCoords[1] + dLng * 0.6 + perpLng * 0.4],
+    [siteCoords[0] + dLat * 0.8 - perpLat * 0.1, siteCoords[1] + dLng * 0.8 - perpLng * 0.1],
+    vendorCoords
+  ];
+
+  var roadOutline = L.polyline(routePoints, {
+    color: '#ffffff',
+    weight: 6,
+    opacity: 0.9,
+    smoothFactor: 1.0
+  });
+  var roadCenter = L.polyline(routePoints, {
+    color: vendor.status === 'limited' ? '#d6841d' : '#2c5d8f',
+    weight: 3,
+    opacity: 0,
+    smoothFactor: 1.0,
+    dashArray: vendor.status === 'limited' ? '6, 4' : null
+  });
+
+  window.optimizationRoutesLayer.addLayer(roadOutline);
+  window.optimizationRoutesLayer.addLayer(roadCenter);
+
+  var op = 0;
+  var fadeIn = setInterval(function() {
+    op += 0.1;
+    if (op >= 0.85) {
+      roadCenter.setStyle({ opacity: 0.85 });
+      clearInterval(fadeIn);
+    } else {
+      roadCenter.setStyle({ opacity: op });
+    }
+  }, 30);
+}
+
+function showRouteOptimizationResultButton() {
+  var alertsSec = document.getElementById('sd-alerts-section');
+  if (!alertsSec) return;
+
+  var existing = document.getElementById('sd-route-result-tile');
+  if (existing) existing.remove();
+
+  var tile = document.createElement('div');
+  tile.id = 'sd-route-result-tile';
+  tile.className = 'sd-route-result-tile';
+  tile.innerHTML =
+    '<div class="sd-route-result-header">' +
+      '<span class="sd-route-result-icon">🛰</span>' +
+      '<span class="sd-route-result-title">ルート最適化結果が確認できます</span>' +
+    '</div>' +
+    '<div class="sd-route-result-desc">地理空間AIによる道路接続・距離・稼働率の統合解析結果から、現在表示中のレイヤー（<span id="sd-route-result-layer-name"></span>）に対する最適ルートが算出されました。</div>' +
+    '<button class="sd-route-result-btn" onclick="showRouteOptimizationResults()">📊 ルート最適化結果を見る →</button>';
+
+  alertsSec.parentNode.insertBefore(tile, alertsSec);
+
+  var layerNames = { craftsmen: '職人需給', equipment: '重機需給', concrete: '生コン供給', competing: '競合案件' };
+  var nameSpan = document.getElementById('sd-route-result-layer-name');
+  if (nameSpan) nameSpan.textContent = layerNames[currentLayerType] || currentLayerType;
+}
+
+function showRouteOptimizationResults() {
+  var modal = document.getElementById('sd-route-result-modal');
+  if (modal) modal.remove();
+
+  var vendors = vendorPinsData[currentLayerType];
+  if (!vendors) return;
+
+  var scored = vendors.map(function(v) {
+    var score = 100 - (v.distance * 0.5) - (v.utilization * 0.3) - (v.status === 'limited' ? 30 : 0);
+    return Object.assign({}, v, { score: score });
+  });
+  scored.sort(function(a, b) { return b.score - a.score; });
+  var top5 = scored.slice(0, 5);
+
+  var layerNames = { craftsmen: '職人需給', equipment: '重機需給', concrete: '生コン供給', competing: '競合案件' };
+
+  var html =
+    '<div class="sd-route-modal-backdrop" onclick="closeRouteOptResults(event)">' +
+      '<div class="sd-route-modal" onclick="event.stopPropagation()">' +
+        '<div class="sd-route-modal-header">' +
+          '<div class="sd-route-modal-title">🛰 地理空間AIによるルート最適化結果</div>' +
+          '<div class="sd-route-modal-sub">レイヤー：' + (layerNames[currentLayerType] || currentLayerType) + ' / 全' + vendors.length + '拠点を解析、上位5拠点を推奨</div>' +
+          '<button class="sd-route-modal-close" onclick="closeRouteOptResults()">✕</button>' +
+        '</div>' +
+        '<div class="sd-route-modal-body">' +
+          renderRouteOptResultRows(top5) +
+          '<div class="sd-route-modal-note">💡 各推奨拠点をクリックすると、地図上に道路接続のルートと拠点の詳細がハイライト表示されます。</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+  var modalDiv = document.createElement('div');
+  modalDiv.id = 'sd-route-result-modal';
+  modalDiv.innerHTML = html;
+  document.body.appendChild(modalDiv);
+}
+
+function renderRouteOptResultRows(top5) {
+  var html = '';
+  top5.forEach(function(v, idx) {
+    var costInfo = v.cost > 0 ? '¥' + v.cost.toLocaleString() : '地元単価';
+    var statusBadge = v.status === 'available' ? '<span class="sd-route-status-ok">空きあり</span>' : '<span class="sd-route-status-limited">限定的</span>';
+    html +=
+      '<div class="sd-route-result-row" onclick="focusOnVendorFromResult(\'' + v.name + '\')">' +
+        '<div class="sd-route-result-rank">' + (idx + 1) + '</div>' +
+        '<div class="sd-route-result-info">' +
+          '<div class="sd-route-result-name">' + v.name + ' ' + statusBadge + '</div>' +
+          '<div class="sd-route-result-meta">📍 ' + v.distance + 'km / 稼働率 ' + v.utilization + '% / コスト ' + costInfo + '</div>' +
+        '</div>' +
+        '<div class="sd-route-result-score">スコア ' + Math.round(v.score) + '</div>' +
+      '</div>';
+  });
+  return html;
+}
+
+function focusOnVendorFromResult(vendorName) {
+  var vendors = vendorPinsData[currentLayerType];
+  var v = vendors.find(function(x) { return x.name === vendorName; });
+  if (!v) return;
+  closeRouteOptResults();
+  setTimeout(function() {
+    sdMap.setView(v.coords, 11, { animate: true, duration: 0.8 });
+    setTimeout(function() {
+      showVendorPopup(v, currentLayerType);
+      drawRouteToVendor(v);
+    }, 600);
+  }, 200);
+}
+
+function closeRouteOptResults(event) {
+  if (event && event.target.classList && !event.target.classList.contains('sd-route-modal-backdrop')) {
+    return;
+  }
+  var modal = document.getElementById('sd-route-result-modal');
+  if (modal) modal.remove();
 }
 
 function startExtendedSearch() {
