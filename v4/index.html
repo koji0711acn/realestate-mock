@@ -32,8 +32,8 @@
   <!-- ===== Login Screen (Task 11) ===== -->
   <div id="screen-login">
     <div class="login-card">
-      <div class="login-logo">Real World AI</div>
-      <div class="login-sub">for Real Estate — Demo Access</div>
+      <div class="login-logo">業界横断 社会資本可視化プラットフォーム</div>
+      <div class="login-sub">Demo Access</div>
       <div class="login-form">
         <label class="login-label" for="login-id">ID</label>
         <input type="text" id="login-id" class="login-input" placeholder="Enter your ID">
@@ -70,31 +70,34 @@
               <table class="lc-scroll-table-inner">
                 <thead>
                   <tr>
-                    <th>職人・協力会社<br>マッチング</th>
                     <th>建機<br>テレマティクス</th>
                     <th>公共インフラ<br>可視化</th>
                     <th>統計データ<br>公表</th>
                     <th>自社案件<br>管理</th>
+                    <th>職人・協力会社<br>マッチング</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr class="lc-row-coverage">
-                    <td>個別案件単位の<br>1対1取引</td>
                     <td>自社保有建機の<br>遠隔管理</td>
                     <td>国の整備計画を<br>地図表示</td>
                     <td>全国集計値を<br>四半期で公表</td>
                     <td>社内の案件・<br>進捗・原価管理</td>
+                    <td>個別案件単位の<br>1対1取引</td>
                   </tr>
                   <tr class="lc-row-example">
-                    <td>助太刀<br>ツクリンク</td>
                     <td>KOMTRAX<br>（コマツ）</td>
                     <td>国交省<br>インフラ<br>みらいマップ</td>
                     <td>国交省<br>建設労働<br>需給調査</td>
                     <td>各社内<br>BIM・ERP</td>
+                    <td>助太刀<br>ツクリンク</td>
                   </tr>
                 </tbody>
               </table>
             </div>
+            <p class="lc-positioning-note">
+              ※ 助太刀・ツクリンク等のマッチングサービスは、本プラットフォーム上で「供給側プレイヤーの一形態」として位置づけられます。本PFが業界横断のリソース最適化基盤として規模を獲得した段階で、マッチング会社側にもメリットが生じ、結果として参画してくる想定です。
+            </p>
           </div>
         </div>
         <div class="lc-arrow">→</div>
@@ -138,21 +141,40 @@
 
     <!-- Block 4: Users -->
     <div class="landing-users">
-      <h2 class="landing-section-title">想定ユーザー</h2>
+      <h2 class="landing-section-title">想定ユーザーと提供価値</h2>
       <p class="landing-users-description">本プラットフォームは、建設リソースの需給に関わる以下の方々が利用することを想定しています。</p>
       <div class="users-grid">
         <div class="user-card">
           <div class="user-card-title">需要側</div>
-          <p class="user-card-desc">ハウスメーカー、デベロッパー等の建設計画・調達担当者。案件単位でリソース確保が必要な立場。</p>
+          <div class="user-card-sub">ハウスメーカー・デベロッパー・ゼネコン等</div>
+          <ul class="user-card-benefits">
+            <li>計画段階でリソース制約を可視化、工期遅延リスクを事前把握</li>
+            <li>自社協力会社網を超えて、業界全体から最適調達が可能</li>
+            <li>競合案件との取り合いを見える化し、調達タイミングを判断</li>
+          </ul>
         </div>
         <div class="user-card">
           <div class="user-card-title">供給側</div>
-          <p class="user-card-desc">専門工事会社、重機レンタル会社、資材商社、職人派遣サービス等の協力会社。自社リソースの稼働率を最適化したい立場。</p>
+          <div class="user-card-sub">専門工事会社・重機リース・資材商社・職人派遣等</div>
+          <ul class="user-card-benefits">
+            <li>業界横断で稼働可能枠を提示、新規顧客接点を拡大</li>
+            <li>計画段階から需要が見えるため、稼働率向上が可能</li>
+            <li>対応可能エリア・能力を地理空間で見せ、評価が蓄積</li>
+          </ul>
         </div>
         <div class="user-card">
           <div class="user-card-title">行政・業界団体</div>
-          <p class="user-card-desc">建設業界全体の需給状況を把握し、政策立案・効果検証に活用する立場。</p>
+          <div class="user-card-sub">国交省・自治体・建設業協会等</div>
+          <ul class="user-card-benefits">
+            <li>地域・業種別のリソース逼迫状況をリアルタイム把握</li>
+            <li>公共工事の発注タイミングを民間需要と整合</li>
+            <li>災害復旧時、業界横断でリソース再配置が可能</li>
+          </ul>
         </div>
+      </div>
+      <div class="landing-social-impact">
+        <span class="social-impact-icon">🌐</span>
+        <span class="social-impact-text">建設業界全体の生産性向上と社会資本の持続的整備を実現し、人口減少社会における社会インフラの維持・更新に貢献します。</span>
       </div>
     </div>
 
@@ -199,7 +221,6 @@
     <!-- Block 5: CTA -->
     <div class="landing-cta">
       <button id="btn-start" class="landing-start-btn">デモを開始する →</button>
-      <p class="landing-cta-note">※ 本デモは大和ハウス様向けに、賃貸住宅事業（D-room）の建設計画担当者の視点で構成されています</p>
     </div>
 
   </div>
@@ -628,7 +649,7 @@
           <div class="sm-compare-headline">業界横断PF活用</div>
           <div class="sm-compare-metrics">
             <div class="sm-metric"><div class="sm-metric-label">工期</div><div class="sm-metric-value sm-positive">12ヶ月</div><div class="sm-metric-sub">予定通り</div></div>
-            <div class="sm-metric"><div class="sm-metric-label">コスト</div><div class="sm-metric-value sm-positive">+2%</div><div class="sm-metric-sub">当初予算比</div></div>
+            <div class="sm-metric"><div class="sm-metric-label">コスト</div><div class="sm-metric-value sm-positive">-10%</div><div class="sm-metric-sub">当初予算比 ▼削減</div></div>
             <div class="sm-metric"><div class="sm-metric-label">リスク</div><div class="sm-metric-value sm-risk-low">低</div><div class="sm-metric-sub">代替候補確保済み</div></div>
             <div class="sm-metric"><div class="sm-metric-label">調達業務時間</div><div class="sm-metric-value sm-positive">約 2時間</div><div class="sm-metric-sub">即時手配で完結</div></div>
           </div>

@@ -3599,6 +3599,11 @@ function toggleOpPlanExpand(planId, event) {
     if (!plan || !plan.detailExtended) return;
     el.innerHTML = renderPlanExpandContent(plan);
     el.style.display = 'block';
+    setTimeout(function() {
+      var rect = el.getBoundingClientRect();
+      var offset = window.pageYOffset + rect.top - 80;
+      window.scrollTo({ top: offset, behavior: 'smooth' });
+    }, 100);
   } else {
     el.style.display = 'none';
   }
