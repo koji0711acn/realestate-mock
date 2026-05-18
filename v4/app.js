@@ -2369,27 +2369,62 @@ var layerMunicipalityData = {
 // ===== V4 Vendor Pin Data (番地レベル) =====
 var vendorPinsData = {
   craftsmen: [
-    { name: '山形北鉄筋工業株式会社', addr: '山形県山形市あこや町2-12-15', coords: [38.236, 140.358], status: 'available', capacity: '鉄筋工チーム6名 / 月96人工' },
-    { name: '東北建設工業', addr: '宮城県多賀城市中央2-8-3', coords: [38.301, 141.005], status: 'available', capacity: '型枠工5名・鉄筋工4名 / 月72人工' },
-    { name: '北上鉄筋工業', addr: '岩手県北上市相去町3-21-8', coords: [39.281, 141.135], status: 'available', capacity: '鉄筋工8名 / 月128人工' },
-    { name: '米沢建設', addr: '山形県米沢市中央4-3-21', coords: [37.918, 140.119], status: 'limited', capacity: '鉄筋工3名 / 月48人工（一部期間）' }
+    { name: '仙台中央建設', addr: '宮城県仙台市青葉区中央4-3-1', coords: [38.260, 140.882], distance: 6.1, status: 'available', capacity: '鉄筋工8名・型枠工6名', utilization: 72, cost: 0 },
+    { name: '泉区建設工業', addr: '宮城県仙台市泉区南光台3-12-5', coords: [38.327, 140.895], distance: 1.9, status: 'available', capacity: '型枠工7名・大工4名', utilization: 65, cost: 0 },
+    { name: '宮城野建築工房', addr: '宮城県仙台市宮城野区福室3-2-5', coords: [38.286, 141.001], distance: 11.0, status: 'available', capacity: '内装大工10名', utilization: 58, cost: 0 },
+    { name: '若林職人組合', addr: '宮城県仙台市若林区大和町5-7-2', coords: [38.251, 140.918], distance: 8.0, status: 'available', capacity: '左官・タイル工15名', utilization: 70, cost: 0 },
+    { name: '太白建設', addr: '宮城県仙台市太白区長町8-3-1', coords: [38.226, 140.866], distance: 9.9, status: 'limited', capacity: '鉄筋工4名（半月制限）', utilization: 88, cost: 0 },
+    { name: '東北建設工業', addr: '宮城県多賀城市中央2-8-3', coords: [38.301, 141.005], distance: 11.0, status: 'available', capacity: '型枠工5名・鉄筋工4名', utilization: 60, cost: 0 },
+    { name: '塩竈協同建設', addr: '宮城県塩竈市港町2-15-4', coords: [38.317, 141.022], distance: 12.4, status: 'available', capacity: '大工8名', utilization: 55, cost: 0 },
+    { name: '名取住宅建設', addr: '宮城県名取市増田字幾世橋8-5', coords: [38.169, 140.892], distance: 16.3, status: 'available', capacity: '鉄筋工6名・大工5名', utilization: 62, cost: 0 },
+    { name: '岩沼建工', addr: '宮城県岩沼市本町1-2-3', coords: [38.103, 140.866], distance: 23.6, status: 'available', capacity: '型枠工4名', utilization: 50, cost: 0 },
+    { name: '富谷建築サービス', addr: '宮城県富谷市富谷新町下7-1', coords: [38.408, 140.882], distance: 10.4, status: 'available', capacity: '大工6名・内装3名', utilization: 68, cost: 0 },
+    { name: '利府住建', addr: '宮城県利府町中央2-8-1', coords: [38.330, 141.027], distance: 12.9, status: 'available', capacity: '鉄筋工5名', utilization: 75, cost: 0 },
+    { name: '大和町建築組合', addr: '宮城県大和町吉岡まほろば1-1-1', coords: [38.434, 140.881], distance: 13.2, status: 'available', capacity: '大工7名', utilization: 60, cost: 0 },
+    { name: '石巻復興建設', addr: '宮城県石巻市中央2-6-9', coords: [38.434, 141.302], distance: 38.9, status: 'limited', capacity: '鉄筋工4名（復興案件優先）', utilization: 92, cost: 0 },
+    { name: '気仙沼大工組合', addr: '宮城県気仙沼市八日町1-5-3', coords: [38.908, 141.570], distance: 88.3, status: 'limited', capacity: '大工6名（応援可）', utilization: 80, cost: 0 },
+    { name: '一関建設工業', addr: '岩手県一関市山目字前田', coords: [38.937, 141.123], distance: 73.9, status: 'available', capacity: '鉄筋工8名・型枠工5名', utilization: 50, cost: 0 },
+    { name: '北上鉄筋工業', addr: '岩手県北上市相去町3-21-8', coords: [39.281, 141.135], distance: 113.4, status: 'available', capacity: '鉄筋工8名', utilization: 55, cost: 0 },
+    { name: '山形北鉄筋工業', addr: '山形県山形市あこや町2-12-15', coords: [38.236, 140.358], distance: 47.5, status: 'available', capacity: '鉄筋工6名', utilization: 60, cost: 0 },
+    { name: '米沢建設', addr: '山形県米沢市中央4-3-21', coords: [37.918, 140.119], distance: 79.1, status: 'limited', capacity: '鉄筋工3名（一部期間）', utilization: 85, cost: 0 },
+    { name: '福島建工', addr: '福島県福島市曽根田町', coords: [37.755, 140.467], distance: 73.0, status: 'available', capacity: '型枠工7名・鉄筋工5名', utilization: 58, cost: 0 },
+    { name: '郡山建設', addr: '福島県郡山市待池台3-21-8', coords: [37.412, 140.391], distance: 109.9, status: 'available', capacity: '大工10名', utilization: 65, cost: 0 }
   ],
   equipment: [
-    { name: '郡山クレーンサービス株式会社', addr: '福島県郡山市待池台3-21-8', coords: [37.412, 140.391], status: 'available', capacity: '50tクローラークレーン 1台、杭打ち機 2台' },
-    { name: '東北建機リース', addr: '宮城県塩竈市港町2-15-4', coords: [38.317, 141.022], status: 'limited', capacity: '25tクレーン 1台（5月以降）' },
-    { name: '仙台クレーン工業', addr: '宮城県多賀城市八幡4-2-9', coords: [38.297, 141.005], status: 'available', capacity: '30tクレーン・高所作業車各1台' }
+    { name: '仙台クレーン工業', addr: '宮城県仙台市青葉区荒巻本沢2-12-3', coords: [38.275, 140.842], distance: 5.7, status: 'available', capacity: '50tクローラークレーン1台、25t油圧クレーン2台', utilization: 60, cost: 320000 },
+    { name: '泉区建機センター', addr: '宮城県仙台市泉区南中山1-31', coords: [38.353, 140.834], distance: 5.6, status: 'available', capacity: '30tクレーン1台、ユンボ3台', utilization: 65, cost: 180000 },
+    { name: '宮城野重機リース', addr: '宮城県仙台市宮城野区扇町5-3-3', coords: [38.273, 140.961], distance: 8.2, status: 'limited', capacity: '50tクレーン1台（地下鉄工事で予約多数）', utilization: 92, cost: 480000 },
+    { name: '東北建機リース塩竈', addr: '宮城県塩竈市港町2-15-4', coords: [38.317, 141.022], distance: 12.4, status: 'limited', capacity: '25tクレーン1台（5月以降）', utilization: 88, cost: 340000 },
+    { name: '多賀城建機センター', addr: '宮城県多賀城市八幡4-2-9', coords: [38.297, 141.005], distance: 10.9, status: 'available', capacity: '30tクレーン・高所作業車各1台', utilization: 70, cost: 290000 },
+    { name: '太白重機サービス', addr: '宮城県仙台市太白区長町南3-2-5', coords: [38.220, 140.871], distance: 10.5, status: 'available', capacity: '25tクレーン2台', utilization: 55, cost: 380000 },
+    { name: '名取建設機械', addr: '宮城県名取市美田園7-3-1', coords: [38.181, 140.918], distance: 15.8, status: 'available', capacity: 'ユンボ4台、ダンプ3台', utilization: 50, cost: 420000 },
+    { name: '岩沼クレーン', addr: '宮城県岩沼市押分字山2-1', coords: [38.103, 140.866], distance: 23.6, status: 'available', capacity: '25tクレーン1台', utilization: 60, cost: 550000 },
+    { name: '富谷重機', addr: '宮城県富谷市成田1-3-7', coords: [38.408, 140.875], distance: 10.4, status: 'available', capacity: '50tクレーン1台', utilization: 65, cost: 280000 },
+    { name: '大和町建機', addr: '宮城県大和町吉岡まほろば1-2-3', coords: [38.434, 140.881], distance: 13.2, status: 'available', capacity: '30tクレーン1台、ユンボ2台', utilization: 58, cost: 320000 },
+    { name: '利府クレーン', addr: '宮城県利府町赤沼1-7', coords: [38.330, 141.027], distance: 12.9, status: 'available', capacity: '50t・25tクレーン各1台', utilization: 62, cost: 310000 },
+    { name: '石巻復興建機', addr: '宮城県石巻市湊町2-9-1', coords: [38.434, 141.302], distance: 38.9, status: 'limited', capacity: '50tクレーン（復興案件専従）', utilization: 95, cost: 820000 },
+    { name: '一関建機センター', addr: '岩手県一関市山目字前田', coords: [38.937, 141.123], distance: 73.9, status: 'available', capacity: '50tクレーン2台', utilization: 45, cost: 1180000 },
+    { name: '北上重機リース', addr: '岩手県北上市相去町3-21-8', coords: [39.281, 141.135], distance: 113.4, status: 'available', capacity: '50tクレーン1台、ユンボ5台', utilization: 50, cost: 1620000 },
+    { name: '郡山クレーンサービス', addr: '福島県郡山市待池台3-21-8', coords: [37.412, 140.391], distance: 109.9, status: 'available', capacity: '50tクローラークレーン1台、杭打ち機2台', utilization: 55, cost: 1580000 },
+    { name: '福島重機', addr: '福島県福島市鎌田字御仮家', coords: [37.755, 140.467], distance: 73.0, status: 'available', capacity: '30tクレーン2台', utilization: 60, cost: 1120000 },
+    { name: '山形建機', addr: '山形県山形市鈴川町1-3-5', coords: [38.236, 140.358], distance: 47.5, status: 'available', capacity: '25tクレーン1台、ユンボ3台', utilization: 50, cost: 880000 },
+    { name: '米沢重機リース', addr: '山形県米沢市中央4-3-21', coords: [37.918, 140.119], distance: 79.1, status: 'limited', capacity: '50tクレーン1台（峠越え割増）', utilization: 75, cost: 1320000 }
   ],
   concrete: [
-    { name: '仙台青葉生コン工業株式会社', addr: '宮城県仙台市青葉区中央4-3-1', coords: [38.269, 140.872], status: 'limited', capacity: '優先枠 420m³（要早期確保）' },
-    { name: '名取生コン工業', addr: '宮城県名取市増田字幾世橋8-5', coords: [38.169, 140.892], status: 'available', capacity: '日量 180m³ / 工期内累計 450m³' },
-    { name: '多賀城レミコン', addr: '宮城県多賀城市町前3-7-12', coords: [38.292, 141.005], status: 'available', capacity: '日量 150m³ / 工期内累計 380m³' }
+    { name: '仙台青葉生コン工業', addr: '宮城県仙台市青葉区中央4-3-1', coords: [38.269, 140.872], distance: 5.1, status: 'limited', capacity: '優先枠 420m³（公共工事先約）', utilization: 88, cost: 18500 },
+    { name: '泉区生コン', addr: '宮城県仙台市泉区八乙女中央1-1', coords: [38.323, 140.901], distance: 2.1, status: 'available', capacity: '日量 200m³ / 工期内累計 500m³', utilization: 60, cost: 17800 },
+    { name: '宮城野生コン工業', addr: '宮城県仙台市宮城野区福室3-2-5', coords: [38.286, 141.001], distance: 11.0, status: 'available', capacity: '日量 180m³ / 工期内累計 450m³', utilization: 65, cost: 18900 },
+    { name: '若林生コン', addr: '宮城県仙台市若林区六丁の目南町3-7', coords: [38.249, 140.946], distance: 8.9, status: 'available', capacity: '日量 220m³ / 工期内累計 580m³', utilization: 55, cost: 18600 },
+    { name: '太白レミコン', addr: '宮城県仙台市太白区長町南3-2-5', coords: [38.220, 140.871], distance: 10.5, status: 'available', capacity: '日量 160m³', utilization: 50, cost: 19200 },
+    { name: '名取生コン工業', addr: '宮城県名取市増田字幾世橋8-5', coords: [38.169, 140.892], distance: 16.3, status: 'available', capacity: '日量 180m³ / 工期内累計 450m³', utilization: 58, cost: 19800 },
+    { name: '多賀城レミコン', addr: '宮城県多賀城市町前3-7-12', coords: [38.292, 141.005], distance: 10.9, status: 'available', capacity: '日量 150m³ / 工期内累計 380m³', utilization: 62, cost: 18800 },
+    { name: '塩竈生コン', addr: '宮城県塩竈市港町2-15-4', coords: [38.317, 141.022], distance: 12.4, status: 'available', capacity: '日量 140m³', utilization: 55, cost: 19400 },
+    { name: '富谷生コン', addr: '宮城県富谷市成田5-2-1', coords: [38.408, 140.875], distance: 10.4, status: 'available', capacity: '日量 200m³', utilization: 60, cost: 18400 },
+    { name: '岩沼レミコン', addr: '宮城県岩沼市相の原3-1-7', coords: [38.103, 140.866], distance: 23.6, status: 'limited', capacity: '日量 100m³（90分制約で部分対応）', utilization: 80, cost: 21500 },
+    { name: '大和町生コン', addr: '宮城県大和町吉岡天皇寺1-5', coords: [38.434, 140.881], distance: 13.2, status: 'available', capacity: '日量 160m³', utilization: 65, cost: 18900 },
+    { name: '利府レミコン', addr: '宮城県利府町中央1-2-3', coords: [38.330, 141.027], distance: 12.9, status: 'available', capacity: '日量 140m³', utilization: 60, cost: 19100 }
   ],
-  steel: [
-    { name: '関東鋼業株式会社', addr: '埼玉県川口市本町4-2-15', coords: [35.808, 139.722], status: 'available', capacity: 'H形鋼・異形鉄筋 全量対応可能' },
-    { name: '茨城スチール', addr: '茨城県つくば市東光台2-8-3', coords: [36.085, 140.115], status: 'available', capacity: 'H形鋼 38t確保可能' },
-    { name: '千葉鉄鋼商社', addr: '千葉県市川市新井3-9-22', coords: [35.722, 139.918], status: 'available', capacity: '異形鉄筋・H形鋼 一括対応' },
-    { name: '仙台メタル', addr: '宮城県仙台市宮城野区福室3-2-5', coords: [38.286, 141.001], status: 'limited', capacity: 'H形鋼 部分対応（数量限定）' }
-  ],
+  steel: [],
   competing: []
 };
 
