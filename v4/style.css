@@ -3340,3 +3340,68 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.1); }
 }
+
+/* ===== V4 Geo-Spatial AI Badge ===== */
+.sd-geo-ai-badge {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0 0 12px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #1a3658 0%, #2c5d8f 50%, #3a7ab8 100%);
+  border-radius: 8px;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(26,54,88,0.18);
+}
+.sd-geo-ai-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+.sd-geo-ai-content {
+  flex: 1;
+  min-width: 0;
+}
+.sd-geo-ai-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  color: #ffd54f;
+}
+.sd-geo-ai-points {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sd-geo-ai-point {
+  font-size: 10px;
+  line-height: 1.5;
+  color: rgba(255,255,255,0.95);
+}
+
+.sd-sim-step.sd-sim-step-ai {
+  position: relative;
+}
+.sd-sim-step.sd-sim-step-ai::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #ffd54f 0%, #f0a020 100%);
+  border-radius: 2px;
+}
+.sd-sim-step-ai-tag {
+  display: inline-block;
+  background: linear-gradient(135deg, #1a3658 0%, #2c5d8f 100%);
+  color: #ffd54f;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+  margin-right: 6px;
+  letter-spacing: 0.3px;
+  vertical-align: middle;
+}

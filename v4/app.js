@@ -3310,11 +3310,13 @@ function toggleLayer(checkbox) {
 
 // ===== V4 Timeline Simulation =====
 var simSteps = [
-  { id: 'monthly', text: '月別需給バランスを計算中', duration: 1200, result: '✓ 12ヶ月分の需給推移を算出' },
+  { id: 'monthly', text: '月別需給バランスを計算中', duration: 1100, result: '✓ 12ヶ月分の需給推移を算出' },
+  { id: 'spatial', text: '【地理空間AI】拠点配置×距離×輸送コストを最適化中', duration: 1300, result: '✓ 重機運搬距離・生コン90分制約を考慮した最適拠点群を特定', isAI: true },
   { id: 'public', text: '公共工事の進行スケジュールを反映中', duration: 1100, result: '✓ 仙台地下鉄延伸、地下鉄関連3案件を反映' },
-  { id: 'disaster', text: '災害復旧需要との競合を分析中', duration: 1300, result: '✓ 石巻復旧、福島継続案件等の影響を計算' },
-  { id: 'cascade', text: '隣接エリアの連鎖逼迫を計算中', duration: 1200, result: '✓ 6市区町村の連鎖逼迫を反映' },
-  { id: 'peak', text: 'ピーク需給時期を特定中', duration: 1100, result: '✓ 工期4-6ヶ月目に最大逼迫（鉄筋工 -22%）' },
+  { id: 'disaster', text: '災害復旧需要との競合を分析中', duration: 1200, result: '✓ 石巻復旧、福島継続案件等の影響を計算' },
+  { id: 'cascade', text: '隣接エリアの連鎖逼迫を計算中', duration: 1100, result: '✓ 6市区町村の連鎖逼迫を反映' },
+  { id: 'timespace', text: '【地理空間AI】月別×エリア別の需給動的変化を予測中', duration: 1200, result: '✓ 時空間予測で工期4-6ヶ月目に仙台中心部で最大逼迫を特定', isAI: true },
+  { id: 'peak', text: 'ピーク需給時期を特定中', duration: 1000, result: '✓ 工期4-6ヶ月目に最大逼迫（鉄筋工 -22%）' },
   { id: 'impact', text: 'コスト・工期影響を推定中', duration: 1100, result: '✓ 工期+1.5ヶ月、コスト+14%の見込み' }
 ];
 
@@ -3340,21 +3342,24 @@ function startTimelineSimulation() {
   var stepsContainer = document.getElementById('sd-sim-steps');
   var html = '';
   simSteps.forEach(function(s) {
-    html += '<div class="sd-sim-step pending" id="sd-sim-step-' + s.id + '">';
+    var aiClass = s.isAI ? ' sd-sim-step-ai' : '';
+    var aiMark = s.isAI ? '<span class="sd-sim-step-ai-tag">🛰 地理空間AI</span>' : '';
+    var stepText = s.text.replace('【地理空間AI】', '');
+    html += '<div class="sd-sim-step pending' + aiClass + '" id="sd-sim-step-' + s.id + '">';
     html += '<div class="sd-sim-step-row">';
     html += '<div class="sd-sim-step-icon">';
     html += '<span class="sd-sim-step-dot"></span>';
     html += '<div class="sd-sim-step-spinner"></div>';
     html += '<div class="sd-sim-step-check">✓</div>';
     html += '</div>';
-    html += '<div class="sd-sim-step-text">' + s.text + '</div>';
+    html += '<div class="sd-sim-step-text">' + aiMark + stepText + '</div>';
     html += '</div>';
     html += '<div class="sd-sim-step-result">' + s.result + '</div>';
     html += '</div>';
   });
   stepsContainer.innerHTML = html;
 
-  var offsets = [0, 200, 400, 600, 800, 1000];
+  var offsets = [0, 180, 360, 540, 720, 900, 1080, 1260];
   simSteps.forEach(function(step, i) {
     var stepEl = document.getElementById('sd-sim-step-' + step.id);
     setTimeout(function() {
