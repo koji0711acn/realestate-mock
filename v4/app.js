@@ -3268,9 +3268,23 @@ function switchLayerType(layerType) {
       sdMap.removeLayer(window.optimizationRoutesLayer);
       window.optimizationRoutesLayer = null;
     }
-    setTimeout(function() {
-      performRouteOptimizationAnalysis();
-    }, 300);
+    if (currentRouteLayer) {
+      sdMap.removeLayer(currentRouteLayer);
+      currentRouteLayer = null;
+    }
+    var oldTile = document.getElementById('sd-route-result-tile');
+    if (oldTile) oldTile.remove();
+    var oldOverlay = document.getElementById('sd-route-opt-overlay');
+    if (oldOverlay) oldOverlay.remove();
+    var oldModal = document.getElementById('sd-route-result-modal');
+    if (oldModal) oldModal.remove();
+
+    var vendors = vendorPinsData[currentLayerType];
+    if (vendors && vendors.length > 0) {
+      setTimeout(function() {
+        performRouteOptimizationAnalysis();
+      }, 300);
+    }
   }
 }
 
@@ -3458,13 +3472,12 @@ function completeSimulation() {
 }
 
 function performRouteOptimizationAnalysis() {
-  showRouteOptimizationOverlay();
-
   var vendors = vendorPinsData[currentLayerType];
   if (!vendors || vendors.length === 0) {
-    setTimeout(hideRouteOptimizationOverlay, 1000);
     return;
   }
+
+  showRouteOptimizationOverlay();
 
   if (currentRouteLayer) { sdMap.removeLayer(currentRouteLayer); currentRouteLayer = null; }
   if (window.optimizationRoutesLayer) { sdMap.removeLayer(window.optimizationRoutesLayer); window.optimizationRoutesLayer = null; }
@@ -3694,8 +3707,10 @@ function focusOnVendorFromResult(vendorName) {
 }
 
 function closeRouteOptResults(event) {
-  if (event && event.target.classList && !event.target.classList.contains('sd-route-modal-backdrop')) {
-    return;
+  if (event && event.target && event.target.classList) {
+    if (!event.target.classList.contains('sd-route-modal-backdrop')) {
+      return;
+    }
   }
   var modal = document.getElementById('sd-route-result-modal');
   if (modal) modal.remove();
