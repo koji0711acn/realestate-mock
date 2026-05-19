@@ -3281,10 +3281,14 @@ function switchLayerType(layerType) {
 
     var vendors = vendorPinsData[currentLayerType];
     if (vendors && vendors.length > 0) {
-      hideElementsForRouteOptimization();
-      setTimeout(function() {
-        performRouteOptimizationAnalysis();
-      }, 300);
+      if (currentLayerType === 'craftsmen') {
+        showRouteOptimizationNotApplicableMessage();
+      } else {
+        hideElementsForRouteOptimization();
+        setTimeout(function() {
+          performRouteOptimizationAnalysis();
+        }, 300);
+      }
     } else {
       showElementsAfterRouteOptimization();
     }
@@ -3512,7 +3516,48 @@ function showElementsAfterRouteOptimization() {
   }, 500);
 }
 
+function showRouteOptimizationNotApplicableMessage() {
+  var existing = document.getElementById('sd-route-result-tile');
+  if (existing) existing.remove();
+  var existingOverlay = document.getElementById('sd-route-opt-overlay');
+  if (existingOverlay) existingOverlay.remove();
+
+  var alertsSec = document.getElementById('sd-alerts-section');
+  if (!alertsSec) return;
+
+  var tile = document.createElement('div');
+  tile.id = 'sd-route-result-tile';
+  tile.className = 'sd-route-result-tile sd-route-not-applicable';
+  tile.innerHTML =
+    '<div class="sd-route-result-header">' +
+      '<span class="sd-route-result-icon">🛰</span>' +
+      '<span class="sd-route-result-title">ルート最適化は重機・生コンでお試しください</span>' +
+    '</div>' +
+    '<div class="sd-route-result-desc">職人需給は配送ではなく「対応可能エリア」で評価する性質のため、本デモのルート最適化分析は<strong>重機需給</strong>または<strong>生コン供給</strong>レイヤーでお試しいただけます。</div>' +
+    '<div class="sd-route-not-applicable-cta">' +
+      '<button class="sd-route-mini-btn" onclick="switchToLayerForRoute(\'equipment\')">重機需給を選択</button>' +
+      '<button class="sd-route-mini-btn" onclick="switchToLayerForRoute(\'concrete\')">生コン供給を選択</button>' +
+    '</div>';
+
+  alertsSec.parentNode.insertBefore(tile, alertsSec);
+
+  showElementsAfterRouteOptimization();
+}
+
+function switchToLayerForRoute(layerType) {
+  var radio = document.querySelector('.sd-layer-toggle[data-layer="' + layerType + '"] input');
+  if (radio) {
+    radio.checked = true;
+    switchLayerType(layerType);
+  }
+}
+
 function performRouteOptimizationAnalysis() {
+  if (currentLayerType === 'craftsmen') {
+    showRouteOptimizationNotApplicableMessage();
+    return;
+  }
+
   var vendors = vendorPinsData[currentLayerType];
   if (!vendors || vendors.length === 0) {
     return;

@@ -174,7 +174,7 @@
       </div>
       <div class="landing-social-impact">
         <span class="social-impact-icon">🌐</span>
-        <span class="social-impact-text">建設業界全体の生産性向上と社会資本の持続的整備を実現し、人口減少社会における社会インフラの維持・更新に貢献します。</span>
+        <span class="social-impact-text">個社最適に閉じていた建設リソースを、地理空間AIで業界横断に最適配置。職人・重機・資材の重複した遊休や逼迫を解消し、案件ごとに失われていた数%〜10%超のコストと数週間の工期ロスを業界全体で削減。人口減少で担い手が縮小する社会において、限られた供給力で社会資本の維持・更新を続けられる仕組みを実現します。</span>
       </div>
     </div>
 
@@ -445,13 +445,6 @@
             <div class="sd-layer-controls-title">主な調達対象</div>
           </div>
           <div class="sd-layer-toggle-list">
-            <label class="sd-layer-toggle active" data-layer="craftsmen">
-              <input type="radio" name="layer" checked onchange="switchLayerType('craftsmen')">
-              <div class="sd-layer-info">
-                <div class="sd-layer-name">職人需給 <span class="sd-layer-range">東北100km圏</span></div>
-                <div class="sd-layer-desc">現場作業従事者（型枠工・鉄筋工・電工等）の需給状況</div>
-              </div>
-            </label>
             <label class="sd-layer-toggle" data-layer="equipment">
               <input type="radio" name="layer" onchange="switchLayerType('equipment')">
               <div class="sd-layer-info">
@@ -466,11 +459,11 @@
                 <div class="sd-layer-desc">生コンクリート工場の供給枠（90分運搬制約）</div>
               </div>
             </label>
-            <label class="sd-layer-toggle sd-layer-disabled" data-layer="competing">
-              <input type="radio" name="layer" onchange="switchLayerTypeDisabled('competing', '競合案件')">
+            <label class="sd-layer-toggle active" data-layer="craftsmen">
+              <input type="radio" name="layer" checked onchange="switchLayerType('craftsmen')">
               <div class="sd-layer-info">
-                <div class="sd-layer-name">競合案件 <span class="sd-layer-disabled-tag">未設定</span></div>
-                <div class="sd-layer-desc">本案件と需要が競合する周辺工事の動向</div>
+                <div class="sd-layer-name">職人需給 <span class="sd-layer-range">東北100km圏</span></div>
+                <div class="sd-layer-desc">現場作業従事者（型枠工・鉄筋工・電工等）の需給状況</div>
               </div>
             </label>
             <label class="sd-layer-toggle sd-layer-disabled" data-layer="steel">
@@ -478,6 +471,13 @@
               <div class="sd-layer-info">
                 <div class="sd-layer-name">鋼材調達 <span class="sd-layer-disabled-tag">未設定</span></div>
                 <div class="sd-layer-desc">H形鋼・異形鉄筋等の鋼材在庫・調達可能性</div>
+              </div>
+            </label>
+            <label class="sd-layer-toggle sd-layer-disabled" data-layer="competing">
+              <input type="radio" name="layer" onchange="switchLayerTypeDisabled('competing', '競合案件')">
+              <div class="sd-layer-info">
+                <div class="sd-layer-name">競合案件 <span class="sd-layer-disabled-tag">未設定</span></div>
+                <div class="sd-layer-desc">本案件と需要が競合する周辺工事の動向</div>
               </div>
             </label>
           </div>

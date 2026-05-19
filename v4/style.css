@@ -3542,3 +3542,47 @@ body { font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif; color: 
     transform: translateY(0);
   }
 }
+
+/* ===== V4 Landing Social Impact (refined) ===== */
+.landing-social-impact {
+  align-items: flex-start;
+  padding: 20px 26px;
+}
+.social-impact-text {
+  font-size: 12px;
+  line-height: 1.75;
+  font-weight: 400;
+}
+.social-impact-text strong, .social-impact-text b {
+  font-weight: 700;
+}
+
+/* ===== V4 Route Not Applicable Message ===== */
+.sd-route-result-tile.sd-route-not-applicable {
+  background: linear-gradient(135deg, #fff8e8 0%, #ffeebf 100%);
+  border: 2px solid #d6a04a;
+}
+.sd-route-result-tile.sd-route-not-applicable .sd-route-result-title {
+  color: #8b6810;
+}
+.sd-route-not-applicable-cta {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+.sd-route-mini-btn {
+  flex: 1;
+  background: #fff;
+  color: #1a3658;
+  border: 1.5px solid #1a3658;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.sd-route-mini-btn:hover {
+  background: #1a3658;
+  color: #fff;
+}
