@@ -2126,7 +2126,7 @@ var currentRouteLayer = null;
 var japanGeoJSON = null;
 
 // 現在表示中のレイヤー
-var currentLayerType = 'craftsmen';
+var currentLayerType = 'equipment';
 
 // Leafletレイヤー参照
 var municipalityLayer = null;
@@ -3195,10 +3195,10 @@ function initSDMap() {
   }).addTo(sdMap);
   sdProjectMarker.bindTooltip('本案件：' + (window.selectedProject ? window.selectedProject.name : ''), { permanent: false, direction: 'top' });
 
-  // GeoJSONをロード後、初期レイヤー（職人需給）を描画
+  // GeoJSONをロード後、初期レイヤー（重機需給）を描画
   loadJapanGeoJSON().then(function() {
-    drawSupplyAreaLayer('craftsmen');
-    updateLegendForLayer('craftsmen');
+    drawSupplyAreaLayer('equipment');
+    updateLegendForLayer('equipment');
   });
 }
 

@@ -445,8 +445,8 @@
             <div class="sd-layer-controls-title">主な調達対象</div>
           </div>
           <div class="sd-layer-toggle-list">
-            <label class="sd-layer-toggle" data-layer="equipment">
-              <input type="radio" name="layer" onchange="switchLayerType('equipment')">
+            <label class="sd-layer-toggle active" data-layer="equipment">
+              <input type="radio" name="layer" checked onchange="switchLayerType('equipment')">
               <div class="sd-layer-info">
                 <div class="sd-layer-name">重機需給 <span class="sd-layer-range">30km圏</span></div>
                 <div class="sd-layer-desc">クレーン・杭打機等の建設機械稼働状況</div>
@@ -459,8 +459,8 @@
                 <div class="sd-layer-desc">生コンクリート工場の供給枠（90分運搬制約）</div>
               </div>
             </label>
-            <label class="sd-layer-toggle active" data-layer="craftsmen">
-              <input type="radio" name="layer" checked onchange="switchLayerType('craftsmen')">
+            <label class="sd-layer-toggle" data-layer="craftsmen">
+              <input type="radio" name="layer" onchange="switchLayerType('craftsmen')">
               <div class="sd-layer-info">
                 <div class="sd-layer-name">職人需給 <span class="sd-layer-range">東北100km圏</span></div>
                 <div class="sd-layer-desc">現場作業従事者（型枠工・鉄筋工・電工等）の需給状況</div>
